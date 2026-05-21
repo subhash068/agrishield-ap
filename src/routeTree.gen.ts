@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SurveillanceRouteImport } from './routes/surveillance'
 import { Route as SatelliteRouteImport } from './routes/satellite'
+import { Route as ParcelsRouteImport } from './routes/parcels'
 import { Route as DiseaseRouteImport } from './routes/disease'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -22,6 +23,11 @@ const SurveillanceRoute = SurveillanceRouteImport.update({
 const SatelliteRoute = SatelliteRouteImport.update({
   id: '/satellite',
   path: '/satellite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParcelsRoute = ParcelsRouteImport.update({
+  id: '/parcels',
+  path: '/parcels',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiseaseRoute = DiseaseRouteImport.update({
@@ -38,12 +44,14 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/disease': typeof DiseaseRoute
+  '/parcels': typeof ParcelsRoute
   '/satellite': typeof SatelliteRoute
   '/surveillance': typeof SurveillanceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/disease': typeof DiseaseRoute
+  '/parcels': typeof ParcelsRoute
   '/satellite': typeof SatelliteRoute
   '/surveillance': typeof SurveillanceRoute
 }
@@ -51,20 +59,28 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/disease': typeof DiseaseRoute
+  '/parcels': typeof ParcelsRoute
   '/satellite': typeof SatelliteRoute
   '/surveillance': typeof SurveillanceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/disease' | '/satellite' | '/surveillance'
+  fullPaths: '/' | '/disease' | '/parcels' | '/satellite' | '/surveillance'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/disease' | '/satellite' | '/surveillance'
-  id: '__root__' | '/' | '/disease' | '/satellite' | '/surveillance'
+  to: '/' | '/disease' | '/parcels' | '/satellite' | '/surveillance'
+  id:
+    | '__root__'
+    | '/'
+    | '/disease'
+    | '/parcels'
+    | '/satellite'
+    | '/surveillance'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DiseaseRoute: typeof DiseaseRoute
+  ParcelsRoute: typeof ParcelsRoute
   SatelliteRoute: typeof SatelliteRoute
   SurveillanceRoute: typeof SurveillanceRoute
 }
@@ -83,6 +99,13 @@ declare module '@tanstack/react-router' {
       path: '/satellite'
       fullPath: '/satellite'
       preLoaderRoute: typeof SatelliteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parcels': {
+      id: '/parcels'
+      path: '/parcels'
+      fullPath: '/parcels'
+      preLoaderRoute: typeof ParcelsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/disease': {
@@ -105,6 +128,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DiseaseRoute: DiseaseRoute,
+  ParcelsRoute: ParcelsRoute,
   SatelliteRoute: SatelliteRoute,
   SurveillanceRoute: SurveillanceRoute,
 }
