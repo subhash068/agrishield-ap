@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WeatherRouteImport } from './routes/weather'
 import { Route as SurveillanceRouteImport } from './routes/surveillance'
 import { Route as SatelliteRouteImport } from './routes/satellite'
 import { Route as ParcelsRouteImport } from './routes/parcels'
 import { Route as DiseaseRouteImport } from './routes/disease'
 import { Route as IndexRouteImport } from './routes/index'
 
+const WeatherRoute = WeatherRouteImport.update({
+  id: '/weather',
+  path: '/weather',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SurveillanceRoute = SurveillanceRouteImport.update({
   id: '/surveillance',
   path: '/surveillance',
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/parcels': typeof ParcelsRoute
   '/satellite': typeof SatelliteRoute
   '/surveillance': typeof SurveillanceRoute
+  '/weather': typeof WeatherRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/parcels': typeof ParcelsRoute
   '/satellite': typeof SatelliteRoute
   '/surveillance': typeof SurveillanceRoute
+  '/weather': typeof WeatherRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,12 +70,25 @@ export interface FileRoutesById {
   '/parcels': typeof ParcelsRoute
   '/satellite': typeof SatelliteRoute
   '/surveillance': typeof SurveillanceRoute
+  '/weather': typeof WeatherRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/disease' | '/parcels' | '/satellite' | '/surveillance'
+  fullPaths:
+    | '/'
+    | '/disease'
+    | '/parcels'
+    | '/satellite'
+    | '/surveillance'
+    | '/weather'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/disease' | '/parcels' | '/satellite' | '/surveillance'
+  to:
+    | '/'
+    | '/disease'
+    | '/parcels'
+    | '/satellite'
+    | '/surveillance'
+    | '/weather'
   id:
     | '__root__'
     | '/'
@@ -75,6 +96,7 @@ export interface FileRouteTypes {
     | '/parcels'
     | '/satellite'
     | '/surveillance'
+    | '/weather'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -83,10 +105,18 @@ export interface RootRouteChildren {
   ParcelsRoute: typeof ParcelsRoute
   SatelliteRoute: typeof SatelliteRoute
   SurveillanceRoute: typeof SurveillanceRoute
+  WeatherRoute: typeof WeatherRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/weather': {
+      id: '/weather'
+      path: '/weather'
+      fullPath: '/weather'
+      preLoaderRoute: typeof WeatherRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/surveillance': {
       id: '/surveillance'
       path: '/surveillance'
@@ -131,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   ParcelsRoute: ParcelsRoute,
   SatelliteRoute: SatelliteRoute,
   SurveillanceRoute: SurveillanceRoute,
+  WeatherRoute: WeatherRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
