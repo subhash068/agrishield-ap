@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SurveillanceRouteImport } from './routes/surveillance'
 import { Route as SatelliteRouteImport } from './routes/satellite'
+import { Route as DiseaseRouteImport } from './routes/disease'
 import { Route as IndexRouteImport } from './routes/index'
 
 const SurveillanceRoute = SurveillanceRouteImport.update({
@@ -23,6 +24,11 @@ const SatelliteRoute = SatelliteRouteImport.update({
   path: '/satellite',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DiseaseRoute = DiseaseRouteImport.update({
+  id: '/disease',
+  path: '/disease',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,30 +37,34 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/disease': typeof DiseaseRoute
   '/satellite': typeof SatelliteRoute
   '/surveillance': typeof SurveillanceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/disease': typeof DiseaseRoute
   '/satellite': typeof SatelliteRoute
   '/surveillance': typeof SurveillanceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/disease': typeof DiseaseRoute
   '/satellite': typeof SatelliteRoute
   '/surveillance': typeof SurveillanceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/satellite' | '/surveillance'
+  fullPaths: '/' | '/disease' | '/satellite' | '/surveillance'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/satellite' | '/surveillance'
-  id: '__root__' | '/' | '/satellite' | '/surveillance'
+  to: '/' | '/disease' | '/satellite' | '/surveillance'
+  id: '__root__' | '/' | '/disease' | '/satellite' | '/surveillance'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DiseaseRoute: typeof DiseaseRoute
   SatelliteRoute: typeof SatelliteRoute
   SurveillanceRoute: typeof SurveillanceRoute
 }
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SatelliteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/disease': {
+      id: '/disease'
+      path: '/disease'
+      fullPath: '/disease'
+      preLoaderRoute: typeof DiseaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,9 +104,20 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DiseaseRoute: DiseaseRoute,
   SatelliteRoute: SatelliteRoute,
   SurveillanceRoute: SurveillanceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
