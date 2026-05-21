@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SurveillanceRouteImport } from './routes/surveillance'
+import { Route as SatelliteRouteImport } from './routes/satellite'
 import { Route as IndexRouteImport } from './routes/index'
 
 const SurveillanceRoute = SurveillanceRouteImport.update({
   id: '/surveillance',
   path: '/surveillance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SatelliteRoute = SatelliteRouteImport.update({
+  id: '/satellite',
+  path: '/satellite',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,27 +31,31 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/satellite': typeof SatelliteRoute
   '/surveillance': typeof SurveillanceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/satellite': typeof SatelliteRoute
   '/surveillance': typeof SurveillanceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/satellite': typeof SatelliteRoute
   '/surveillance': typeof SurveillanceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/surveillance'
+  fullPaths: '/' | '/satellite' | '/surveillance'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/surveillance'
-  id: '__root__' | '/' | '/surveillance'
+  to: '/' | '/satellite' | '/surveillance'
+  id: '__root__' | '/' | '/satellite' | '/surveillance'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SatelliteRoute: typeof SatelliteRoute
   SurveillanceRoute: typeof SurveillanceRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/surveillance'
       fullPath: '/surveillance'
       preLoaderRoute: typeof SurveillanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/satellite': {
+      id: '/satellite'
+      path: '/satellite'
+      fullPath: '/satellite'
+      preLoaderRoute: typeof SatelliteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SatelliteRoute: SatelliteRoute,
   SurveillanceRoute: SurveillanceRoute,
 }
 export const routeTree = rootRouteImport
