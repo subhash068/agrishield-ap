@@ -11,9 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WeatherRouteImport } from './routes/weather'
 import { Route as SurveillanceRouteImport } from './routes/surveillance'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SatelliteRouteImport } from './routes/satellite'
+import { Route as ReportsRouteImport } from './routes/reports'
+import { Route as PredictionsRouteImport } from './routes/predictions'
 import { Route as ParcelsRouteImport } from './routes/parcels'
 import { Route as MandalRouteImport } from './routes/mandal'
+import { Route as GovernmentRouteImport } from './routes/government'
+import { Route as FarmersRouteImport } from './routes/farmers'
 import { Route as DiseaseRouteImport } from './routes/disease'
 import { Route as AdvisoryRouteImport } from './routes/advisory'
 import { Route as IndexRouteImport } from './routes/index'
@@ -28,9 +33,24 @@ const SurveillanceRoute = SurveillanceRouteImport.update({
   path: '/surveillance',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SatelliteRoute = SatelliteRouteImport.update({
   id: '/satellite',
   path: '/satellite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportsRoute = ReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PredictionsRoute = PredictionsRouteImport.update({
+  id: '/predictions',
+  path: '/predictions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParcelsRoute = ParcelsRouteImport.update({
@@ -41,6 +61,16 @@ const ParcelsRoute = ParcelsRouteImport.update({
 const MandalRoute = MandalRouteImport.update({
   id: '/mandal',
   path: '/mandal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GovernmentRoute = GovernmentRouteImport.update({
+  id: '/government',
+  path: '/government',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FarmersRoute = FarmersRouteImport.update({
+  id: '/farmers',
+  path: '/farmers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiseaseRoute = DiseaseRouteImport.update({
@@ -63,9 +93,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/advisory': typeof AdvisoryRoute
   '/disease': typeof DiseaseRoute
+  '/farmers': typeof FarmersRoute
+  '/government': typeof GovernmentRoute
   '/mandal': typeof MandalRoute
   '/parcels': typeof ParcelsRoute
+  '/predictions': typeof PredictionsRoute
+  '/reports': typeof ReportsRoute
   '/satellite': typeof SatelliteRoute
+  '/settings': typeof SettingsRoute
   '/surveillance': typeof SurveillanceRoute
   '/weather': typeof WeatherRoute
 }
@@ -73,9 +108,14 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/advisory': typeof AdvisoryRoute
   '/disease': typeof DiseaseRoute
+  '/farmers': typeof FarmersRoute
+  '/government': typeof GovernmentRoute
   '/mandal': typeof MandalRoute
   '/parcels': typeof ParcelsRoute
+  '/predictions': typeof PredictionsRoute
+  '/reports': typeof ReportsRoute
   '/satellite': typeof SatelliteRoute
+  '/settings': typeof SettingsRoute
   '/surveillance': typeof SurveillanceRoute
   '/weather': typeof WeatherRoute
 }
@@ -84,9 +124,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/advisory': typeof AdvisoryRoute
   '/disease': typeof DiseaseRoute
+  '/farmers': typeof FarmersRoute
+  '/government': typeof GovernmentRoute
   '/mandal': typeof MandalRoute
   '/parcels': typeof ParcelsRoute
+  '/predictions': typeof PredictionsRoute
+  '/reports': typeof ReportsRoute
   '/satellite': typeof SatelliteRoute
+  '/settings': typeof SettingsRoute
   '/surveillance': typeof SurveillanceRoute
   '/weather': typeof WeatherRoute
 }
@@ -96,9 +141,14 @@ export interface FileRouteTypes {
     | '/'
     | '/advisory'
     | '/disease'
+    | '/farmers'
+    | '/government'
     | '/mandal'
     | '/parcels'
+    | '/predictions'
+    | '/reports'
     | '/satellite'
+    | '/settings'
     | '/surveillance'
     | '/weather'
   fileRoutesByTo: FileRoutesByTo
@@ -106,9 +156,14 @@ export interface FileRouteTypes {
     | '/'
     | '/advisory'
     | '/disease'
+    | '/farmers'
+    | '/government'
     | '/mandal'
     | '/parcels'
+    | '/predictions'
+    | '/reports'
     | '/satellite'
+    | '/settings'
     | '/surveillance'
     | '/weather'
   id:
@@ -116,9 +171,14 @@ export interface FileRouteTypes {
     | '/'
     | '/advisory'
     | '/disease'
+    | '/farmers'
+    | '/government'
     | '/mandal'
     | '/parcels'
+    | '/predictions'
+    | '/reports'
     | '/satellite'
+    | '/settings'
     | '/surveillance'
     | '/weather'
   fileRoutesById: FileRoutesById
@@ -127,9 +187,14 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdvisoryRoute: typeof AdvisoryRoute
   DiseaseRoute: typeof DiseaseRoute
+  FarmersRoute: typeof FarmersRoute
+  GovernmentRoute: typeof GovernmentRoute
   MandalRoute: typeof MandalRoute
   ParcelsRoute: typeof ParcelsRoute
+  PredictionsRoute: typeof PredictionsRoute
+  ReportsRoute: typeof ReportsRoute
   SatelliteRoute: typeof SatelliteRoute
+  SettingsRoute: typeof SettingsRoute
   SurveillanceRoute: typeof SurveillanceRoute
   WeatherRoute: typeof WeatherRoute
 }
@@ -150,11 +215,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SurveillanceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/satellite': {
       id: '/satellite'
       path: '/satellite'
       fullPath: '/satellite'
       preLoaderRoute: typeof SatelliteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/predictions': {
+      id: '/predictions'
+      path: '/predictions'
+      fullPath: '/predictions'
+      preLoaderRoute: typeof PredictionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/parcels': {
@@ -169,6 +255,20 @@ declare module '@tanstack/react-router' {
       path: '/mandal'
       fullPath: '/mandal'
       preLoaderRoute: typeof MandalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/government': {
+      id: '/government'
+      path: '/government'
+      fullPath: '/government'
+      preLoaderRoute: typeof GovernmentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/farmers': {
+      id: '/farmers'
+      path: '/farmers'
+      fullPath: '/farmers'
+      preLoaderRoute: typeof FarmersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/disease': {
@@ -199,9 +299,14 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdvisoryRoute: AdvisoryRoute,
   DiseaseRoute: DiseaseRoute,
+  FarmersRoute: FarmersRoute,
+  GovernmentRoute: GovernmentRoute,
   MandalRoute: MandalRoute,
   ParcelsRoute: ParcelsRoute,
+  PredictionsRoute: PredictionsRoute,
+  ReportsRoute: ReportsRoute,
   SatelliteRoute: SatelliteRoute,
+  SettingsRoute: SettingsRoute,
   SurveillanceRoute: SurveillanceRoute,
   WeatherRoute: WeatherRoute,
 }
