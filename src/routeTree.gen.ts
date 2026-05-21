@@ -13,6 +13,7 @@ import { Route as WeatherRouteImport } from './routes/weather'
 import { Route as SurveillanceRouteImport } from './routes/surveillance'
 import { Route as SatelliteRouteImport } from './routes/satellite'
 import { Route as ParcelsRouteImport } from './routes/parcels'
+import { Route as MandalRouteImport } from './routes/mandal'
 import { Route as DiseaseRouteImport } from './routes/disease'
 import { Route as AdvisoryRouteImport } from './routes/advisory'
 import { Route as IndexRouteImport } from './routes/index'
@@ -37,6 +38,11 @@ const ParcelsRoute = ParcelsRouteImport.update({
   path: '/parcels',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MandalRoute = MandalRouteImport.update({
+  id: '/mandal',
+  path: '/mandal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DiseaseRoute = DiseaseRouteImport.update({
   id: '/disease',
   path: '/disease',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/advisory': typeof AdvisoryRoute
   '/disease': typeof DiseaseRoute
+  '/mandal': typeof MandalRoute
   '/parcels': typeof ParcelsRoute
   '/satellite': typeof SatelliteRoute
   '/surveillance': typeof SurveillanceRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/advisory': typeof AdvisoryRoute
   '/disease': typeof DiseaseRoute
+  '/mandal': typeof MandalRoute
   '/parcels': typeof ParcelsRoute
   '/satellite': typeof SatelliteRoute
   '/surveillance': typeof SurveillanceRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/advisory': typeof AdvisoryRoute
   '/disease': typeof DiseaseRoute
+  '/mandal': typeof MandalRoute
   '/parcels': typeof ParcelsRoute
   '/satellite': typeof SatelliteRoute
   '/surveillance': typeof SurveillanceRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/advisory'
     | '/disease'
+    | '/mandal'
     | '/parcels'
     | '/satellite'
     | '/surveillance'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/advisory'
     | '/disease'
+    | '/mandal'
     | '/parcels'
     | '/satellite'
     | '/surveillance'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/advisory'
     | '/disease'
+    | '/mandal'
     | '/parcels'
     | '/satellite'
     | '/surveillance'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdvisoryRoute: typeof AdvisoryRoute
   DiseaseRoute: typeof DiseaseRoute
+  MandalRoute: typeof MandalRoute
   ParcelsRoute: typeof ParcelsRoute
   SatelliteRoute: typeof SatelliteRoute
   SurveillanceRoute: typeof SurveillanceRoute
@@ -151,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParcelsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mandal': {
+      id: '/mandal'
+      path: '/mandal'
+      fullPath: '/mandal'
+      preLoaderRoute: typeof MandalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/disease': {
       id: '/disease'
       path: '/disease'
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdvisoryRoute: AdvisoryRoute,
   DiseaseRoute: DiseaseRoute,
+  MandalRoute: MandalRoute,
   ParcelsRoute: ParcelsRoute,
   SatelliteRoute: SatelliteRoute,
   SurveillanceRoute: SurveillanceRoute,
