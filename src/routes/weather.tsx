@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { CloudSun, CloudRain, Thermometer, Droplets, Wind, AlertTriangle } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Cell } from "recharts";
 
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
-import { WEATHER_FORECAST, DISTRICTS } from "@/lib/mock-data";
+import { getDistricts, getWeatherForecast } from "@/lib/api";
 
 export const Route = createFileRoute("/weather")({
   head: () => ({
@@ -16,9 +17,11 @@ export const Route = createFileRoute("/weather")({
   component: WeatherPage,
 });
 
-const rainHeat = DISTRICTS.map(d => ({ district: d, rain: Math.floor(Math.random() * 220), deficit: Math.floor(Math.random() * 40 - 20) }));
-
 function WeatherPage() {
+  const { data: weatherForecast = [] } = useQuery({ queryKey: ["weather"], queryFn: getWeatherForecast });
+  const { data: districts = [] } = useQuery({ queryKey: ["districts"], queryFn: getDistricts });
+  const rainHeat = districts.map(d => ({ district: d, rain: Math.floor(Math.random() * 220), deficit: Math.floor(Math.random() * 40 - 20) }));
+
   return (
     <div>
       <PageHeader
@@ -54,7 +57,7 @@ function WeatherPage() {
             <h3 className="font-semibold mb-1">14-Day Rainfall Forecast</h3>
             <p className="text-xs text-muted-foreground mb-3">Predicted precipitation (mm) — statewide weighted</p>
             <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={WEATHER_FORECAST}>
+              <BarChart data={weatherForecast}>
                 <CartesianGrid stroke="oklch(0.32 0.04 200 / 30%)" strokeDasharray="3 3" />
                 <XAxis dataKey="day" tick={{ fontSize: 9, fill: "oklch(0.68 0.03 200)" }} />
                 <YAxis tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />
@@ -68,7 +71,7 @@ function WeatherPage() {
             <h3 className="font-semibold mb-1">Temperature & Humidity</h3>
             <p className="text-xs text-muted-foreground mb-3">14-day outlook</p>
             <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={WEATHER_FORECAST}>
+              <LineChart data={weatherForecast}>
                 <CartesianGrid stroke="oklch(0.32 0.04 200 / 30%)" strokeDasharray="3 3" />
                 <XAxis dataKey="day" tick={{ fontSize: 9, fill: "oklch(0.68 0.03 200)" }} />
                 <YAxis tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />

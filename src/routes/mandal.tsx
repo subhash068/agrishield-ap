@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { ShieldAlert, TrendingDown, TrendingUp } from "lucide-react";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Cell, Treemap } from "recharts";
 
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
-import { DISTRICT_RANKINGS, DISTRICTS } from "@/lib/mock-data";
+import { getDistrictRankings, getDistricts } from "@/lib/api";
 
 export const Route = createFileRoute("/mandal")({
   head: () => ({
@@ -16,17 +17,19 @@ export const Route = createFileRoute("/mandal")({
   component: MandalPage,
 });
 
-const mandalRanks = Array.from({ length: 18 }, (_, i) => ({
+function MandalPage() {
+  const { data: districtRankings = [] } = useQuery({ queryKey: ["district-rankings"], queryFn: getDistrictRankings });
+  const { data: districts = [] } = useQuery({ queryKey: ["districts"], queryFn: getDistricts });
+
+  const mandalRanks = Array.from({ length: 18 }, (_, i) => ({
   mandal: ["Penukonda","Tadipatri","Madanapalle","Tenali","Gudivada","Adoni","Kavali","Ongole","Bapatla","Chirala","Markapur","Kanigiri","Atmakur","Rajampet","Pulivendula","Proddatur","Yemmiganur","Nandyal"][i],
-  district: DISTRICTS[i % DISTRICTS.length],
+  district: districts[i % (districts.length || 1)] ?? "Unknown",
   outbreaks: Math.floor(Math.random() * 80),
   stress: +(40 + Math.random() * 55).toFixed(0),
   trend: Math.random() > 0.5 ? 1 : -1,
 })).sort((a, b) => b.outbreaks - a.outbreaks);
 
-const tree = DISTRICTS.map(d => ({ name: d, size: 50_000 + Math.floor(Math.random() * 250_000) }));
-
-function MandalPage() {
+  const tree = districts.map(d => ({ name: d, size: 50_000 + Math.floor(Math.random() * 250_000) }));
   return (
     <div>
       <PageHeader
@@ -119,7 +122,7 @@ function MandalPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
-                  {DISTRICT_RANKINGS.slice(0, 10).map(d => (
+                  {districtRankings.slice(0, 10).map(d => (
                     <tr key={d.district}>
                       <td className="py-2 text-muted-foreground">{d.rank}</td>
                       <td className="font-medium">{d.district}</td>

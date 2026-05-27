@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
   AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -6,16 +7,13 @@ import {
 } from "recharts";
 import {
   Satellite, Activity, AlertTriangle, ArrowRight, MapPin, Sparkles,
-  Radio, ShieldCheck, Leaf, CloudRain, Bug, TrendingUp,
+  Radio, ShieldCheck, Leaf, CloudRain, Bug, TrendingUp, Target, FileText, BrainCircuit,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { KpiCard } from "@/components/kpi-card";
 import { AlertTicker } from "@/components/alert-ticker";
-import {
-  HERO_STATS, ALERTS, SCHEMES, SPECTRAL_TREND, CROP_DISTRIBUTION, DISTRICT_RANKINGS,
-} from "@/lib/mock-data";
+import { getAlerts, getCropDistribution, getDashboardData, getDistrictRankings, getSchemes } from "@/lib/api";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,7 +29,57 @@ export const Route = createFileRoute("/")({
 
 const COLORS = ["oklch(0.78 0.19 145)", "oklch(0.78 0.17 200)", "oklch(0.82 0.17 80)", "oklch(0.68 0.22 25)", "oklch(0.7 0.2 290)"];
 
+const projectNarrative = [
+  {
+    icon: AlertTriangle,
+    title: "Main Problem",
+    body: "Farmers usually notice crop problems only after visible damage has already begun. By that stage, pest attacks spread faster, diseases become harder to control, yield losses increase, and recovery costs rise.",
+  },
+  {
+    icon: Target,
+    title: "Project Objective",
+    body: "Build an intelligent monitoring platform that detects crop stress early, predicts risk proactively, alerts farmers automatically, and helps officers monitor large areas efficiently.",
+  },
+  {
+    icon: FileText,
+    title: "Executive Summary",
+    body: "The platform combines satellite imagery, weather intelligence, AI disease detection, and smartphone crop photos to monitor paddy, cotton, chilli, red gram, and maize across Andhra Pradesh.",
+  },
+];
+
+const projectOutcomes = [
+  "Early stress detection before visible damage",
+  "Proactive pest and disease risk prediction",
+  "Automated alerts for farmers and field officers",
+  "Large-area monitoring with parcel and mandal views",
+];
+
 function HomePage() {
+  const { data: dashboardData } = useQuery({
+    queryKey: ["dashboard-data"],
+    queryFn: getDashboardData,
+  });
+  const { data: alerts = [] } = useQuery({
+    queryKey: ["alerts"],
+    queryFn: getAlerts,
+  });
+  const { data: schemes = [] } = useQuery({
+    queryKey: ["schemes"],
+    queryFn: getSchemes,
+  });
+  const { data: cropDistribution = [] } = useQuery({
+    queryKey: ["crop-distribution"],
+    queryFn: getCropDistribution,
+  });
+  const { data: districtRankings = [] } = useQuery({
+    queryKey: ["district-rankings"],
+    queryFn: getDistrictRankings,
+  });
+
+  const heroStats = dashboardData?.hero_stats ?? [];
+  const spectralTrend = dashboardData?.spectral_trend ?? [];
+  const tickerItems = dashboardData?.ticker_items ?? [];
+
   return (
     <div>
       {/* HERO */}
@@ -109,7 +157,7 @@ function HomePage() {
 
           {/* hero stats */}
           <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {HERO_STATS.map((s, i) => (
+            {heroStats.map((s, i) => (
               <motion.div key={s.label}
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + i * 0.05 }}
                 className="glass rounded-xl p-3.5"
@@ -123,10 +171,84 @@ function HomePage() {
         </div>
       </section>
 
-      <AlertTicker />
+      <AlertTicker items={tickerItems} />
 
       {/* CONTENT */}
       <section className="px-6 lg:px-10 py-8 space-y-8">
+        {/* project narrative */}
+        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-5">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="glass rounded-xl p-6 border border-border/60"
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <BrainCircuit className="h-5 w-5 text-primary" />
+              <span className="text-sm font-semibold tracking-wide uppercase text-muted-foreground">
+                Project Narrative
+              </span>
+            </div>
+            <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">
+              Early warning crop intelligence for the Agriculture Department
+            </h2>
+            <p className="mt-3 text-sm lg:text-base text-muted-foreground max-w-3xl">
+              This platform is designed to help Andhra Pradesh move from reactive crop recovery to proactive crop protection.
+              It combines remote sensing, AI, and field-friendly advisories so stress can be identified before losses become severe.
+            </p>
+
+            <div className="mt-5 grid md:grid-cols-3 gap-3">
+              {projectNarrative.map((item, i) => (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  className="rounded-lg border border-border/60 bg-muted/20 p-4"
+                >
+                  <div className="h-9 w-9 rounded-lg bg-primary/10 text-primary grid place-items-center">
+                    <item.icon className="h-4 w-4" />
+                  </div>
+                  <h3 className="mt-3 font-semibold text-sm">{item.title}</h3>
+                  <p className="mt-1 text-xs leading-6 text-muted-foreground">{item.body}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.aside
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.08 }}
+            className="glass rounded-xl p-6 border border-border/60"
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="h-5 w-5 text-accent" />
+              <span className="text-sm font-semibold tracking-wide uppercase text-muted-foreground">
+                Desired Outcomes
+              </span>
+            </div>
+            <div className="space-y-3">
+              {projectOutcomes.map((item, i) => (
+                <div key={item} className="flex items-start gap-3 rounded-lg border border-border/60 bg-muted/20 p-3">
+                  <div className="mt-0.5 h-5 w-5 rounded-full bg-success/15 text-success grid place-items-center text-[11px] font-bold">
+                    {i + 1}
+                  </div>
+                  <p className="text-sm text-foreground/90 leading-6">{item}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 rounded-lg border border-primary/30 bg-primary/10 p-4">
+              <p className="text-xs uppercase tracking-wider text-primary/80">Focus crops</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Paddy, cotton, chilli, red gram, and maize are the priority crops for early stress detection and advisory delivery.
+              </p>
+            </div>
+          </motion.aside>
+        </div>
+
         {/* schemes + alerts */}
         <div className="grid lg:grid-cols-3 gap-5">
           <div className="lg:col-span-2 glass rounded-xl p-5">
@@ -138,7 +260,7 @@ function HomePage() {
               <Button variant="ghost" size="sm" className="gap-1 text-xs">View all <ArrowRight className="h-3 w-3" /></Button>
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
-              {SCHEMES.map(s => (
+              {schemes.map(s => (
                 <div key={s.title} className="rounded-lg border border-border/60 bg-muted/20 p-4 hover:border-primary/40 transition">
                   <div className="flex items-start justify-between gap-2">
                     <Leaf className="h-4 w-4 text-primary mt-0.5" />
@@ -154,10 +276,10 @@ function HomePage() {
           <div className="glass rounded-xl p-5">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-warning" /> Emergency Alerts</h2>
-              <Badge className="bg-destructive/20 text-destructive border-destructive/40">{ALERTS.length} active</Badge>
+              <Badge className="bg-destructive/20 text-destructive border-destructive/40">{alerts.length} active</Badge>
             </div>
             <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1">
-              {ALERTS.map((a, i) => (
+              {alerts.map((a, i) => (
                 <motion.div key={a.id}
                   initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}
                   className="rounded-lg border border-border/60 bg-muted/20 p-3"
@@ -188,7 +310,7 @@ function HomePage() {
               </div>
             </div>
             <ResponsiveContainer width="100%" height={280}>
-              <AreaChart data={SPECTRAL_TREND}>
+              <AreaChart data={spectralTrend}>
                 <defs>
                   <linearGradient id="ndvi" x1="0" x2="0" y1="0" y2="1">
                     <stop offset="0%" stopColor="oklch(0.78 0.19 145)" stopOpacity={0.6} />
@@ -215,8 +337,8 @@ function HomePage() {
             <p className="text-xs text-muted-foreground mb-4">Monitored parcels by crop type</p>
             <ResponsiveContainer width="100%" height={240}>
               <PieChart>
-                <Pie data={CROP_DISTRIBUTION} dataKey="parcels" nameKey="crop" innerRadius={50} outerRadius={85} paddingAngle={2}>
-                  {CROP_DISTRIBUTION.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                <Pie data={cropDistribution} dataKey="parcels" nameKey="crop" innerRadius={50} outerRadius={85} paddingAngle={2}>
+                  {cropDistribution.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip contentStyle={{ background: "oklch(0.21 0.04 200)", border: "1px solid oklch(0.32 0.04 200)", borderRadius: 8 }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
@@ -235,13 +357,13 @@ function HomePage() {
             <Button asChild variant="outline" size="sm" className="gap-1"><Link to="/mandal">Mandal view <ArrowRight className="h-3 w-3" /></Link></Button>
           </div>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={DISTRICT_RANKINGS} layout="vertical" margin={{ left: 80 }}>
+            <BarChart data={districtRankings} layout="vertical" margin={{ left: 80 }}>
               <CartesianGrid stroke="oklch(0.32 0.04 200 / 30%)" strokeDasharray="3 3" horizontal={false} />
               <XAxis type="number" tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />
               <YAxis type="category" dataKey="district" tick={{ fontSize: 10, fill: "oklch(0.9 0.02 180)" }} width={90} />
               <Tooltip contentStyle={{ background: "oklch(0.21 0.04 200)", border: "1px solid oklch(0.32 0.04 200)", borderRadius: 8 }} />
               <Bar dataKey="healthScore" radius={[0, 6, 6, 0]}>
-                {DISTRICT_RANKINGS.map((d, i) => (
+                {districtRankings.map((d, i) => (
                   <Cell key={i} fill={d.healthScore > 80 ? "oklch(0.78 0.19 145)" : d.healthScore > 70 ? "oklch(0.78 0.17 200)" : d.healthScore > 60 ? "oklch(0.82 0.17 80)" : "oklch(0.68 0.22 25)"} />
                 ))}
               </Bar>

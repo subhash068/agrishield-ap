@@ -1,4 +1,5 @@
 import { Search, Bell, Languages, Sparkles, CloudSun, User } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -6,9 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { DISTRICTS } from "@/lib/mock-data";
+import { getDistricts } from "@/lib/api";
 
 export function TopBar() {
+  const { data: districts = [] } = useQuery({ queryKey: ["districts"], queryFn: getDistricts });
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border/60 glass-strong px-3">
       <SidebarTrigger className="text-foreground" />
@@ -28,7 +30,7 @@ export function TopBar() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Districts</SelectItem>
-            {DISTRICTS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+            {districts.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
           </SelectContent>
         </Select>
 

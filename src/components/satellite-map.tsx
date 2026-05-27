@@ -1,19 +1,32 @@
 import { useEffect, useMemo, useRef } from "react";
 import { MapContainer, TileLayer, CircleMarker, Tooltip, ZoomControl } from "react-leaflet";
 import L from "leaflet";
-import { PARCELS } from "@/lib/mock-data";
 
-export function SatelliteMap({ historic, activeLayer }: { historic: number; activeLayer: string }) {
+type Parcel = {
+  id: string;
+  crop: string;
+  farmer: string;
+  district: string;
+  mandal: string;
+  acreage: number;
+  ndvi: number;
+  health: number;
+  risk: string;
+  lat: number;
+  lng: number;
+};
+
+export function SatelliteMap({ historic, activeLayer, parcels: inputParcels }: { historic: number; activeLayer: string; parcels: Parcel[] }) {
   const mapRef = useRef<L.Map | null>(null);
 
   // colour parcels based on the active layer + historic offset
   const parcels = useMemo(() => {
-    return PARCELS.map(p => {
+    return inputParcels.map(p => {
       const drift = Math.sin((historic + p.lat) * 0.6) * 0.1;
       const v = Math.max(0, Math.min(1, p.ndvi + drift));
       return { ...p, v };
     });
-  }, [historic]);
+  }, [historic, inputParcels]);
 
   const colorFor = (v: number) => {
     if (activeLayer === "Disease Probability" || activeLayer === "Anomaly Hotspots") {

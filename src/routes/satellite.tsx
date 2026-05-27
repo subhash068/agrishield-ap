@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Satellite, Layers, Maximize2, Radio } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
@@ -7,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { PARCELS } from "@/lib/mock-data";
+import { getParcels } from "@/lib/api";
 
 export const Route = createFileRoute("/satellite")({
   head: () => ({
@@ -22,7 +23,8 @@ export const Route = createFileRoute("/satellite")({
 const LAYERS = ["NDVI", "EVI", "NDRE", "Soil Moisture", "Vegetation Stress", "Anomaly Hotspots", "Disease Probability"];
 
 function SatellitePage() {
-  const [MapView, setMapView] = useState<null | React.ComponentType<{ historic: number; activeLayer: string }>>(null);
+  const { data: parcels = [] } = useQuery({ queryKey: ["parcels"], queryFn: getParcels });
+  const [MapView, setMapView] = useState<null | React.ComponentType<{ historic: number; activeLayer: string; parcels: any[] }>>(null);
   const [historic, setHistoric] = useState(11);
   const [activeLayer, setActiveLayer] = useState("NDVI");
   const [enabled, setEnabled] = useState<Record<string, boolean>>({ NDVI: true });
@@ -52,7 +54,7 @@ function SatellitePage() {
       <div className="grid lg:grid-cols-[1fr_320px] gap-0">
         {/* MAP */}
         <div className="relative h-[calc(100vh-13rem)] min-h-[520px] border-r border-border/60">
-          {MapView ? <MapView historic={historic} activeLayer={activeLayer} /> : (
+          {MapView ? <MapView historic={historic} activeLayer={activeLayer} parcels={parcels} /> : (
             <div className="absolute inset-0 grid place-items-center text-muted-foreground text-sm">
               Loading satellite layer…
             </div>
@@ -112,7 +114,7 @@ function SatellitePage() {
             <div className="glass rounded-lg p-3 space-y-2 text-xs">
               <div className="flex justify-between"><span className="text-muted-foreground">Satellite pass</span><span>2h 14m ago</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Cloud cover</span><span className="text-success">3.2%</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Parcels indexed</span><span>{PARCELS.length} (sample)</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Parcels indexed</span><span>{parcels.length}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">AI confidence</span><span className="text-primary">96%</span></div>
             </div>
           </div>

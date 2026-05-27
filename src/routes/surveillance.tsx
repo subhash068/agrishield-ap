@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   Activity, Download, Filter, Leaf,
 } from "lucide-react";
@@ -11,9 +12,7 @@ import { PageHeader } from "@/components/page-header";
 import { KpiCard } from "@/components/kpi-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  KPI_CARDS, SPECTRAL_TREND, DISTRICT_RANKINGS, CROP_DISTRIBUTION, ALERTS,
-} from "@/lib/mock-data";
+import { getAlerts, getCropDistribution, getDashboardData, getDistrictRankings, getSpectralTrend } from "@/lib/api";
 
 export const Route = createFileRoute("/surveillance")({
   head: () => ({
@@ -26,6 +25,13 @@ export const Route = createFileRoute("/surveillance")({
 });
 
 function SurveillancePage() {
+  const { data: dashboardData } = useQuery({ queryKey: ["dashboard-data"], queryFn: getDashboardData });
+  const { data: spectralTrend = [] } = useQuery({ queryKey: ["spectral-trend"], queryFn: getSpectralTrend });
+  const { data: districtRankings = [] } = useQuery({ queryKey: ["district-rankings"], queryFn: getDistrictRankings });
+  const { data: cropDistribution = [] } = useQuery({ queryKey: ["crop-distribution"], queryFn: getCropDistribution });
+  const { data: alerts = [] } = useQuery({ queryKey: ["alerts"], queryFn: getAlerts });
+  const kpiCards = dashboardData?.kpi_cards ?? [];
+
   return (
     <div>
       <PageHeader
@@ -44,7 +50,7 @@ function SurveillancePage() {
       <div className="px-6 lg:px-10 py-6 space-y-6">
         {/* KPI grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {KPI_CARDS.map((k, i) => (
+          {kpiCards.map((k, i) => (
             <KpiCard key={k.label} {...k} index={i} />
           ))}
         </div>
@@ -60,7 +66,7 @@ function SurveillancePage() {
               <Badge variant="outline" className="border-success/40 text-success bg-success/10">+1.8% MoM</Badge>
             </div>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={SPECTRAL_TREND}>
+              <LineChart data={spectralTrend}>
                 <CartesianGrid stroke="oklch(0.32 0.04 200 / 30%)" strokeDasharray="3 3" />
                 <XAxis dataKey="day" tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />
                 <YAxis tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />
@@ -76,7 +82,7 @@ function SurveillancePage() {
             <h3 className="font-semibold mb-1">Crop Health by Type</h3>
             <p className="text-xs text-muted-foreground mb-3">Average health index across focus crops</p>
             <ResponsiveContainer width="100%" height={260}>
-              <RadarChart data={CROP_DISTRIBUTION}>
+              <RadarChart data={cropDistribution}>
                 <PolarGrid stroke="oklch(0.32 0.04 200 / 40%)" />
                 <PolarAngleAxis dataKey="crop" tick={{ fontSize: 11, fill: "oklch(0.9 0.02 180)" }} />
                 <Radar dataKey="health" stroke="oklch(0.78 0.19 145)" fill="oklch(0.78 0.19 145)" fillOpacity={0.35} />
@@ -109,7 +115,7 @@ function SurveillancePage() {
           <div className="glass rounded-xl p-5">
             <h3 className="font-semibold mb-3">Latest AI Insights</h3>
             <div className="space-y-2.5">
-              {ALERTS.slice(0, 5).map(a => (
+              {alerts.slice(0, 5).map(a => (
                 <div key={a.id} className="rounded-lg border border-border/60 bg-muted/20 p-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold">{a.type}</span>
@@ -131,13 +137,13 @@ function SurveillancePage() {
           <h3 className="font-semibold mb-1">District Stress Alerts</h3>
           <p className="text-xs text-muted-foreground mb-3">Number of active stress flags per district (live)</p>
           <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={DISTRICT_RANKINGS}>
+            <BarChart data={districtRankings}>
               <CartesianGrid stroke="oklch(0.32 0.04 200 / 30%)" strokeDasharray="3 3" />
               <XAxis dataKey="district" tick={{ fontSize: 9, fill: "oklch(0.68 0.03 200)" }} interval={0} angle={-25} textAnchor="end" height={60} />
               <YAxis tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />
               <Tooltip contentStyle={{ background: "oklch(0.21 0.04 200)", border: "1px solid oklch(0.32 0.04 200)", borderRadius: 8 }} />
               <Bar dataKey="alerts" radius={[6, 6, 0, 0]}>
-                {DISTRICT_RANKINGS.map((d, i) => (
+                {districtRankings.map((d, i) => (
                   <Cell key={i} fill={d.alerts > 1800 ? "oklch(0.68 0.22 25)" : d.alerts > 1200 ? "oklch(0.82 0.17 80)" : "oklch(0.78 0.19 145)"} />
                 ))}
               </Bar>

@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { MessageSquareWarning, Send, Smartphone, Phone, Radio, CheckCheck } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ALERTS } from "@/lib/mock-data";
+import { getAlerts } from "@/lib/api";
 
 export const Route = createFileRoute("/advisory")({
   head: () => ({
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/advisory")({
 });
 
 function AdvisoryPage() {
+  const { data: alerts = [] } = useQuery({ queryKey: ["alerts"], queryFn: getAlerts });
   return (
     <div>
       <PageHeader
@@ -48,7 +50,7 @@ function AdvisoryPage() {
           <div className="glass rounded-xl p-5">
             <h3 className="font-semibold mb-3">Recent Advisories</h3>
             <div className="space-y-3">
-              {ALERTS.map(a => (
+              {alerts.map(a => (
                 <div key={a.id} className="rounded-xl border border-border/60 bg-muted/20 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>

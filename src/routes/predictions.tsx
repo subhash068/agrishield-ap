@@ -1,18 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { PREDICTIONS } from "@/lib/mock-data";
+import { getPredictions } from "@/lib/api";
 
 export const Route = createFileRoute("/predictions")({
   head: () => ({ meta: [{ title: "AI Predictions · AgriShield AP" }, { name: "description", content: "Forward-looking AI forecasts for pests, drought, yield and irrigation." }] }),
-  component: () => (
+  component: () => {
+    const { data: predictions = [] } = useQuery({ queryKey: ["predictions"], queryFn: getPredictions });
+    return (
     <div>
       <PageHeader icon={<Sparkles className="h-6 w-6 text-primary" />} eyebrow="Predictive AI" title="AI Predictions & Forecasts"
         description="Neural ensemble forecasts across 14–30 day horizons." />
       <div className="px-6 lg:px-10 py-6 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {PREDICTIONS.map((p, i) => (
+        {predictions.map((p, i) => (
           <div key={p.label} className="glass rounded-xl p-5 relative overflow-hidden hover:glow-primary transition">
             <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-primary/10 blur-2xl" />
             <div className="relative">
@@ -39,5 +42,5 @@ export const Route = createFileRoute("/predictions")({
         ))}
       </div>
     </div>
-  ),
+  )},
 });

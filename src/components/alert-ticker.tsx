@@ -1,8 +1,11 @@
 import { AlertTriangle } from "lucide-react";
-import { TICKER_ITEMS } from "@/lib/mock-data";
 
-export function AlertTicker() {
-  const items = [...TICKER_ITEMS, ...TICKER_ITEMS];
+type AlertTickerProps = {
+  items: string[];
+};
+
+export function AlertTicker({ items: tickerItems }: AlertTickerProps) {
+  const items = [...tickerItems, ...tickerItems];
   return (
     <div className="relative overflow-hidden border-y border-border/60 bg-gradient-to-r from-destructive/10 via-warning/10 to-destructive/10">
       <div className="flex items-center">
