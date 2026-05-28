@@ -1,38 +1,91 @@
-import {
-  ALERTS,
-  CROPS,
-  DISTRICTS,
-  DISTRICT_RANKINGS,
-  HERO_STATS,
-  KPI_CARDS,
-  PREDICTIONS,
-  PARCELS,
-  CROP_DISTRIBUTION,
-  SCHEMES,
-  SPECTRAL_TREND,
-  WEATHER_FORECAST,
-  type Crop,
-  type Crop as CropType,
-} from "./mock-data";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
-// ---- Types expected by route components ----
+async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    ...init,
+  });
 
-export type Alert = (typeof ALERTS)[number];
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`API ${path} failed: ${res.status} ${res.statusText} ${text}`);
+  }
 
-export type DashboardData = {
-  hero_stats: typeof HERO_STATS;
-  spectral_trend: typeof SPECTRAL_TREND;
-  ticker_items: ReturnType<typeof getTickerItems>;
-  kpi_cards: typeof KPI_CARDS;
+  return (await res.json()) as T;
+}
+
+// ---- Backend response types ----
+
+export type Alert = {
+  id: string;
+  type: string;
+  crop: string;
+  district: string;
+  severity: "Low" | "Medium" | "High" | "Critical";
+  time: string;
+  action: string;
 };
 
-export type DistrictRanking = (typeof DISTRICT_RANKINGS)[number];
-export type Scheme = (typeof SCHEMES)[number];
-export type CropDistributionItem = (typeof CROP_DISTRIBUTION)[number];
-export type SpectralTrendPoint = (typeof SPECTRAL_TREND)[number];
-export type WeatherForecastPoint = (typeof WEATHER_FORECAST)[number];
-export type Parcel = (typeof PARCELS)[number];
-export type Prediction = (typeof PREDICTIONS)[number];
+export type Scheme = { title: string; desc: string; tag: string };
+
+export type SpectralTrendPoint = { day: string; ndvi: number; evi: number; ndre: number };
+
+export type KpiCardOut = {
+  label: string;
+  value: number;
+  unit: string | null;
+  trend: number;
+  confidence: number;
+};
+
+export type HeroStatOut = { label: string; value: number; suffix: string | null; delta: string | null };
+
+export type DashboardData = {
+  hero_stats: HeroStatOut[];
+  spectral_trend: SpectralTrendPoint[];
+  ticker_items: string[];
+  kpi_cards: KpiCardOut[];
+};
+
+export type DistrictRanking = {
+  district: string;
+  healthScore: number;
+  alerts: number;
+  parcels: number;
+  riskIndex: number;
+  rank: number;
+};
+
+export type CropDistributionItem = { crop: string; parcels: number; health: number };
+
+export type WeatherForecastPoint = {
+  day: string;
+  rainfall: number;
+  temp: number;
+  humidity: number;
+  drought: number;
+};
+
+export type Parcel = {
+  id: string;
+  farmer: string;
+  district: string;
+  mandal: string;
+  crop: string;
+  acreage: number;
+  health: number;
+  risk: string;
+  confidence: number;
+  lat: number;
+  lng: number;
+  ndvi: number;
+};
+
+export type Prediction = {
+  label: string;
+  probability: number;
+  severity: "Low" | "Medium" | "High" | "Critical";
+  crop: string;
+};
 
 export type DiseaseDetectionResponse = {
   label: string;
@@ -42,89 +95,82 @@ export type DiseaseDetectionResponse = {
   top_k: Array<{ label: string; score: number }>;
 };
 
-// ---- API (mock-backed) ----
-
-function getTickerItems() {
-  // Exists in mock-data.ts but not imported above for simplicity.
-  // Recreate from ticker-style strings if needed.
-  // If you add a real backend later, replace these functions.
-  return [
-    "NDVI dropped 4.2% in Guntur — cotton stress flagged",
-    "Cyclone Asani: pre-harvest advisory issued to 84,000 farmers",
-    "AI detected paddy blast hotspot in Krishna district — RSK alerted",
-    "Rainfall deficit 18% in Rayalaseema — drought watch activated",
-    "Bollworm outbreak contained in Prakasam after bio-control deployment",
-    "Satellite pass complete: 99.2% AP coverage refreshed",
-  ];
-}
+// ---- Schemes/Districts/Alerts ----
 
 export function getDistricts(): Promise<string[]> {
-  return Promise.resolve([...DISTRICTS]);
+  return apiFetch<string[]>("/districts");
 }
 
 export function getAlerts(): Promise<Alert[]> {
-  return Promise.resolve([...ALERTS]);
+  return apiFetch<Alert[]>("/alerts");
 }
 
-export function getSchemes(): Promise<typeof SCHEMES> {
-  return Promise.resolve([...SCHEMES]);
+export function getSchemes(): Promise<Scheme[]> {
+  return apiFetch<Scheme[]>("/schemes");
 }
 
-export function getDashboardData(): Promise<DashboardData> {
-  // The app reads dashboardData.hero_stats, spectral_trend, ticker_items, kpi_cards
-  return Promise.resolve({
-    hero_stats: HERO_STATS as any,
-    spectral_trend: SPECTRAL_TREND as any,
-    ticker_items: getTickerItems() as any,
-    kpi_cards: KPI_CARDS as any,
-  });
+// ---- Dashboard: backend endpoints exist for alerts/weather/predictions; hero/spectral/kpi still mocked ----
+
+export async function getDashboardData(): Promise<DashboardData> {
+  const [alerts, weatherPoints, predictions] = await Promise.all([
+    getAlerts(),
+    apiFetch<WeatherForecastPoint[]>("/weather"),
+    apiFetch<Prediction[]>("/predictions"),
+  ]);
+
+  // Keep existing UI using mock constants for parts not provided by backend yet.
+  const mock = await import("./mock-data");
+
+  const ticker_items = alerts
+    .slice(0, 6)
+    .map((a) => `${a.type}: ${a.crop} stress in ${a.district} (${a.severity})`);
+
+  return {
+    hero_stats: (mock.HERO_STATS as unknown) as HeroStatOut[],
+    spectral_trend: (mock.SPECTRAL_TREND as unknown) as SpectralTrendPoint[],
+    ticker_items,
+    kpi_cards: (mock.KPI_CARDS as unknown) as KpiCardOut[],
+  };
 }
 
-export function getDistrictRankings(): Promise<DistrictRanking[]> {
-  return Promise.resolve([...DISTRICT_RANKINGS]);
+// ---- Remaining routes ----
+
+export async function getDistrictRankings(): Promise<DistrictRanking[]> {
+  const mock = await import("./mock-data");
+  return [...(mock.DISTRICT_RANKINGS as unknown as DistrictRanking[])];
 }
 
-export function getCropDistribution(): Promise<CropDistributionItem[]> {
-  return Promise.resolve([...CROP_DISTRIBUTION]);
+export async function getCropDistribution(): Promise<CropDistributionItem[]> {
+  const mock = await import("./mock-data");
+  return [...(mock.CROP_DISTRIBUTION as unknown as CropDistributionItem[])];
 }
 
-export function getSpectralTrend(): Promise<SpectralTrendPoint[]> {
-  return Promise.resolve([...SPECTRAL_TREND]);
+export async function getSpectralTrend(): Promise<SpectralTrendPoint[]> {
+  const mock = await import("./mock-data");
+  return [...(mock.SPECTRAL_TREND as unknown as SpectralTrendPoint[])];
 }
 
 export function getParcels(): Promise<Parcel[]> {
-  return Promise.resolve([...PARCELS]);
+  return apiFetch<Parcel[]>("/parcels");
 }
 
 export function getWeatherForecast(): Promise<WeatherForecastPoint[]> {
-  return Promise.resolve([...WEATHER_FORECAST]);
+  return apiFetch<WeatherForecastPoint[]>("/weather");
 }
 
 export function getPredictions(): Promise<Prediction[]> {
-  return Promise.resolve([...PREDICTIONS]);
+  return apiFetch<Prediction[]>("/predictions");
 }
 
-export async function detectDisease(_file: File): Promise<DiseaseDetectionResponse> {
-  // Mock response; in a real implementation you'd send the file to an inference API.
-  const labels = [
-    { label: "Paddy Blast", severity: "High" as const },
-    { label: "Cotton Bollworm", severity: "Critical" as const },
-    { label: "Chilli Leaf Curl", severity: "Medium" as const },
-    { label: "Maize Fall Armyworm", severity: "High" as const },
-    { label: "Red Gram Wilt", severity: "Medium" as const },
-  ];
+// ---- Disease detect ----
 
-  const pick = labels[Math.floor(Math.random() * labels.length)];
+export async function detectDisease(file: File): Promise<DiseaseDetectionResponse> {
+  const form = new FormData();
+  form.append("file", file);
 
-  return {
-    label: pick.label,
-    severity: pick.severity,
-    confidence: Math.floor(78 + Math.random() * 20),
-    model: "HF Plant Classifier",
-    top_k: labels.map((l, idx) => ({
-      label: l.label,
-      score: Math.max(0.01, 1 - idx * 0.18 - Math.random() * 0.08),
-    })),
-  };
+  return apiFetch<DiseaseDetectionResponse>("/disease/detect", {
+    method: "POST",
+    body: form,
+  });
 }
 
