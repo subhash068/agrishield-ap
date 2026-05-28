@@ -5,7 +5,7 @@ Run (dev):
 2) python -m venv .venv
 3) .venv\\Scripts\\activate
 4) pip install -r requirements.txt
-5) uvicorn app.main:app --reload --port 8000
+5) uvicorn backend.fastapi.app.main:app --reload --port 8000
 
 Endpoints:
 - GET  /health
@@ -22,4 +22,3 @@ Endpoints:
 - POST /disease/detect (multipart file: "file")
 
 Note: This version auto-creates tables and seeds from frontend mock-data on first run.
-

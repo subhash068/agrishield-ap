@@ -39,15 +39,19 @@ app.add_middleware(
 
 @app.on_event("startup")
 def startup():
-    # Dev convenience: auto-create tables if they don't exist and seed on first run.
+    # Dev convenience: auto-create database (if missing), then tables, then seed on first run.
     # Keep /health working even if Postgres is down or has wrong credentials.
     # Keep startup resilient: if DB is misconfigured/unavailable we still want the app (esp. /health) to run.
     try:
+        from .db import ensure_postgres_database_exists
+
+        # If the Postgres database itself is missing, create it so create_all can succeed.
+        ensure_postgres_database_exists()
         models.Base.metadata.create_all(bind=engine)
     except Exception as e:
         import warnings
 
-        warnings.warn(f"Postgres init skipped during startup (create_all failed) due to error: {e}")
+        warnings.warn(f"Postgres init skipped during startup (db/tables init failed) due to error: {e}")
         return
 
     try:
@@ -62,7 +66,6 @@ def startup():
         import warnings
 
         warnings.warn(f"Postgres init skipped during startup (seed failed) due to error: {e}")
-
 
 
 @app.get("/health")
@@ -99,26 +102,89 @@ def schemes(db: Session = Depends(get_db)):
 
 @app.get("/parcels", response_model=list[ParcelOut])
 def parcels(db: Session = Depends(get_db)):
-    rows = db.execute(select(models.Parcel).order_by(models.Parcel.id)).scalars().all()
-    return [
-        ParcelOut(
-            id=p.parcel_id,
-            farmer=p.farmer,
-            district=p.district,
-            mandal=p.mandal,
-            crop=p.crop,
-            acreage=p.acreage,
-            health=p.health,
-            risk=p.risk,
-            confidence=p.confidence,
-            lat=p.lat,
-            lng=p.lng,
-            ndvi=p.ndvi,
-            evi=p.evi,
-            ndre=p.ndre,
-        )
-        for p in rows
-    ]
+    """
+    Robust to older DB schemas where `evi` and/or `ndre` columns may not exist.
+    """
+    try:
+        # Prefer selecting only known-safe columns; include evi/ndre only if present in DB.
+        # Note: selecting the full ORM entity (select(models.Parcel)) will try to fetch
+        # all mapped columns, which crashes on old schemas.
+        rows = db.execute(
+            select(
+                models.Parcel.parcel_id_str,
+                models.Parcel.farmer,
+                models.Parcel.district,
+                models.Parcel.mandal,
+                models.Parcel.crop,
+                models.Parcel.acreage,
+                models.Parcel.health,
+                models.Parcel.risk,
+                models.Parcel.confidence,
+                models.Parcel.lat,
+                models.Parcel.lng,
+                models.Parcel.ndvi,
+                models.Parcel.evi,
+                models.Parcel.ndre,
+            ).order_by(models.Parcel.id)
+        ).all()
+
+        return [
+            ParcelOut(
+                id=p[0],
+                farmer=p[1],
+                district=p[2],
+                mandal=p[3],
+                crop=p[4],
+                acreage=p[5],
+                health=p[6],
+                risk=p[7],
+                confidence=p[8],
+                lat=p[9],
+                lng=p[10],
+                ndvi=p[11],
+                evi=p[12],
+                ndre=p[13],
+            )
+            for p in rows
+        ]
+    except Exception:
+        # Fallback for DBs without evi/ndre columns.
+        rows = db.execute(
+            select(
+                models.Parcel.parcel_id_str,
+                models.Parcel.farmer,
+                models.Parcel.district,
+                models.Parcel.mandal,
+                models.Parcel.crop,
+                models.Parcel.acreage,
+                models.Parcel.health,
+                models.Parcel.risk,
+                models.Parcel.confidence,
+                models.Parcel.lat,
+                models.Parcel.lng,
+                models.Parcel.ndvi,
+            ).order_by(models.Parcel.id)
+        ).all()
+
+        return [
+            ParcelOut(
+                id=p[0],
+                farmer=p[1],
+                district=p[2],
+                mandal=p[3],
+                crop=p[4],
+                acreage=p[5],
+                health=p[6],
+                risk=p[7],
+                confidence=p[8],
+                lat=p[9],
+                lng=p[10],
+                ndvi=p[11],
+                evi=None,
+                ndre=None,
+            )
+            for p in rows
+        ]
 
 @app.get("/weather", response_model=list[WeatherForecastPointOut])
 def weather(db: Session = Depends(get_db)):
