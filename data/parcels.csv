@@ -1,0 +1,221 @@
+parcel_id_str,farmer,district,mandal,crop,acreage,health,risk,confidence,lat,lng,ndvi,evi,ndre
+AP-00001,Ramesh Reddy,Anantapur,Penukonda,Paddy,7.96,78.5,Low,91,17.475149,83.668101,0.61,0.66,0.48
+AP-00002,Lakshmi Devi,Chittoor,Tadipatri,Cotton,2.75,48.7,High,92,18.955902,81.48499,0.64,0.67,0.35
+AP-00003,Suresh Naidu,East Godavari,Madanapalle,Maize,5.14,88.9,Low,91,14.620451,78.423364,0.78,0.35,0.36
+AP-00004,Kavitha Rao,Guntur,Tenali,Chilli,6.06,93.3,Low,83,18.960263,83.074462,0.37,0.21,0.26
+AP-00005,Venkat Rao,Krishna,Gudivada,Red Gram,7.63,46.3,High,80,17.740619,77.754096,0.69,0.22,0.28
+AP-00006,Padma Sri,Kurnool,Adoni,Paddy,1.32,51.4,High,95,18.232101,79.085314,0.69,0.73,0.27
+AP-00007,Krishna Murthy,Nellore,Kavali,Cotton,6.75,83.6,Low,81,18.349528,82.161836,0.43,0.64,0.26
+AP-00008,Anjali Kumari,Prakasam,Ongole,Maize,6.95,67.6,Medium,82,16.761811,77.566389,0.31,0.47,0.2
+AP-00009,Ramesh Reddy,Srikakulam,Penukonda,Chilli,6.41,72.8,Medium,90,14.535174,83.763692,0.32,0.48,0.35
+AP-00010,Lakshmi Devi,Visakhapatnam,Tadipatri,Red Gram,3.2,69.3,Medium,92,17.91779,84.444617,0.74,0.35,0.37
+AP-00011,Suresh Naidu,Vizianagaram,Madanapalle,Paddy,1.87,84.8,Low,98,14.048433,77.193125,0.67,0.38,0.44
+AP-00012,Kavitha Rao,West Godavari,Tenali,Cotton,8.24,55.8,High,80,15.016592,77.981999,0.53,0.37,0.48
+AP-00013,Venkat Rao,YSR Kadapa,Gudivada,Maize,2.36,69.1,Medium,94,17.254062,82.945144,0.54,0.35,0.32
+AP-00014,Padma Sri,Anantapur,Adoni,Chilli,2.7,74.2,Medium,94,13.911919,80.484306,0.43,0.27,0.55
+AP-00015,Krishna Murthy,Chittoor,Kavali,Red Gram,6.37,83.0,Low,83,18.419049,81.284167,0.45,0.47,0.52
+AP-00016,Anjali Kumari,East Godavari,Ongole,Paddy,6.97,47.9,High,78,18.914267,80.749185,0.44,0.49,0.24
+AP-00017,Ramesh Reddy,Guntur,Penukonda,Cotton,9.38,78.1,Low,78,13.640455,83.128879,0.43,0.59,0.4
+AP-00018,Lakshmi Devi,Krishna,Tadipatri,Maize,1.98,79.2,Low,96,14.214181,78.666125,0.35,0.64,0.27
+AP-00019,Suresh Naidu,Kurnool,Madanapalle,Chilli,7.76,76.2,Low,93,17.823741,80.715242,0.52,0.43,0.28
+AP-00020,Kavitha Rao,Nellore,Tenali,Red Gram,7.86,58.3,High,87,16.034041,81.500687,0.54,0.74,0.37
+AP-00021,Venkat Rao,Prakasam,Gudivada,Paddy,3.07,50.9,High,87,16.615758,82.846487,0.62,0.69,0.51
+AP-00022,Padma Sri,Srikakulam,Adoni,Cotton,0.97,86.3,Low,83,16.22668,77.4457,0.66,0.32,0.48
+AP-00023,Krishna Murthy,Visakhapatnam,Kavali,Maize,1.12,53.7,High,84,17.957366,82.090916,0.49,0.53,0.22
+AP-00024,Anjali Kumari,Vizianagaram,Ongole,Chilli,8.75,55.6,High,83,14.711728,82.264945,0.75,0.36,0.56
+AP-00025,Ramesh Reddy,West Godavari,Penukonda,Red Gram,7.38,75.9,Low,83,16.201995,81.80131,0.71,0.37,0.4
+AP-00026,Lakshmi Devi,YSR Kadapa,Tadipatri,Paddy,4.88,79.3,Low,80,16.773227,79.054456,0.4,0.49,0.26
+AP-00027,Suresh Naidu,Anantapur,Madanapalle,Cotton,5.06,92.7,Low,87,17.751991,77.913228,0.58,0.68,0.28
+AP-00028,Kavitha Rao,Chittoor,Tenali,Maize,3.06,51.6,High,88,13.824145,83.366831,0.43,0.63,0.39
+AP-00029,Venkat Rao,East Godavari,Gudivada,Chilli,3.43,83.7,Low,91,17.202484,78.334449,0.44,0.29,0.23
+AP-00030,Padma Sri,Guntur,Adoni,Red Gram,3.28,84.2,Low,93,17.329051,78.628285,0.54,0.74,0.18
+AP-00031,Krishna Murthy,Krishna,Kavali,Paddy,3.06,57.6,High,85,16.991862,81.763732,0.7,0.53,0.24
+AP-00032,Anjali Kumari,Kurnool,Ongole,Cotton,1.79,46.0,High,96,14.99415,82.280561,0.66,0.34,0.5
+AP-00033,Ramesh Reddy,Nellore,Penukonda,Maize,4.83,46.8,High,95,14.164166,84.344744,0.38,0.37,0.54
+AP-00034,Lakshmi Devi,Prakasam,Tadipatri,Chilli,5.21,89.2,Low,82,18.130423,78.013357,0.75,0.52,0.2
+AP-00035,Suresh Naidu,Srikakulam,Madanapalle,Red Gram,6.63,81.6,Low,89,14.470508,82.954502,0.57,0.31,0.2
+AP-00036,Kavitha Rao,Visakhapatnam,Tenali,Paddy,7.34,67.7,Medium,83,14.684207,83.04081,0.42,0.25,0.28
+AP-00037,Venkat Rao,Vizianagaram,Gudivada,Cotton,4.22,68.7,Medium,84,16.964532,78.944818,0.44,0.32,0.44
+AP-00038,Padma Sri,West Godavari,Adoni,Maize,8.84,57.6,High,88,17.340408,77.148233,0.57,0.67,0.56
+AP-00039,Krishna Murthy,YSR Kadapa,Kavali,Chilli,8.2,59.6,High,94,18.841632,77.271389,0.39,0.72,0.26
+AP-00040,Anjali Kumari,Anantapur,Ongole,Red Gram,2.54,58.8,High,93,14.236987,83.802769,0.34,0.27,0.34
+AP-00041,Ramesh Reddy,Chittoor,Penukonda,Paddy,5.81,57.6,High,81,17.830547,82.630451,0.4,0.27,0.52
+AP-00042,Lakshmi Devi,East Godavari,Tadipatri,Cotton,3.14,50.5,High,97,17.893317,80.491078,0.69,0.37,0.59
+AP-00043,Suresh Naidu,Guntur,Madanapalle,Maize,3.38,67.4,Medium,89,14.914413,80.645738,0.74,0.59,0.46
+AP-00044,Kavitha Rao,Krishna,Tenali,Chilli,5.2,69.5,Medium,82,13.607806,78.936265,0.36,0.74,0.58
+AP-00045,Venkat Rao,Kurnool,Gudivada,Red Gram,8.0,77.4,Low,83,13.697374,79.24654,0.36,0.35,0.54
+AP-00046,Padma Sri,Nellore,Adoni,Paddy,7.31,81.3,Low,89,18.447468,79.124587,0.44,0.45,0.3
+AP-00047,Krishna Murthy,Prakasam,Kavali,Cotton,2.17,64.0,Medium,81,17.594874,78.936564,0.62,0.69,0.23
+AP-00048,Anjali Kumari,Srikakulam,Ongole,Maize,8.96,89.7,Low,79,16.038966,77.843238,0.75,0.79,0.37
+AP-00049,Ramesh Reddy,Visakhapatnam,Penukonda,Chilli,5.72,86.1,Low,82,16.151445,80.451651,0.42,0.62,0.43
+AP-00050,Lakshmi Devi,Vizianagaram,Tadipatri,Red Gram,2.9,54.7,High,94,14.908193,80.772839,0.51,0.78,0.54
+AP-00051,Suresh Naidu,West Godavari,Madanapalle,Paddy,3.32,72.9,Medium,96,15.133847,81.986154,0.71,0.73,0.18
+AP-00052,Kavitha Rao,YSR Kadapa,Tenali,Cotton,5.64,58.0,High,80,15.045154,82.593903,0.79,0.4,0.23
+AP-00053,Venkat Rao,Anantapur,Gudivada,Maize,2.45,59.3,High,80,14.90841,79.92655,0.65,0.31,0.57
+AP-00054,Padma Sri,Chittoor,Adoni,Chilli,1.49,69.4,Medium,84,14.113264,83.882175,0.78,0.49,0.3
+AP-00055,Krishna Murthy,East Godavari,Kavali,Red Gram,2.61,85.0,Low,91,16.010292,83.331709,0.74,0.57,0.27
+AP-00056,Anjali Kumari,Guntur,Ongole,Paddy,7.86,81.2,Low,96,16.243883,78.486358,0.47,0.73,0.27
+AP-00057,Ramesh Reddy,Krishna,Penukonda,Cotton,8.66,52.6,High,83,17.126294,81.288923,0.39,0.25,0.55
+AP-00058,Lakshmi Devi,Kurnool,Tadipatri,Maize,1.82,90.3,Low,86,17.568293,79.004941,0.54,0.31,0.5
+AP-00059,Suresh Naidu,Nellore,Madanapalle,Chilli,1.88,72.3,Medium,95,15.6284,79.208321,0.61,0.76,0.44
+AP-00060,Kavitha Rao,Prakasam,Tenali,Red Gram,3.39,56.7,High,98,18.505218,80.76114,0.74,0.41,0.41
+AP-00061,Venkat Rao,Srikakulam,Gudivada,Paddy,6.6,59.0,High,92,18.10488,83.161619,0.34,0.35,0.52
+AP-00062,Padma Sri,Visakhapatnam,Adoni,Cotton,8.93,71.9,Medium,98,14.580988,82.568587,0.39,0.36,0.23
+AP-00063,Krishna Murthy,Vizianagaram,Kavali,Maize,2.99,54.2,High,96,16.619217,78.169339,0.77,0.73,0.34
+AP-00064,Anjali Kumari,West Godavari,Ongole,Chilli,4.54,48.8,High,85,14.958139,83.98248,0.47,0.67,0.41
+AP-00065,Ramesh Reddy,YSR Kadapa,Penukonda,Red Gram,8.19,55.1,High,81,15.106051,81.208301,0.43,0.59,0.37
+AP-00066,Lakshmi Devi,Anantapur,Tadipatri,Paddy,9.65,84.2,Low,88,16.235375,78.798933,0.43,0.54,0.17
+AP-00067,Suresh Naidu,Chittoor,Madanapalle,Cotton,7.05,88.7,Low,90,17.981177,79.15932,0.74,0.69,0.23
+AP-00068,Kavitha Rao,East Godavari,Tenali,Maize,9.5,50.7,High,96,17.549881,81.137944,0.69,0.31,0.51
+AP-00069,Venkat Rao,Guntur,Gudivada,Chilli,8.68,51.0,High,79,14.350428,78.414073,0.62,0.46,0.31
+AP-00070,Padma Sri,Krishna,Adoni,Red Gram,3.85,59.4,High,81,18.578167,77.588041,0.59,0.54,0.43
+AP-00071,Krishna Murthy,Kurnool,Kavali,Paddy,2.41,77.2,Low,97,16.560582,78.552211,0.71,0.49,0.16
+AP-00072,Anjali Kumari,Nellore,Ongole,Cotton,5.12,90.2,Low,85,14.808315,83.041111,0.39,0.23,0.37
+AP-00073,Ramesh Reddy,Prakasam,Penukonda,Maize,6.35,57.2,High,83,15.070414,83.72451,0.51,0.31,0.58
+AP-00074,Lakshmi Devi,Srikakulam,Tadipatri,Chilli,8.7,65.8,Medium,83,16.509414,77.873648,0.59,0.68,0.2
+AP-00075,Suresh Naidu,Visakhapatnam,Madanapalle,Red Gram,1.5,86.1,Low,96,14.528417,77.924441,0.54,0.41,0.22
+AP-00076,Kavitha Rao,Vizianagaram,Tenali,Paddy,2.43,94.2,Low,94,13.927666,79.216247,0.32,0.57,0.21
+AP-00077,Venkat Rao,West Godavari,Gudivada,Cotton,9.18,79.7,Low,91,14.628881,81.963505,0.39,0.21,0.58
+AP-00078,Padma Sri,YSR Kadapa,Adoni,Maize,3.89,93.3,Low,90,17.893535,83.954646,0.7,0.49,0.21
+AP-00079,Krishna Murthy,Anantapur,Kavali,Chilli,3.12,88.8,Low,95,18.390552,78.877264,0.48,0.78,0.42
+AP-00080,Anjali Kumari,Chittoor,Ongole,Red Gram,3.21,62.0,Medium,81,14.13538,80.199581,0.61,0.27,0.56
+AP-00081,Ramesh Reddy,East Godavari,Penukonda,Paddy,8.78,53.9,High,86,14.172321,83.326579,0.31,0.29,0.29
+AP-00082,Lakshmi Devi,Guntur,Tadipatri,Cotton,7.78,69.0,Medium,90,15.111816,84.56931,0.54,0.28,0.32
+AP-00083,Suresh Naidu,Krishna,Madanapalle,Maize,6.62,75.9,Low,88,17.109822,82.344248,0.78,0.78,0.27
+AP-00084,Kavitha Rao,Kurnool,Tenali,Chilli,5.97,88.9,Low,78,18.557924,84.443097,0.36,0.28,0.57
+AP-00085,Venkat Rao,Nellore,Gudivada,Red Gram,8.16,48.9,High,81,14.865283,83.738405,0.38,0.56,0.58
+AP-00086,Padma Sri,Prakasam,Adoni,Paddy,2.47,54.1,High,94,15.826968,79.61264,0.37,0.74,0.53
+AP-00087,Krishna Murthy,Srikakulam,Kavali,Cotton,4.63,91.6,Low,85,18.101149,78.375122,0.78,0.38,0.45
+AP-00088,Anjali Kumari,Visakhapatnam,Ongole,Maize,5.96,62.2,Medium,90,19.004953,80.697119,0.37,0.43,0.26
+AP-00089,Ramesh Reddy,Vizianagaram,Penukonda,Chilli,5.17,57.9,High,78,17.386725,81.752035,0.6,0.36,0.46
+AP-00090,Lakshmi Devi,West Godavari,Tadipatri,Red Gram,1.2,58.4,High,88,18.913162,83.756398,0.75,0.76,0.45
+AP-00091,Suresh Naidu,YSR Kadapa,Madanapalle,Paddy,2.43,89.3,Low,98,18.400658,77.595905,0.45,0.78,0.53
+AP-00092,Kavitha Rao,Anantapur,Tenali,Cotton,8.03,83.8,Low,80,15.400102,78.395857,0.49,0.7,0.36
+AP-00093,Venkat Rao,Chittoor,Gudivada,Maize,3.98,77.4,Low,81,14.500089,84.173768,0.43,0.59,0.51
+AP-00094,Padma Sri,East Godavari,Adoni,Chilli,6.33,73.7,Medium,80,16.188814,79.645635,0.77,0.35,0.33
+AP-00095,Krishna Murthy,Guntur,Kavali,Red Gram,0.99,85.9,Low,98,16.956025,78.985613,0.78,0.61,0.47
+AP-00096,Anjali Kumari,Krishna,Ongole,Paddy,5.1,54.3,High,80,18.413744,79.062935,0.72,0.6,0.17
+AP-00097,Ramesh Reddy,Kurnool,Penukonda,Cotton,9.43,66.3,Medium,90,13.933386,83.824621,0.63,0.71,0.4
+AP-00098,Lakshmi Devi,Nellore,Tadipatri,Maize,1.81,73.7,Medium,97,14.515169,82.974956,0.42,0.49,0.5
+AP-00099,Suresh Naidu,Prakasam,Madanapalle,Chilli,2.17,69.3,Medium,84,18.717286,81.983168,0.64,0.68,0.35
+AP-00100,Kavitha Rao,Srikakulam,Tenali,Red Gram,1.98,47.2,High,85,15.424098,81.427494,0.63,0.44,0.46
+AP-00101,Venkat Rao,Visakhapatnam,Gudivada,Paddy,9.49,54.0,High,83,14.944082,83.294331,0.73,0.63,0.35
+AP-00102,Padma Sri,Vizianagaram,Adoni,Cotton,1.97,85.2,Low,97,15.000316,78.424917,0.54,0.23,0.45
+AP-00103,Krishna Murthy,West Godavari,Kavali,Maize,6.16,62.7,Medium,98,18.463361,80.280711,0.7,0.53,0.38
+AP-00104,Anjali Kumari,YSR Kadapa,Ongole,Chilli,8.97,75.7,Low,95,17.845423,81.413787,0.5,0.67,0.26
+AP-00105,Ramesh Reddy,Anantapur,Penukonda,Red Gram,3.51,46.0,High,91,17.124122,80.738457,0.66,0.47,0.37
+AP-00106,Lakshmi Devi,Chittoor,Tadipatri,Paddy,4.19,68.9,Medium,83,16.719995,77.338464,0.32,0.62,0.24
+AP-00107,Suresh Naidu,East Godavari,Madanapalle,Cotton,3.19,92.9,Low,92,18.077695,78.393246,0.57,0.46,0.15
+AP-00108,Kavitha Rao,Guntur,Tenali,Maize,9.26,50.6,High,92,14.536303,83.189928,0.69,0.6,0.51
+AP-00109,Venkat Rao,Krishna,Gudivada,Chilli,9.5,52.6,High,95,15.885972,79.72072,0.53,0.51,0.55
+AP-00110,Padma Sri,Kurnool,Adoni,Red Gram,8.32,51.6,High,88,16.710027,81.727289,0.65,0.34,0.22
+AP-00111,Krishna Murthy,Nellore,Kavali,Paddy,6.72,93.3,Low,94,16.218878,77.158548,0.52,0.5,0.38
+AP-00112,Anjali Kumari,Prakasam,Ongole,Cotton,3.03,51.5,High,86,13.746155,80.682984,0.63,0.32,0.26
+AP-00113,Ramesh Reddy,Srikakulam,Penukonda,Maize,6.98,74.8,Medium,92,14.51327,84.384189,0.56,0.2,0.24
+AP-00114,Lakshmi Devi,Visakhapatnam,Tadipatri,Chilli,6.81,90.4,Low,79,18.001766,77.861184,0.42,0.68,0.26
+AP-00115,Suresh Naidu,Vizianagaram,Madanapalle,Red Gram,8.5,60.0,Medium,89,15.478705,78.172304,0.55,0.73,0.56
+AP-00116,Kavitha Rao,West Godavari,Tenali,Paddy,5.1,63.9,Medium,94,16.938028,78.01285,0.4,0.29,0.37
+AP-00117,Venkat Rao,YSR Kadapa,Gudivada,Cotton,8.01,58.3,High,87,13.615308,84.431217,0.3,0.51,0.55
+AP-00118,Padma Sri,Anantapur,Adoni,Maize,4.37,92.0,Low,92,16.178534,78.00201,0.7,0.34,0.3
+AP-00119,Krishna Murthy,Chittoor,Kavali,Chilli,7.22,93.3,Low,87,18.870319,81.584642,0.74,0.32,0.59
+AP-00120,Anjali Kumari,East Godavari,Ongole,Red Gram,1.25,86.8,Low,91,14.126316,83.993577,0.38,0.35,0.56
+AP-00121,Ramesh Reddy,Guntur,Penukonda,Paddy,5.72,77.9,Low,88,14.352585,79.315178,0.56,0.75,0.37
+AP-00122,Lakshmi Devi,Krishna,Tadipatri,Cotton,7.86,57.4,High,82,14.236618,79.903709,0.42,0.5,0.27
+AP-00123,Suresh Naidu,Kurnool,Madanapalle,Maize,4.86,79.3,Low,88,18.904521,79.048813,0.4,0.74,0.15
+AP-00124,Kavitha Rao,Nellore,Tenali,Chilli,7.03,78.4,Low,82,14.228734,84.241836,0.43,0.4,0.37
+AP-00125,Venkat Rao,Prakasam,Gudivada,Red Gram,4.76,87.8,Low,78,16.834285,84.43919,0.76,0.78,0.56
+AP-00126,Padma Sri,Srikakulam,Adoni,Paddy,6.79,68.9,Medium,94,18.586238,83.43621,0.55,0.75,0.42
+AP-00127,Krishna Murthy,Visakhapatnam,Kavali,Cotton,5.42,85.1,Low,96,15.183766,82.063228,0.75,0.5,0.55
+AP-00128,Anjali Kumari,Vizianagaram,Ongole,Maize,2.92,64.8,Medium,81,15.611788,78.910867,0.46,0.36,0.32
+AP-00129,Ramesh Reddy,West Godavari,Penukonda,Chilli,5.29,80.7,Low,88,14.990046,82.28883,0.79,0.2,0.44
+AP-00130,Lakshmi Devi,YSR Kadapa,Tadipatri,Red Gram,2.65,47.5,High,83,18.76679,82.143082,0.76,0.5,0.39
+AP-00131,Suresh Naidu,Anantapur,Madanapalle,Paddy,0.85,72.3,Medium,82,18.91032,83.586999,0.55,0.75,0.55
+AP-00132,Kavitha Rao,Chittoor,Tenali,Cotton,7.97,84.2,Low,83,18.18088,80.676018,0.43,0.55,0.49
+AP-00133,Venkat Rao,East Godavari,Gudivada,Maize,8.72,67.6,Medium,97,17.182348,83.170104,0.3,0.74,0.25
+AP-00134,Padma Sri,Guntur,Adoni,Chilli,2.18,79.6,Low,88,14.889722,80.053777,0.55,0.43,0.36
+AP-00135,Krishna Murthy,Krishna,Kavali,Red Gram,5.43,67.0,Medium,96,17.346422,82.495134,0.75,0.59,0.37
+AP-00136,Anjali Kumari,Kurnool,Ongole,Paddy,2.97,78.3,Low,84,17.240424,77.384448,0.6,0.51,0.24
+AP-00137,Ramesh Reddy,Nellore,Penukonda,Cotton,2.58,70.7,Medium,98,18.290545,81.207213,0.75,0.74,0.51
+AP-00138,Lakshmi Devi,Prakasam,Tadipatri,Maize,3.07,56.8,High,97,16.173468,83.03727,0.49,0.65,0.53
+AP-00139,Suresh Naidu,Srikakulam,Madanapalle,Chilli,9.1,69.9,Medium,88,17.987349,80.477477,0.63,0.33,0.25
+AP-00140,Kavitha Rao,Visakhapatnam,Tenali,Red Gram,5.27,55.3,High,83,15.720929,82.32633,0.56,0.48,0.49
+AP-00141,Venkat Rao,Vizianagaram,Gudivada,Paddy,8.88,45.3,High,78,17.496461,80.389685,0.75,0.49,0.28
+AP-00142,Padma Sri,West Godavari,Adoni,Cotton,3.75,84.8,Low,88,13.779599,82.128637,0.68,0.31,0.49
+AP-00143,Krishna Murthy,YSR Kadapa,Kavali,Maize,9.56,89.0,Low,97,16.559791,80.954097,0.41,0.68,0.23
+AP-00144,Anjali Kumari,Anantapur,Ongole,Chilli,9.04,52.7,High,90,17.890742,78.814919,0.54,0.71,0.6
+AP-00145,Ramesh Reddy,Chittoor,Penukonda,Red Gram,5.28,70.7,Medium,96,16.029075,80.840869,0.54,0.33,0.19
+AP-00146,Lakshmi Devi,East Godavari,Tadipatri,Paddy,3.2,57.0,High,85,17.373695,78.580329,0.39,0.66,0.43
+AP-00147,Suresh Naidu,Guntur,Madanapalle,Cotton,0.81,54.9,High,91,15.965225,77.04472,0.7,0.37,0.35
+AP-00148,Kavitha Rao,Krishna,Tenali,Maize,5.25,57.6,High,88,17.229918,83.134031,0.72,0.66,0.21
+AP-00149,Venkat Rao,Kurnool,Gudivada,Chilli,8.98,91.1,Low,96,16.375707,83.777326,0.41,0.31,0.4
+AP-00150,Padma Sri,Nellore,Adoni,Red Gram,6.12,69.8,Medium,93,14.819941,78.184351,0.68,0.8,0.29
+AP-00151,Krishna Murthy,Prakasam,Kavali,Paddy,8.85,89.9,Low,82,16.293359,80.962199,0.44,0.25,0.18
+AP-00152,Anjali Kumari,Srikakulam,Ongole,Cotton,4.22,61.4,Medium,87,14.64933,78.855433,0.68,0.57,0.25
+AP-00153,Ramesh Reddy,Visakhapatnam,Penukonda,Maize,6.69,93.6,Low,88,13.532523,78.519342,0.39,0.46,0.16
+AP-00154,Lakshmi Devi,Vizianagaram,Tadipatri,Chilli,5.5,90.8,Low,81,17.961114,78.944895,0.8,0.28,0.16
+AP-00155,Suresh Naidu,West Godavari,Madanapalle,Red Gram,8.88,69.9,Medium,94,18.428965,84.100511,0.34,0.53,0.19
+AP-00156,Kavitha Rao,YSR Kadapa,Tenali,Paddy,7.58,58.4,High,95,14.361346,80.822989,0.61,0.38,0.23
+AP-00157,Venkat Rao,Anantapur,Gudivada,Cotton,2.8,45.1,High,82,16.381599,83.91646,0.52,0.24,0.19
+AP-00158,Padma Sri,Chittoor,Adoni,Maize,5.06,69.7,Medium,93,14.849406,79.523908,0.37,0.33,0.24
+AP-00159,Krishna Murthy,East Godavari,Kavali,Chilli,5.17,90.4,Low,84,14.604976,84.490518,0.57,0.21,0.16
+AP-00160,Anjali Kumari,Guntur,Ongole,Red Gram,2.5,74.6,Medium,94,14.914469,84.050407,0.45,0.22,0.41
+AP-00161,Ramesh Reddy,Krishna,Penukonda,Paddy,8.04,89.7,Low,81,18.664008,80.835611,0.33,0.26,0.58
+AP-00162,Lakshmi Devi,Kurnool,Tadipatri,Cotton,8.39,64.0,Medium,98,16.280356,79.056764,0.41,0.31,0.46
+AP-00163,Suresh Naidu,Nellore,Madanapalle,Maize,2.71,77.7,Low,79,18.530153,77.010189,0.31,0.26,0.45
+AP-00164,Kavitha Rao,Prakasam,Tenali,Chilli,7.65,71.1,Medium,90,15.335569,80.808073,0.31,0.32,0.23
+AP-00165,Venkat Rao,Srikakulam,Gudivada,Red Gram,3.41,89.9,Low,87,18.947649,83.996832,0.35,0.21,0.38
+AP-00166,Padma Sri,Visakhapatnam,Adoni,Paddy,7.67,82.7,Low,80,18.627569,81.553794,0.39,0.55,0.39
+AP-00167,Krishna Murthy,Vizianagaram,Kavali,Cotton,2.42,56.1,High,89,16.289535,83.888966,0.35,0.77,0.28
+AP-00168,Anjali Kumari,West Godavari,Ongole,Maize,9.74,68.7,Medium,84,14.995829,79.927983,0.4,0.61,0.6
+AP-00169,Ramesh Reddy,YSR Kadapa,Penukonda,Chilli,1.57,69.3,Medium,79,13.50741,82.036171,0.31,0.6,0.36
+AP-00170,Lakshmi Devi,Anantapur,Tadipatri,Red Gram,6.35,54.5,High,82,16.269508,81.022178,0.59,0.31,0.41
+AP-00171,Suresh Naidu,Chittoor,Madanapalle,Paddy,4.71,85.2,Low,78,18.588605,83.913659,0.77,0.51,0.23
+AP-00172,Kavitha Rao,East Godavari,Tenali,Cotton,2.03,87.2,Low,78,16.81185,82.800857,0.64,0.52,0.49
+AP-00173,Venkat Rao,Guntur,Gudivada,Maize,5.72,55.6,High,80,18.510157,78.706877,0.63,0.38,0.53
+AP-00174,Padma Sri,Krishna,Adoni,Chilli,3.51,83.0,Low,81,15.629442,80.647048,0.39,0.8,0.59
+AP-00175,Krishna Murthy,Kurnool,Kavali,Red Gram,1.33,59.5,High,80,17.16267,80.742191,0.56,0.47,0.32
+AP-00176,Anjali Kumari,Nellore,Ongole,Paddy,2.73,83.2,Low,82,16.42522,78.457926,0.56,0.55,0.38
+AP-00177,Ramesh Reddy,Prakasam,Penukonda,Cotton,0.9,54.0,High,78,18.528116,83.191434,0.45,0.31,0.39
+AP-00178,Lakshmi Devi,Srikakulam,Tadipatri,Maize,1.04,94.6,Low,90,17.718805,83.497513,0.8,0.65,0.51
+AP-00179,Suresh Naidu,Visakhapatnam,Madanapalle,Chilli,1.68,49.3,High,97,14.741365,78.630867,0.53,0.71,0.17
+AP-00180,Kavitha Rao,Vizianagaram,Tenali,Red Gram,2.46,75.8,Low,92,16.152399,82.856808,0.59,0.79,0.4
+AP-00181,Venkat Rao,West Godavari,Gudivada,Paddy,1.67,66.7,Medium,91,16.221593,79.231199,0.39,0.43,0.41
+AP-00182,Padma Sri,YSR Kadapa,Adoni,Cotton,2.63,51.8,High,81,14.56031,82.877486,0.68,0.51,0.25
+AP-00183,Krishna Murthy,Anantapur,Kavali,Maize,1.02,72.3,Medium,88,18.002861,78.382432,0.73,0.52,0.43
+AP-00184,Anjali Kumari,Chittoor,Ongole,Chilli,6.03,60.0,Medium,89,18.225464,84.644458,0.79,0.67,0.31
+AP-00185,Ramesh Reddy,East Godavari,Penukonda,Red Gram,9.35,47.9,High,84,14.686085,77.658232,0.49,0.23,0.22
+AP-00186,Lakshmi Devi,Guntur,Tadipatri,Paddy,6.91,55.7,High,98,17.759497,81.746461,0.55,0.54,0.25
+AP-00187,Suresh Naidu,Krishna,Madanapalle,Cotton,6.8,45.6,High,87,15.12269,80.343754,0.57,0.55,0.33
+AP-00188,Kavitha Rao,Kurnool,Tenali,Maize,2.47,46.4,High,90,17.774535,78.052646,0.7,0.34,0.23
+AP-00189,Venkat Rao,Nellore,Gudivada,Chilli,5.49,49.9,High,81,14.505405,81.209436,0.33,0.57,0.54
+AP-00190,Padma Sri,Prakasam,Adoni,Red Gram,5.56,54.2,High,93,19.059606,79.314279,0.58,0.41,0.46
+AP-00191,Krishna Murthy,Srikakulam,Kavali,Paddy,3.44,49.9,High,95,13.978714,77.449905,0.59,0.29,0.34
+AP-00192,Anjali Kumari,Visakhapatnam,Ongole,Cotton,9.75,55.2,High,98,16.951971,78.648442,0.42,0.34,0.26
+AP-00193,Ramesh Reddy,Vizianagaram,Penukonda,Maize,4.91,46.2,High,86,15.931821,77.089623,0.61,0.44,0.56
+AP-00194,Lakshmi Devi,West Godavari,Tadipatri,Chilli,6.06,74.0,Medium,88,14.265561,77.208115,0.48,0.3,0.35
+AP-00195,Suresh Naidu,YSR Kadapa,Madanapalle,Red Gram,2.46,92.5,Low,89,16.561408,77.750695,0.38,0.72,0.43
+AP-00196,Kavitha Rao,Anantapur,Tenali,Paddy,7.59,79.0,Low,94,15.183112,78.417329,0.42,0.61,0.55
+AP-00197,Venkat Rao,Chittoor,Gudivada,Cotton,8.47,78.3,Low,79,13.827204,77.746913,0.5,0.45,0.56
+AP-00198,Padma Sri,East Godavari,Adoni,Maize,9.68,54.3,High,89,14.698867,78.567667,0.38,0.34,0.44
+AP-00199,Krishna Murthy,Guntur,Kavali,Chilli,4.29,71.1,Medium,90,13.56518,77.191902,0.73,0.74,0.54
+AP-00200,Anjali Kumari,Krishna,Ongole,Red Gram,5.38,71.5,Medium,82,13.651356,81.473459,0.64,0.47,0.42
+AP-00201,Ramesh Reddy,Kurnool,Penukonda,Paddy,5.61,59.7,High,91,14.04596,84.312879,0.51,0.57,0.18
+AP-00202,Lakshmi Devi,Nellore,Tadipatri,Cotton,7.91,94.7,Low,85,14.530784,82.230625,0.42,0.73,0.38
+AP-00203,Suresh Naidu,Prakasam,Madanapalle,Maize,1.26,67.8,Medium,81,14.043209,82.131416,0.75,0.74,0.32
+AP-00204,Kavitha Rao,Srikakulam,Tenali,Chilli,5.86,74.2,Medium,82,14.640122,78.425912,0.53,0.58,0.47
+AP-00205,Venkat Rao,Visakhapatnam,Gudivada,Red Gram,6.07,54.2,High,86,13.639565,81.015254,0.61,0.72,0.18
+AP-00206,Padma Sri,Vizianagaram,Adoni,Paddy,2.88,82.7,Low,81,16.753425,81.073778,0.74,0.56,0.2
+AP-00207,Krishna Murthy,West Godavari,Kavali,Cotton,6.41,87.6,Low,96,18.818458,79.262274,0.75,0.24,0.26
+AP-00208,Anjali Kumari,YSR Kadapa,Ongole,Maize,4.02,94.4,Low,92,17.304091,84.657756,0.62,0.51,0.6
+AP-00209,Ramesh Reddy,Anantapur,Penukonda,Chilli,2.22,64.4,Medium,86,17.231939,80.512891,0.74,0.42,0.19
+AP-00210,Lakshmi Devi,Chittoor,Tadipatri,Red Gram,2.89,70.4,Medium,83,14.537027,81.503603,0.6,0.63,0.56
+AP-00211,Suresh Naidu,East Godavari,Madanapalle,Paddy,4.34,71.7,Medium,97,16.420184,78.416075,0.34,0.24,0.34
+AP-00212,Kavitha Rao,Guntur,Tenali,Cotton,2.3,84.5,Low,87,16.462747,82.811396,0.56,0.27,0.31
+AP-00213,Venkat Rao,Krishna,Gudivada,Maize,8.6,47.6,High,90,15.14529,83.564905,0.48,0.34,0.57
+AP-00214,Padma Sri,Kurnool,Adoni,Chilli,6.91,73.1,Medium,96,19.069277,84.600862,0.66,0.79,0.33
+AP-00215,Krishna Murthy,Nellore,Kavali,Red Gram,4.59,74.3,Medium,97,16.05483,79.987437,0.33,0.25,0.23
+AP-00216,Anjali Kumari,Prakasam,Ongole,Paddy,2.95,56.5,High,91,16.775347,80.914543,0.36,0.75,0.19
+AP-00217,Ramesh Reddy,Srikakulam,Penukonda,Cotton,8.96,76.2,Low,96,14.529873,81.118366,0.42,0.46,0.39
+AP-00218,Lakshmi Devi,Visakhapatnam,Tadipatri,Maize,4.86,62.9,Medium,90,17.72647,83.083203,0.79,0.41,0.23
+AP-00219,Suresh Naidu,Vizianagaram,Madanapalle,Chilli,6.35,52.9,High,79,18.274476,77.394394,0.34,0.76,0.2
+AP-00220,Kavitha Rao,West Godavari,Tenali,Red Gram,8.73,56.6,High,88,19.027899,81.326079,0.76,0.44,0.39

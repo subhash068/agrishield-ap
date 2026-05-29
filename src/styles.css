@@ -183,7 +183,14 @@
   background: oklch(0.13 0.03 200) !important;
   font-family: inherit;
 }
-.leaflet-tile { filter: hue-rotate(180deg) invert(0.92) brightness(0.85) contrast(1.05); }
+.leaflet-container.basemap-terrain .leaflet-tile,
+.leaflet-container.basemap-terrain .leaflet-pane {
+  filter: hue-rotate(180deg) invert(0.92) brightness(0.85) contrast(1.05);
+}
+.leaflet-container.basemap-satellite .leaflet-tile,
+.leaflet-container.basemap-hybrid .leaflet-tile {
+  filter: none !important;
+}
 .leaflet-control-attribution { background: oklch(0.16 0.03 200 / 80%) !important; color: oklch(0.7 0.03 200) !important; }
 .leaflet-control-attribution a { color: oklch(0.78 0.17 200) !important; }
 .leaflet-control-zoom a {

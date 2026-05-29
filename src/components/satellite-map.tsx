@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CircleMarker, GeoJSON, MapContainer, Polygon, TileLayer, Tooltip, ZoomControl, useMap } from "react-leaflet";
 import L from "leaflet";
 import type { GeoJsonObject } from "geojson";
@@ -7,6 +7,7 @@ import type { Parcel } from "@/lib/api";
 type ParcelMapProps = {
   historic: number;
   activeLayer: string;
+  basemap: "Satellite" | "Hybrid" | "Terrain";
   parcels: Parcel[];
   districtFilter: string;
   mandalFilter: string;
@@ -60,6 +61,7 @@ function ZoomToSelection({ geoJson, enabled }: { geoJson: unknown; enabled: bool
 export function SatelliteMap({
   historic,
   activeLayer,
+  basemap,
   parcels,
   districtFilter,
   mandalFilter,
@@ -69,6 +71,7 @@ export function SatelliteMap({
   onSelectParcel,
 }: ParcelMapProps) {
   const mapRef = useRef<L.Map | null>(null);
+  const [imageryFallback, setImageryFallback] = useState(false);
 
   const parcelsWithBand = useMemo(() => {
     return parcels.map((parcel, index) => {
@@ -140,6 +143,10 @@ export function SatelliteMap({
   }, []);
 
   useEffect(() => {
+    setImageryFallback(false);
+  }, [basemap]);
+
+  useEffect(() => {
     if (!selectedParcel) return;
     const bounds = L.polygon(geometryToLeafletPositions(selectedParcel)).getBounds();
     if (bounds.isValid()) {
@@ -149,6 +156,7 @@ export function SatelliteMap({
 
   return (
     <MapContainer
+      className={`basemap-${basemap.toLowerCase()}`}
       center={[16.5, 80.5]}
       zoom={7}
       zoomControl={false}
@@ -157,7 +165,71 @@ export function SatelliteMap({
       }}
       style={{ height: "100%", width: "100%" }}
     >
-      <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      {basemap === "Satellite" && !imageryFallback ? (
+        <>
+          <TileLayer
+            key="satellite-imagery"
+            attribution='Tiles &copy; Esri'
+            url="https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            crossOrigin="anonymous"
+            eventHandlers={{
+              tileerror: () => setImageryFallback(true),
+            }}
+          />
+          <TileLayer
+            key="satellite-labels"
+            attribution='Labels &copy; Esri'
+            url="https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+            opacity={0.95}
+            crossOrigin="anonymous"
+            eventHandlers={{
+              tileerror: () => setImageryFallback(true),
+            }}
+          />
+        </>
+      ) : null}
+
+      {basemap === "Hybrid" && !imageryFallback ? (
+        <>
+          <TileLayer
+            key="hybrid-satellite"
+            attribution='Tiles &copy; Esri'
+            url="https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            crossOrigin="anonymous"
+            eventHandlers={{
+              tileerror: () => setImageryFallback(true),
+            }}
+          />
+          <TileLayer
+            key="hybrid-labels"
+            attribution='Labels &copy; Esri'
+            url="https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+            opacity={0.9}
+            crossOrigin="anonymous"
+            eventHandlers={{
+              tileerror: () => setImageryFallback(true),
+            }}
+          />
+        </>
+      ) : null}
+
+      {imageryFallback && (basemap === "Satellite" || basemap === "Hybrid") ? (
+        <TileLayer
+          key={`${basemap.toLowerCase()}-fallback`}
+          attribution='&copy; OpenStreetMap contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          crossOrigin="anonymous"
+        />
+      ) : null}
+
+      {basemap === "Terrain" ? (
+        <TileLayer
+          key="terrain"
+          attribution='Map data &copy; OpenStreetMap contributors, Tiles &copy; OpenTopoMap'
+          url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+          crossOrigin="anonymous"
+        />
+      ) : null}
       <ZoomControl position="topright" />
 
       <ZoomToSelection geoJson={selectedDistrictGeoJson} enabled={districtFilter !== "all"} />

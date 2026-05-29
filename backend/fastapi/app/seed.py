@@ -18,7 +18,7 @@ def seed_from_mock(db: Session):
         text(
             """
         INSERT INTO users (email, hashed_password, full_name, role, is_active, is_verified)
-        VALUES (:email, :hashed_password, :full_name, :role::roleenum, :is_active, :is_verified)
+        VALUES (:email, :hashed_password, :full_name, CAST(:role AS roleenum), :is_active, :is_verified)
         ON CONFLICT (email) DO UPDATE SET
             hashed_password = EXCLUDED.hashed_password,
             full_name = EXCLUDED.full_name,

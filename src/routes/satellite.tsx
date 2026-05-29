@@ -1,7 +1,7 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
-import { Satellite, Layers, Maximize2, Radio, MapPin, Sprout, Droplets, AlertTriangle, Info } from "lucide-react";
+import { Satellite, Layers, Maximize2, Radio, MapPin, Sprout, Droplets, AlertTriangle, Info, Globe, Mountain } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -79,6 +79,7 @@ function SatellitePage() {
   }>>(null);
   const [historic, setHistoric] = useState(11);
   const [activeLayer, setActiveLayer] = useState("NDVI");
+  const [basemap, setBasemap] = useState<"Satellite" | "Hybrid" | "Terrain">("Satellite");
   const [enabled, setEnabled] = useState<Record<string, boolean>>({ NDVI: true });
   const [selectedParcelId, setSelectedParcelId] = useState<string | null>(null);
   const [districtFilter, setDistrictFilter] = useState("all");
@@ -169,6 +170,7 @@ function SatellitePage() {
             <MapView
               historic={historic}
               activeLayer={activeLayer}
+              basemap={basemap}
               parcels={filteredParcels}
               districtFilter={districtFilter}
               mandalFilter={mandalFilter}
@@ -282,12 +284,43 @@ function SatellitePage() {
           <div>
             <h3 className="font-semibold text-sm mb-2">Basemap</h3>
             <div className="grid grid-cols-3 gap-1.5">
-              {["Satellite", "Hybrid", "Terrain"].map((basemap, index) => (
+              {(["Satellite", "Hybrid", "Terrain"] as const).map((option) => (
                 <button
-                  key={basemap}
-                  className={`text-[10px] py-2 rounded-md border ${index === 0 ? "border-primary/50 bg-primary/10 text-primary" : "border-border/60 bg-muted/20"}`}
+                  key={option}
+                  aria-pressed={basemap === option}
+                  className={`relative overflow-hidden rounded-lg border p-2 text-left transition ${
+                    basemap === option
+                      ? "border-primary/60 bg-primary/10 text-primary shadow-[0_0_0_1px_rgba(255,255,255,0.03)]"
+                      : "border-border/60 bg-muted/20 hover:border-primary/30"
+                  }`}
+                  onClick={() => setBasemap(option)}
                 >
-                  {basemap}
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`grid h-8 w-8 place-items-center rounded-md border ${
+                        option === "Satellite"
+                          ? "border-sky-400/30 bg-gradient-to-br from-slate-900 via-slate-700 to-sky-500/60 text-sky-200"
+                          : option === "Hybrid"
+                            ? "border-cyan-400/30 bg-gradient-to-br from-slate-900 via-cyan-900/50 to-emerald-500/40 text-cyan-100"
+                            : "border-emerald-400/30 bg-gradient-to-br from-amber-200 via-emerald-300 to-sky-300 text-emerald-900"
+                      }`}
+                    >
+                      {option === "Satellite" ? (
+                        <Satellite className="h-3.5 w-3.5" />
+                      ) : option === "Hybrid" ? (
+                        <Globe className="h-3.5 w-3.5" />
+                      ) : (
+                        <Mountain className="h-3.5 w-3.5" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[10px] font-semibold leading-none">{option}</div>
+                      <div className="mt-1 text-[9px] text-muted-foreground leading-none">
+                        {option === "Satellite" ? "Imagery + labels" : option === "Hybrid" ? "Imagery + labels" : "Terrain relief"}
+                      </div>
+                    </div>
+                  </div>
+                  {basemap === option ? <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-primary/20" /> : null}
                 </button>
               ))}
             </div>
