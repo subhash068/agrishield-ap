@@ -65,6 +65,22 @@ export type WeatherForecastPoint = {
   drought: number;
 };
 
+export type WeatherDatasetPoint = WeatherForecastPoint & {
+  source: string;
+};
+
+export type WeatherLiveSummary = {
+  location: string;
+  updated_at: string;
+  temperature: number;
+  apparent_temperature: number | null;
+  rainfall_24h: number;
+  humidity: number;
+  wind_speed: number;
+  weather_code: number | null;
+  source: string;
+};
+
 export type Parcel = {
   id: string;
   farmer: string;
@@ -78,6 +94,13 @@ export type Parcel = {
   lat: number;
   lng: number;
   ndvi: number;
+  evi: number;
+  ndre: number;
+  outline: Array<[number, number]>;
+  geometry: {
+    type: "Polygon";
+    coordinates: number[][][];
+  } | null;
 };
 
 export type Prediction = {
@@ -156,6 +179,22 @@ export function getParcels(): Promise<Parcel[]> {
 
 export function getWeatherForecast(): Promise<WeatherForecastPoint[]> {
   return apiFetch<WeatherForecastPoint[]>("/weather");
+}
+
+export function getWeatherLiveSummary(): Promise<WeatherLiveSummary> {
+  return apiFetch<WeatherLiveSummary>("/weather/live");
+}
+
+export function getWeatherForDay(day: string): Promise<WeatherForecastPoint> {
+  return apiFetch<WeatherForecastPoint>(`/weather/day?day=${encodeURIComponent(day)}`);
+}
+
+export function getWeatherHistory(): Promise<WeatherDatasetPoint[]> {
+  return apiFetch<WeatherDatasetPoint[]>("/weather/history");
+}
+
+export function getWeatherProjection2027(): Promise<WeatherDatasetPoint[]> {
+  return apiFetch<WeatherDatasetPoint[]>("/weather/projection-2027");
 }
 
 export function getPredictions(): Promise<Prediction[]> {

@@ -70,6 +70,27 @@ class WeatherForecastPointOut(BaseModel):
     drought: int
 
 
+class WeatherDatasetPointOut(BaseModel):
+    day: str
+    rainfall: float
+    temp: float
+    humidity: int
+    drought: int
+    source: str
+
+
+class WeatherSummaryOut(BaseModel):
+    location: str
+    updated_at: str
+    temperature: float
+    apparent_temperature: float | None = None
+    rainfall_24h: float
+    humidity: int
+    wind_speed: float
+    weather_code: int | None = None
+    source: str = "open-meteo"
+
+
 class ParcelOut(BaseModel):
     id: str
     farmer: str
@@ -85,6 +106,8 @@ class ParcelOut(BaseModel):
     ndvi: float
     evi: float
     ndre: float
+    outline: list[list[float]]
+    geometry: dict | None = None
 
 
 

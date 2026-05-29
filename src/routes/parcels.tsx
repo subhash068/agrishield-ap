@@ -13,7 +13,7 @@ import { getParcels, getSpectralTrend, getWeatherForecast } from "@/lib/api";
 export const Route = createFileRoute("/parcels")({
   head: () => ({
     meta: [
-      { title: "Parcel Intelligence · AgriShield AP" },
+      { title: "Parcel Intelligence Â· AgriShield AP" },
       { name: "description", content: "Drill into parcel-level health scores, growth analytics, stress probability and weather correlation." },
     ],
   }),
@@ -80,7 +80,7 @@ function ParcelsPage() {
                     "border-success/40 text-success"
                   }`}>{p.risk}</Badge>
                 </div>
-                <div className="mt-0.5 text-[11px] text-muted-foreground truncate">{p.farmer} · {p.crop} · {p.district}</div>
+                <div className="mt-0.5 text-[11px] text-muted-foreground truncate">{p.farmer} Â· {p.crop} Â· {p.district}</div>
                 <div className="mt-2 flex items-center gap-2">
                   <Progress value={p.health} className="h-1 flex-1" />
                   <span className="text-[10px] tabular-nums">{p.health}%</span>
@@ -97,7 +97,7 @@ function ParcelsPage() {
                 <p className="text-xs text-muted-foreground">Parcel</p>
                 <h2 className="text-2xl font-bold">{selected?.id ?? "--"}</h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {selected ? `${selected.farmer} · ${selected.crop} · ${selected.acreage} acres · ${selected.mandal}, ${selected.district}` : "No parcel selected"}
+                  {selected ? `${selected.farmer} Â· ${selected.crop} Â· ${selected.acreage} acres Â· ${selected.mandal}, ${selected.district}` : "No parcel selected"}
                 </p>
               </div>
               <div className="grid grid-cols-3 gap-2 text-center">
@@ -133,7 +133,7 @@ function ParcelsPage() {
             </div>
 
             <div className="glass rounded-xl p-5">
-              <h3 className="font-semibold text-sm mb-2">Weather correlation · next 14d</h3>
+              <h3 className="font-semibold text-sm mb-2">Weather correlation Â· next 14d</h3>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={weatherForecast}>
                   <CartesianGrid stroke="oklch(0.32 0.04 200 / 30%)" strokeDasharray="3 3" />
@@ -150,7 +150,7 @@ function ParcelsPage() {
           <div className="glass rounded-xl p-5">
             <h3 className="font-semibold text-sm mb-3">Latest advisory</h3>
             <p className="text-sm">Maintain irrigation at <span className="text-primary font-semibold">2.4 cm</span> over next 5 days. Apply
-              Tricyclazole if blast symptoms emerge. Forecast indicates 12 mm rainfall on Day 9 — defer top-dressing accordingly.</p>
+              Tricyclazole if blast symptoms emerge. Forecast indicates 12 mm rainfall on Day 9 â€” defer top-dressing accordingly.</p>
           </div>
         </div>
       </div>

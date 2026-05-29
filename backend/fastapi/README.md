@@ -18,6 +18,7 @@ Endpoints:
 - GET  /spectral-trend
 - GET  /parcels
 - GET  /weather
+- GET  /weather/live
 - GET  /predictions
 - POST /disease/detect (multipart file: "file")
 

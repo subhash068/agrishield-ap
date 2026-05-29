@@ -1,9 +1,7 @@
 from __future__ import annotations
 from urllib.parse import urlparse
-
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
-
 from .config import settings
 
 engine = create_engine(settings.postgres_dsn, pool_pre_ping=True)
@@ -39,13 +37,15 @@ def ensure_postgres_database_exists(*, target_dsn: str | None = None, maintenanc
 
     maintenance_engine = create_engine(maintenance_dsn, pool_pre_ping=True)
 
+    # CREATE DATABASE must run outside an explicit transaction block (Postgres limitation).
     with maintenance_engine.connect() as conn:
         exists = conn.execute(
             text("SELECT 1 FROM pg_database WHERE datname = :dbname"),
             {"dbname": dbname},
         ).first()
 
-        if exists is None:
+    if exists is None:
+        # Run CREATE DATABASE with AUTOCOMMIT to avoid ActiveSqlTransaction errors.
+        with maintenance_engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn2:
             # Identifiers must be quoted; since DB name is from DSN, we safely double-quote it.
-            conn.execute(text(f'CREATE DATABASE "{dbname}"'))
-            conn.commit()
+            conn2.execute(text(f'CREATE DATABASE "{dbname}"'))

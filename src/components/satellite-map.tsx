@@ -1,84 +1,249 @@
 import { useEffect, useMemo, useRef } from "react";
-import { MapContainer, TileLayer, CircleMarker, Tooltip, ZoomControl } from "react-leaflet";
+import { CircleMarker, GeoJSON, MapContainer, Polygon, TileLayer, Tooltip, ZoomControl, useMap } from "react-leaflet";
 import L from "leaflet";
+import type { GeoJsonObject } from "geojson";
+import type { Parcel } from "@/lib/api";
 
-type Parcel = {
-  id: string;
-  crop: string;
-  farmer: string;
-  district: string;
-  mandal: string;
-  acreage: number;
-  ndvi: number;
-  health: number;
-  risk: string;
-  lat: number;
-  lng: number;
+type ParcelMapProps = {
+  historic: number;
+  activeLayer: string;
+  parcels: Parcel[];
+  districtFilter: string;
+  mandalFilter: string;
+  districtGeoJson: unknown;
+  mandalGeoJson: unknown;
+  selectedParcelId: string | null;
+  onSelectParcel: (parcelId: string) => void;
 };
 
-export function SatelliteMap({ historic, activeLayer, parcels: inputParcels }: { historic: number; activeLayer: string; parcels: Parcel[] }) {
-  const mapRef = useRef<L.Map | null>(null);
+const RISK_STYLES: Record<string, { stroke: string; fill: string; opacity: number }> = {
+  healthy: { stroke: "oklch(0.78 0.19 145)", fill: "oklch(0.78 0.19 145)", opacity: 0.25 },
+  moderate: { stroke: "oklch(0.82 0.17 80)", fill: "oklch(0.82 0.17 80)", opacity: 0.28 },
+  warning: { stroke: "oklch(0.68 0.22 25)", fill: "oklch(0.68 0.22 25)", opacity: 0.3 },
+};
 
-  // colour parcels based on the active layer + historic offset
-  const parcels = useMemo(() => {
-    return inputParcels.map(p => {
-      const drift = Math.sin((historic + p.lat) * 0.6) * 0.1;
-      const v = Math.max(0, Math.min(1, p.ndvi + drift));
-      return { ...p, v };
-    });
-  }, [historic, inputParcels]);
-
-  const colorFor = (v: number) => {
-    if (activeLayer === "Disease Probability" || activeLayer === "Anomaly Hotspots") {
-      // invert: higher = more red
-      const t = 1 - v;
-      return t > 0.7 ? "oklch(0.68 0.22 25)" : t > 0.4 ? "oklch(0.82 0.17 80)" : "oklch(0.78 0.19 145)";
+function geometryToLeafletPositions(parcel: Parcel): [number, number][] {
+  if (parcel.geometry?.type === "Polygon") {
+    const outerRing = parcel.geometry.coordinates[0] ?? [];
+    if (outerRing.length > 0) {
+      return outerRing.map(([lng, lat]) => [lat, lng]);
     }
-    return v > 0.6 ? "oklch(0.78 0.19 145)" : v > 0.4 ? "oklch(0.78 0.17 200)" : v > 0.25 ? "oklch(0.82 0.17 80)" : "oklch(0.68 0.22 25)";
-  };
+  }
+
+  return parcel.outline;
+}
+
+function labelForFeature(feature: GeoJSON.Feature | undefined, fallback: string) {
+  const properties = (feature?.properties ?? {}) as Record<string, unknown>;
+  return (
+    (typeof properties.sdtname === "string" && properties.sdtname) ||
+    (typeof properties.NAME === "string" && properties.NAME) ||
+    (typeof properties.dtname === "string" && properties.dtname) ||
+    fallback
+  );
+}
+
+function ZoomToSelection({ geoJson, enabled }: { geoJson: unknown; enabled: boolean }) {
+  const map = useMap();
 
   useEffect(() => {
-    // ensure map invalidates after mount (sidebar shrinks container)
-    const t = setTimeout(() => mapRef.current?.invalidateSize(), 200);
-    return () => clearTimeout(t);
+    if (!enabled || !geoJson) return;
+    const bounds = L.geoJSON(geoJson as GeoJsonObject).getBounds();
+    if (bounds.isValid()) {
+      map.fitBounds(bounds.pad(0.08), { animate: true, duration: 0.8 });
+    }
+  }, [enabled, geoJson, map]);
+
+  return null;
+}
+
+export function SatelliteMap({
+  historic,
+  activeLayer,
+  parcels,
+  districtFilter,
+  mandalFilter,
+  districtGeoJson,
+  mandalGeoJson,
+  selectedParcelId,
+  onSelectParcel,
+}: ParcelMapProps) {
+  const mapRef = useRef<L.Map | null>(null);
+
+  const parcelsWithBand = useMemo(() => {
+    return parcels.map((parcel, index) => {
+      const drift = Math.sin((historic + parcel.lat) * 0.6 + index * 0.17) * 0.08;
+      const ndvi = Math.max(0, Math.min(1, parcel.ndvi + drift));
+      const healthBand = parcel.health >= 75 ? "healthy" : parcel.health >= 60 ? "moderate" : "warning";
+      return { ...parcel, ndvi, healthBand };
+    });
+  }, [historic, parcels]);
+
+  const layerScale = (parcel: (typeof parcelsWithBand)[number]) => {
+    if (activeLayer === "Disease Probability" || activeLayer === "Anomaly Hotspots") {
+      return 1 - parcel.health / 100;
+    }
+    if (activeLayer === "Vegetation Stress") {
+      return 1 - parcel.ndvi;
+    }
+    if (activeLayer === "Soil Moisture") {
+      return Math.min(1, 0.35 + parcel.ndvi * 0.45);
+    }
+    if (activeLayer === "EVI") {
+      return Math.min(1, parcel.evi);
+    }
+    if (activeLayer === "NDRE") {
+      return Math.min(1, parcel.ndre);
+    }
+    return parcel.ndvi;
+  };
+
+  const styleFor = (parcel: (typeof parcelsWithBand)[number]) => {
+    const scale = layerScale(parcel);
+    const base = RISK_STYLES[parcel.healthBand];
+    const selected = selectedParcelId === parcel.id;
+
+    return {
+      color: selected ? "oklch(0.72 0.18 260)" : base.stroke,
+      fillColor: selected ? "oklch(0.72 0.18 260)" : base.fill,
+      fillOpacity: selected ? 0.42 : base.opacity + scale * 0.18,
+      weight: selected ? 2.5 : 1.3,
+    };
+  };
+
+  const selectedParcel = parcelsWithBand.find((parcel) => parcel.id === selectedParcelId) ?? null;
+
+  const selectedDistrictGeoJson = useMemo(() => {
+    if (!districtGeoJson || districtFilter === "all") return districtGeoJson;
+    const geojson = districtGeoJson as { features?: Array<{ properties?: { NAME?: string } }> };
+    return {
+      ...(districtGeoJson as Record<string, unknown>),
+      features: (geojson.features ?? []).filter((feature) => feature?.properties?.NAME === districtFilter),
+    };
+  }, [districtFilter, districtGeoJson]);
+
+  const selectedMandalGeoJson = useMemo(() => {
+    if (!mandalGeoJson) return mandalGeoJson;
+    const geojson = mandalGeoJson as { features?: Array<{ properties?: { dtname?: string; sdtname?: string } }> };
+    return {
+      ...(mandalGeoJson as Record<string, unknown>),
+      features: (geojson.features ?? []).filter((feature) => {
+        if (districtFilter !== "all" && feature?.properties?.dtname !== districtFilter) return false;
+        return mandalFilter === "all" || feature?.properties?.sdtname === mandalFilter;
+      }),
+    };
+  }, [districtFilter, mandalFilter, mandalGeoJson]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => mapRef.current?.invalidateSize(), 200);
+    return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (!selectedParcel) return;
+    const bounds = L.polygon(geometryToLeafletPositions(selectedParcel)).getBounds();
+    if (bounds.isValid()) {
+      mapRef.current?.fitBounds(bounds.pad(0.18), { animate: true, duration: 0.8 });
+    }
+  }, [selectedParcel]);
 
   return (
     <MapContainer
       center={[16.5, 80.5]}
       zoom={7}
       zoomControl={false}
-      ref={(m) => { if (m) mapRef.current = m; }}
+      ref={(map) => {
+        if (map) mapRef.current = map;
+      }}
       style={{ height: "100%", width: "100%" }}
     >
-      <TileLayer
-        attribution='&copy; OpenStreetMap'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+      <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <ZoomControl position="topright" />
 
-      {parcels.map(p => (
-        <CircleMarker
-          key={p.id}
-          center={[p.lat, p.lng]}
-          radius={5 + p.v * 6}
-          pathOptions={{
-            color: colorFor(p.v),
-            fillColor: colorFor(p.v),
-            fillOpacity: 0.55,
-            weight: 1,
+      <ZoomToSelection geoJson={selectedDistrictGeoJson} enabled={districtFilter !== "all"} />
+      <ZoomToSelection geoJson={selectedMandalGeoJson} enabled={mandalFilter !== "all"} />
+
+      {districtGeoJson ? (
+        <GeoJSON
+          data={districtGeoJson as GeoJsonObject}
+          style={(feature) => ({
+            color: feature?.properties?.NAME === districtFilter ? "oklch(0.72 0.18 260)" : "oklch(0.7 0.04 250)",
+            weight: feature?.properties?.NAME === districtFilter ? 2.2 : 1,
+            fillOpacity: 0.02,
+            opacity: 0.55,
+          })}
+          onEachFeature={(feature, layer) => {
+            layer.bindTooltip(labelForFeature(feature, "District"), {
+              sticky: true,
+              direction: "center",
+              opacity: 0.95,
+            });
+          }}
+        />
+      ) : null}
+
+      {mandalGeoJson ? (
+        <GeoJSON
+          data={mandalGeoJson as GeoJsonObject}
+          style={(feature) => ({
+            color:
+              districtFilter === "all" || feature?.properties?.dtname === districtFilter
+                ? feature?.properties?.sdtname === mandalFilter
+                  ? "oklch(0.72 0.18 260)"
+                  : "oklch(0.72 0.08 230)"
+                : "oklch(0.7 0.04 250)",
+            weight: mandalFilter === "all" ? 0.9 : feature?.properties?.sdtname === mandalFilter ? 1.6 : 0.9,
+            fillOpacity: 0,
+            opacity: 0.28,
+          })}
+          onEachFeature={(feature, layer) => {
+            layer.bindTooltip(labelForFeature(feature, "Mandal"), {
+              sticky: true,
+              direction: "center",
+              opacity: 0.95,
+            });
+          }}
+        />
+      ) : null}
+
+      {parcelsWithBand.map((parcel) => (
+        <Polygon
+          key={parcel.id}
+          positions={geometryToLeafletPositions(parcel)}
+          pathOptions={styleFor(parcel)}
+          eventHandlers={{
+            click: () => onSelectParcel(parcel.id),
           }}
         >
-          <Tooltip direction="top" offset={[0, -6]} opacity={1}>
-            <div className="text-[11px]">
-              <div className="font-semibold">{p.id} · {p.crop}</div>
-              <div>Farmer: {p.farmer}</div>
-              <div>{p.district} · {p.mandal} · {p.acreage} ac</div>
-              <div>NDVI: {p.v.toFixed(2)} · Health {p.health}% · {p.risk}</div>
+          <Tooltip direction="top" offset={[0, -6]} opacity={1} sticky>
+            <div className="text-[11px] space-y-0.5">
+              <div className="font-semibold">
+                {parcel.id} · {parcel.crop}
+              </div>
+              <div>Farmer: {parcel.farmer}</div>
+              <div>
+                {parcel.district} · {parcel.mandal} · {parcel.acreage} ac
+              </div>
+              <div>
+                Health {parcel.health}% · NDVI {parcel.ndvi.toFixed(2)} · {parcel.risk}
+              </div>
             </div>
           </Tooltip>
-        </CircleMarker>
+        </Polygon>
       ))}
+
+      {selectedParcel ? (
+        <CircleMarker
+          center={[selectedParcel.lat, selectedParcel.lng]}
+          radius={5}
+          pathOptions={{
+            color: "oklch(0.72 0.18 260)",
+            fillColor: "oklch(0.72 0.18 260)",
+            fillOpacity: 1,
+            weight: 1,
+          }}
+        />
+      ) : null}
     </MapContainer>
   );
 }
