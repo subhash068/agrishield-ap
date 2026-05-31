@@ -1,0 +1,1201 @@
+parcel_id_str,farmer,district,mandal,crop,acreage,health,risk,confidence,lat,lng,ndvi,evi,ndre
+WG-00001,Srinivasa Rao,West Godavari,Achanta,Red Gram,8.65,69.5,Medium,86,16.656265,81.413427,0.85,0.8,0.51
+WG-00002,Lakshmi Devi,West Godavari,Akiveedu,Paddy,0.76,77.4,Low,93,16.602079,81.578381,0.92,0.81,0.63
+WG-00003,Venkata Ramana,West Godavari,Attili,Paddy,2.12,66.4,Medium,82,16.442222,81.686496,0.83,0.76,0.58
+WG-00004,Sailaja,West Godavari,Bhimavaram,Paddy,3.79,76.9,Low,88,16.473711,81.566615,0.88,0.84,0.55
+WG-00005,Ramesh Babu,West Godavari,Elamanchili,Paddy,11.42,74.3,Medium,94,16.620414,81.707686,0.81,0.75,0.58
+WG-00006,Padma Priya,West Godavari,Iragavaram,Cotton,2.69,63.4,Medium,89,16.427702,81.744188,0.79,0.69,0.49
+WG-00007,Kiran Kumar,West Godavari,Mogalthur,Paddy,3.8,87.4,Low,90,16.446169,81.635119,0.92,0.8,0.67
+WG-00008,Anitha,West Godavari,Narasapuram,Paddy,2.12,67.3,Medium,83,16.702876,81.650115,0.75,0.66,0.53
+WG-00009,Satyanarayana,West Godavari,Palacoderu,Paddy,1.38,66.1,Medium,86,16.514839,81.413452,0.79,0.76,0.52
+WG-00010,Rajeshwari,West Godavari,Palacole,Paddy,7.69,78.7,Low,91,16.603578,81.37278,0.92,0.85,0.56
+WG-00011,Mohan Rao,West Godavari,Pentapadu,Paddy,11.24,65.5,Medium,90,16.43859,81.464138,0.77,0.72,0.57
+WG-00012,Divya,West Godavari,Penugonda,Paddy,6.74,77.0,Low,93,16.530108,81.55512,0.85,0.73,0.54
+WG-00013,Prasad,West Godavari,Penumantra,Chilli,8.79,67.7,Medium,92,16.574913,81.723873,0.87,0.81,0.53
+WG-00014,Swapna,West Godavari,Poduru,Paddy,2.16,68.7,Medium,88,16.399366,81.57416,0.76,0.69,0.51
+WG-00015,Naresh,West Godavari,Tadepalligudem,Paddy,10.6,75.3,Low,87,16.579574,81.682921,0.83,0.8,0.58
+WG-00016,Bhavani,West Godavari,Tanuku,Maize,1.87,64.7,Medium,86,16.778666,81.586312,0.76,0.71,0.54
+WG-00017,Srinivasa Rao,West Godavari,Undi,Paddy,3.16,65.4,Medium,81,16.417431,81.626136,0.77,0.71,0.56
+WG-00018,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,5.33,79.4,Low,90,16.851,81.561067,0.89,0.79,0.53
+WG-00019,Venkata Ramana,West Godavari,Ganapavaram,Paddy,5.9,82.2,Low,92,16.476984,81.654911,0.85,0.78,0.61
+WG-00020,Sailaja,West Godavari,Kalla,Paddy,6.04,81.5,Low,87,16.408168,81.609095,0.91,0.85,0.59
+WG-00021,Srinivasa Rao,West Godavari,Achanta,Red Gram,11.9,77.4,Low,91,16.597096,81.362892,0.85,0.82,0.63
+WG-00022,Lakshmi Devi,West Godavari,Akiveedu,Paddy,1.79,78.5,Low,89,16.602037,81.666753,0.87,0.81,0.6
+WG-00023,Venkata Ramana,West Godavari,Attili,Paddy,7.98,71.7,Medium,83,16.550696,81.42983,0.88,0.77,0.54
+WG-00024,Sailaja,West Godavari,Bhimavaram,Paddy,1.29,77.1,Low,85,16.546542,81.352298,0.89,0.84,0.63
+WG-00025,Ramesh Babu,West Godavari,Elamanchili,Cotton,9.87,73.3,Medium,89,16.811607,81.501482,0.79,0.75,0.51
+WG-00026,Padma Priya,West Godavari,Iragavaram,Cotton,11.51,66.0,Medium,87,16.616426,81.511238,0.88,0.81,0.53
+WG-00027,Kiran Kumar,West Godavari,Mogalthur,Paddy,10.11,70.8,Medium,89,16.3479,81.649598,0.76,0.68,0.6
+WG-00028,Anitha,West Godavari,Narasapuram,Paddy,9.22,74.6,Medium,92,16.664082,81.626949,0.84,0.82,0.57
+WG-00029,Satyanarayana,West Godavari,Palacoderu,Paddy,10.56,78.1,Low,94,16.60859,81.551205,0.89,0.85,0.57
+WG-00030,Rajeshwari,West Godavari,Palacole,Paddy,1.81,88.0,Low,90,16.877466,81.610973,0.87,0.78,0.59
+WG-00031,Mohan Rao,West Godavari,Pentapadu,Chilli,4.36,76.6,Low,94,16.694588,81.619468,0.92,0.81,0.57
+WG-00032,Divya,West Godavari,Penugonda,Red Gram,6.66,72.9,Medium,88,16.496428,81.545646,0.83,0.76,0.52
+WG-00033,Prasad,West Godavari,Penumantra,Paddy,1.84,75.6,Low,85,16.393269,81.662572,0.88,0.78,0.54
+WG-00034,Swapna,West Godavari,Poduru,Paddy,7.4,89.9,Low,91,16.953549,81.511858,0.92,0.85,0.61
+WG-00035,Naresh,West Godavari,Tadepalligudem,Paddy,3.47,78.5,Low,93,16.885398,81.492212,0.81,0.74,0.63
+WG-00036,Bhavani,West Godavari,Tanuku,Paddy,5.2,87.4,Low,97,16.74097,81.656977,0.86,0.79,0.66
+WG-00037,Srinivasa Rao,West Godavari,Undi,Paddy,3.07,79.5,Low,90,16.406992,81.643984,0.92,0.85,0.6
+WG-00038,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,8.43,68.3,Medium,85,16.587094,81.509524,0.8,0.74,0.58
+WG-00039,Venkata Ramana,West Godavari,Ganapavaram,Cotton,4.46,55.7,High,81,16.685473,81.609393,0.76,0.64,0.51
+WG-00040,Sailaja,West Godavari,Kalla,Paddy,3.69,79.5,Low,90,16.668972,81.692236,0.92,0.85,0.6
+WG-00041,Srinivasa Rao,West Godavari,Achanta,Maize,6.69,74.0,Medium,84,16.483308,81.79891,0.92,0.85,0.59
+WG-00042,Lakshmi Devi,West Godavari,Akiveedu,Paddy,9.64,72.4,Medium,91,16.61418,81.705226,0.78,0.7,0.61
+WG-00043,Venkata Ramana,West Godavari,Attili,Paddy,8.16,72.8,Medium,90,16.537872,81.592967,0.82,0.8,0.53
+WG-00044,Sailaja,West Godavari,Bhimavaram,Paddy,5.71,78.5,Low,87,16.50004,81.666828,0.82,0.7,0.57
+WG-00045,Ramesh Babu,West Godavari,Elamanchili,Paddy,7.8,66.5,Medium,83,16.527588,81.683687,0.77,0.72,0.55
+WG-00046,Padma Priya,West Godavari,Iragavaram,Paddy,10.12,89.6,Low,96,16.831617,81.5717,0.88,0.78,0.59
+WG-00047,Kiran Kumar,West Godavari,Mogalthur,Cotton,7.28,57.1,High,85,16.528571,81.401101,0.76,0.7,0.5
+WG-00048,Anitha,West Godavari,Narasapuram,Cotton,11.86,69.3,Medium,88,16.569623,81.693946,0.89,0.83,0.54
+WG-00049,Satyanarayana,West Godavari,Palacoderu,Chilli,5.29,67.6,Medium,91,16.517513,81.794574,0.86,0.76,0.5
+WG-00050,Rajeshwari,West Godavari,Palacole,Paddy,5.43,68.4,Medium,91,16.591369,81.678291,0.8,0.68,0.5
+WG-00051,Mohan Rao,West Godavari,Pentapadu,Cotton,3.82,63.9,Medium,88,16.795485,81.584186,0.79,0.71,0.52
+WG-00052,Divya,West Godavari,Penugonda,Paddy,6.6,69.7,Medium,87,16.648839,81.79857,0.79,0.69,0.51
+WG-00053,Prasad,West Godavari,Penumantra,Paddy,4.3,87.6,Low,97,16.489869,81.739313,0.91,0.85,0.56
+WG-00054,Swapna,West Godavari,Poduru,Paddy,5.34,86.6,Low,94,16.712748,81.732734,0.84,0.82,0.65
+WG-00055,Naresh,West Godavari,Tadepalligudem,Paddy,9.99,79.5,Low,89,16.393738,81.607327,0.81,0.74,0.53
+WG-00056,Bhavani,West Godavari,Tanuku,Cotton,8.87,62.0,Medium,81,16.557354,81.826956,0.84,0.81,0.46
+WG-00057,Srinivasa Rao,West Godavari,Undi,Paddy,3.81,71.4,Medium,92,16.474438,81.527815,0.89,0.79,0.61
+WG-00058,Lakshmi Devi,West Godavari,Veeravasaram,Cotton,11.45,75.4,Low,91,16.671874,81.788997,0.92,0.81,0.57
+WG-00059,Venkata Ramana,West Godavari,Ganapavaram,Cotton,8.98,72.6,Medium,89,16.653794,81.809931,0.84,0.75,0.59
+WG-00060,Sailaja,West Godavari,Kalla,Paddy,1.56,66.0,Medium,84,16.611582,81.764744,0.88,0.85,0.59
+WG-00061,Srinivasa Rao,West Godavari,Achanta,Maize,7.53,68.0,Medium,84,16.878517,81.536627,0.88,0.83,0.54
+WG-00062,Lakshmi Devi,West Godavari,Akiveedu,Paddy,7.35,69.2,Medium,87,16.565082,81.731547,0.75,0.71,0.51
+WG-00063,Venkata Ramana,West Godavari,Attili,Paddy,3.24,69.0,Medium,92,16.497786,81.81374,0.76,0.7,0.53
+WG-00064,Sailaja,West Godavari,Bhimavaram,Paddy,7.25,83.9,Low,89,16.891843,81.562482,0.86,0.77,0.62
+WG-00065,Ramesh Babu,West Godavari,Elamanchili,Cotton,9.53,60.4,Medium,82,16.6652,81.493477,0.72,0.64,0.46
+WG-00066,Padma Priya,West Godavari,Iragavaram,Red Gram,9.63,67.0,Medium,83,16.895305,81.555785,0.88,0.81,0.53
+WG-00067,Kiran Kumar,West Godavari,Mogalthur,Cotton,5.65,77.8,Low,90,16.756672,81.662649,0.92,0.85,0.58
+WG-00068,Anitha,West Godavari,Narasapuram,Red Gram,4.86,74.1,Medium,92,16.357121,81.639541,0.78,0.72,0.62
+WG-00069,Satyanarayana,West Godavari,Palacoderu,Paddy,10.82,70.9,Medium,93,16.713956,81.670007,0.91,0.85,0.59
+WG-00070,Rajeshwari,West Godavari,Palacole,Maize,11.89,66.2,Medium,81,16.515671,81.355525,0.88,0.76,0.51
+WG-00071,Mohan Rao,West Godavari,Pentapadu,Paddy,1.11,69.8,Medium,87,16.541861,81.58669,0.84,0.8,0.56
+WG-00072,Divya,West Godavari,Penugonda,Paddy,7.64,77.5,Low,89,16.759414,81.61693,0.86,0.76,0.61
+WG-00073,Prasad,West Godavari,Penumantra,Cotton,10.32,56.0,High,80,16.367533,81.694609,0.7,0.64,0.5
+WG-00074,Swapna,West Godavari,Poduru,Paddy,1.72,84.5,Low,97,16.550007,81.529312,0.88,0.8,0.58
+WG-00075,Naresh,West Godavari,Tadepalligudem,Red Gram,11.84,65.9,Medium,82,16.522836,81.432921,0.83,0.8,0.51
+WG-00076,Bhavani,West Godavari,Tanuku,Paddy,4.17,74.3,Medium,94,16.631882,81.599911,0.9,0.85,0.58
+WG-00077,Srinivasa Rao,West Godavari,Undi,Paddy,10.21,71.8,Medium,93,16.70374,81.740354,0.84,0.75,0.59
+WG-00078,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,10.44,73.1,Medium,88,16.565958,81.43972,0.89,0.84,0.54
+WG-00079,Venkata Ramana,West Godavari,Ganapavaram,Paddy,8.97,77.1,Low,89,16.571115,81.686062,0.79,0.76,0.63
+WG-00080,Sailaja,West Godavari,Kalla,Paddy,1.59,83.1,Low,93,16.51523,81.660932,0.84,0.78,0.59
+WG-00081,Srinivasa Rao,West Godavari,Achanta,Maize,10.06,64.8,Medium,87,16.604757,81.48883,0.83,0.79,0.47
+WG-00082,Lakshmi Devi,West Godavari,Akiveedu,Paddy,8.71,81.9,Low,96,16.508053,81.714781,0.92,0.82,0.62
+WG-00083,Venkata Ramana,West Godavari,Attili,Maize,8.97,59.1,High,86,16.350399,81.688414,0.71,0.67,0.53
+WG-00084,Sailaja,West Godavari,Bhimavaram,Paddy,8.26,75.4,Low,91,16.662592,81.538339,0.92,0.85,0.53
+WG-00085,Ramesh Babu,West Godavari,Elamanchili,Paddy,10.02,88.6,Low,97,16.630811,81.589656,0.92,0.81,0.65
+WG-00086,Padma Priya,West Godavari,Iragavaram,Cotton,1.09,60.0,Medium,88,16.511462,81.789507,0.83,0.8,0.49
+WG-00087,Kiran Kumar,West Godavari,Mogalthur,Paddy,10.27,76.8,Low,94,16.523443,81.67903,0.84,0.81,0.55
+WG-00088,Anitha,West Godavari,Narasapuram,Red Gram,6.8,80.0,Low,90,16.553602,81.599775,0.92,0.81,0.59
+WG-00089,Satyanarayana,West Godavari,Palacoderu,Cotton,4.26,73.1,Medium,85,16.77397,81.569712,0.91,0.85,0.6
+WG-00090,Rajeshwari,West Godavari,Palacole,Paddy,8.3,73.0,Medium,86,16.618463,81.755042,0.89,0.8,0.54
+WG-00091,Mohan Rao,West Godavari,Pentapadu,Paddy,9.6,88.8,Low,98,16.814865,81.536393,0.92,0.85,0.6
+WG-00092,Divya,West Godavari,Penugonda,Cotton,9.7,77.8,Low,91,16.553154,81.782628,0.83,0.77,0.53
+WG-00093,Prasad,West Godavari,Penumantra,Paddy,6.21,69.4,Medium,85,16.519337,81.537968,0.78,0.75,0.6
+WG-00094,Swapna,West Godavari,Poduru,Paddy,8.77,87.0,Low,93,16.406259,81.655794,0.88,0.77,0.59
+WG-00095,Naresh,West Godavari,Tadepalligudem,Paddy,3.69,74.4,Medium,88,16.497398,81.485727,0.89,0.81,0.54
+WG-00096,Bhavani,West Godavari,Tanuku,Maize,2.05,71.5,Medium,88,16.361218,81.555075,0.82,0.73,0.59
+WG-00097,Srinivasa Rao,West Godavari,Undi,Paddy,2.75,74.1,Medium,94,16.845478,81.503552,0.88,0.83,0.51
+WG-00098,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,3.08,69.6,Medium,85,16.627717,81.78977,0.8,0.76,0.51
+WG-00099,Venkata Ramana,West Godavari,Ganapavaram,Paddy,5.24,77.2,Low,90,16.880606,81.55048,0.88,0.82,0.62
+WG-00100,Sailaja,West Godavari,Kalla,Cotton,6.68,66.0,Medium,85,16.585482,81.690324,0.76,0.7,0.59
+WG-00101,Srinivasa Rao,West Godavari,Achanta,Maize,3.86,74.7,Medium,86,16.626701,81.618938,0.8,0.76,0.58
+WG-00102,Lakshmi Devi,West Godavari,Akiveedu,Paddy,5.1,82.1,Low,93,16.628926,81.771652,0.84,0.72,0.6
+WG-00103,Venkata Ramana,West Godavari,Attili,Cotton,4.14,56.2,High,78,16.534847,81.610727,0.68,0.65,0.53
+WG-00104,Sailaja,West Godavari,Bhimavaram,Maize,3.62,74.6,Medium,89,16.670388,81.645616,0.8,0.71,0.54
+WG-00105,Ramesh Babu,West Godavari,Elamanchili,Cotton,0.8,56.0,High,79,16.605089,81.558279,0.7,0.65,0.52
+WG-00106,Padma Priya,West Godavari,Iragavaram,Red Gram,1.39,73.0,Medium,90,16.571506,81.726952,0.89,0.78,0.51
+WG-00107,Kiran Kumar,West Godavari,Mogalthur,Cotton,8.8,68.3,Medium,89,16.644597,81.633421,0.77,0.67,0.58
+WG-00108,Anitha,West Godavari,Narasapuram,Cotton,7.36,66.7,Medium,88,16.879673,81.596223,0.81,0.78,0.48
+WG-00109,Satyanarayana,West Godavari,Palacoderu,Paddy,5.74,80.7,Low,93,16.496813,81.84366,0.84,0.78,0.59
+WG-00110,Rajeshwari,West Godavari,Palacole,Chilli,6.63,75.1,Low,88,16.423486,81.595676,0.92,0.81,0.59
+WG-00111,Mohan Rao,West Godavari,Pentapadu,Paddy,2.38,77.1,Low,86,16.698699,81.734119,0.85,0.8,0.63
+WG-00112,Divya,West Godavari,Penugonda,Paddy,1.92,67.0,Medium,82,16.756051,81.649506,0.84,0.73,0.54
+WG-00113,Prasad,West Godavari,Penumantra,Cotton,9.61,55.3,High,79,16.668909,81.582949,0.77,0.68,0.54
+WG-00114,Swapna,West Godavari,Poduru,Chilli,1.07,80.1,Low,88,16.519281,81.414602,0.84,0.75,0.53
+WG-00115,Naresh,West Godavari,Tadepalligudem,Chilli,11.38,61.0,Medium,80,16.700042,81.601911,0.72,0.62,0.49
+WG-00116,Bhavani,West Godavari,Tanuku,Paddy,1.35,79.3,Low,90,16.601579,81.825885,0.89,0.85,0.54
+WG-00117,Srinivasa Rao,West Godavari,Undi,Paddy,11.09,80.1,Low,95,16.781336,81.504175,0.89,0.79,0.59
+WG-00118,Lakshmi Devi,West Godavari,Veeravasaram,Cotton,1.92,63.2,Medium,86,16.647494,81.777722,0.85,0.73,0.53
+WG-00119,Venkata Ramana,West Godavari,Ganapavaram,Red Gram,4.89,76.7,Low,94,16.766526,81.558543,0.92,0.85,0.57
+WG-00120,Sailaja,West Godavari,Kalla,Paddy,6.45,78.2,Low,89,16.429236,81.661856,0.83,0.81,0.54
+WG-00121,Srinivasa Rao,West Godavari,Achanta,Cotton,9.37,60.0,Medium,88,16.825465,81.559891,0.75,0.67,0.46
+WG-00122,Lakshmi Devi,West Godavari,Akiveedu,Paddy,9.67,77.3,Low,94,16.673048,81.493928,0.83,0.8,0.54
+WG-00123,Venkata Ramana,West Godavari,Attili,Red Gram,3.29,60.3,Medium,84,16.488993,81.625714,0.84,0.81,0.52
+WG-00124,Sailaja,West Godavari,Bhimavaram,Paddy,11.85,83.4,Low,97,16.514199,81.822922,0.91,0.81,0.55
+WG-00125,Ramesh Babu,West Godavari,Elamanchili,Chilli,4.94,59.0,High,83,16.81107,81.507825,0.7,0.66,0.54
+WG-00126,Padma Priya,West Godavari,Iragavaram,Cotton,8.66,63.0,Medium,87,16.8354,81.493168,0.71,0.59,0.49
+WG-00127,Kiran Kumar,West Godavari,Mogalthur,Red Gram,5.97,77.5,Low,91,16.412992,81.574312,0.89,0.82,0.59
+WG-00128,Anitha,West Godavari,Narasapuram,Paddy,8.98,69.5,Medium,92,16.584049,81.648901,0.85,0.82,0.58
+WG-00129,Satyanarayana,West Godavari,Palacoderu,Maize,3.22,79.4,Low,90,16.596894,81.382378,0.91,0.85,0.56
+WG-00130,Rajeshwari,West Godavari,Palacole,Cotton,6.85,63.4,Medium,88,16.673766,81.648388,0.83,0.75,0.54
+WG-00131,Mohan Rao,West Godavari,Pentapadu,Chilli,5.46,62.3,Medium,87,16.421041,81.673544,0.81,0.7,0.55
+WG-00132,Divya,West Godavari,Penugonda,Chilli,9.5,63.1,Medium,81,16.485655,81.505793,0.75,0.67,0.57
+WG-00133,Prasad,West Godavari,Penumantra,Paddy,1.71,65.6,Medium,86,16.565622,81.693779,0.83,0.79,0.53
+WG-00134,Swapna,West Godavari,Poduru,Paddy,8.03,65.3,Medium,88,16.413573,81.469262,0.8,0.72,0.55
+WG-00135,Naresh,West Godavari,Tadepalligudem,Paddy,7.6,88.4,Low,94,16.533039,81.562176,0.92,0.85,0.57
+WG-00136,Bhavani,West Godavari,Tanuku,Chilli,7.16,72.6,Medium,86,16.539631,81.726177,0.8,0.74,0.58
+WG-00137,Srinivasa Rao,West Godavari,Undi,Paddy,6.15,79.9,Low,89,16.557466,81.665983,0.92,0.81,0.57
+WG-00138,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,7.69,74.2,Medium,88,16.554935,81.415413,0.92,0.85,0.53
+WG-00139,Venkata Ramana,West Godavari,Ganapavaram,Paddy,10.37,86.4,Low,93,16.489819,81.718019,0.91,0.85,0.61
+WG-00140,Sailaja,West Godavari,Kalla,Paddy,6.76,81.8,Low,94,16.512408,81.564956,0.82,0.79,0.61
+WG-00141,Srinivasa Rao,West Godavari,Achanta,Maize,6.45,76.6,Low,87,16.592045,81.78798,0.81,0.79,0.59
+WG-00142,Lakshmi Devi,West Godavari,Akiveedu,Paddy,3.4,75.6,Low,94,16.657536,81.699562,0.81,0.71,0.62
+WG-00143,Venkata Ramana,West Godavari,Attili,Cotton,3.7,76.3,Low,85,16.746952,81.608149,0.83,0.73,0.61
+WG-00144,Sailaja,West Godavari,Bhimavaram,Paddy,4.93,67.8,Medium,89,16.639005,81.457967,0.77,0.72,0.56
+WG-00145,Ramesh Babu,West Godavari,Elamanchili,Paddy,4.02,84.3,Low,96,16.621203,81.766024,0.88,0.77,0.6
+WG-00146,Padma Priya,West Godavari,Iragavaram,Chilli,2.54,78.4,Low,93,16.501595,81.689525,0.83,0.71,0.6
+WG-00147,Kiran Kumar,West Godavari,Mogalthur,Cotton,9.67,74.4,Medium,86,16.576085,81.607862,0.82,0.79,0.63
+WG-00148,Anitha,West Godavari,Narasapuram,Paddy,6.98,71.3,Medium,92,16.414916,81.691812,0.88,0.85,0.59
+WG-00149,Satyanarayana,West Godavari,Palacoderu,Paddy,6.08,87.0,Low,92,16.816729,81.580009,0.92,0.85,0.6
+WG-00150,Rajeshwari,West Godavari,Palacole,Paddy,4.02,69.4,Medium,91,16.8413,81.493957,0.76,0.66,0.57
+WG-00151,Mohan Rao,West Godavari,Pentapadu,Paddy,5.16,72.0,Medium,89,16.523837,81.742098,0.78,0.66,0.6
+WG-00152,Divya,West Godavari,Penugonda,Paddy,5.39,79.0,Low,91,16.585574,81.564572,0.86,0.82,0.53
+WG-00153,Prasad,West Godavari,Penumantra,Paddy,9.38,69.4,Medium,92,16.686037,81.586019,0.77,0.67,0.49
+WG-00154,Swapna,West Godavari,Poduru,Cotton,3.01,79.3,Low,94,16.738322,81.623539,0.81,0.77,0.62
+WG-00155,Naresh,West Godavari,Tadepalligudem,Paddy,6.82,82.0,Low,95,16.660269,81.81644,0.92,0.85,0.63
+WG-00156,Bhavani,West Godavari,Tanuku,Paddy,9.75,65.3,Medium,86,16.648455,81.713993,0.78,0.69,0.55
+WG-00157,Srinivasa Rao,West Godavari,Undi,Paddy,8.09,85.4,Low,89,16.569302,81.728297,0.86,0.74,0.57
+WG-00158,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,10.74,65.3,Medium,81,16.526432,81.41197,0.86,0.78,0.5
+WG-00159,Venkata Ramana,West Godavari,Ganapavaram,Paddy,9.58,71.3,Medium,87,16.378497,81.629114,0.86,0.75,0.58
+WG-00160,Sailaja,West Godavari,Kalla,Paddy,11.15,71.3,Medium,84,16.620204,81.831813,0.85,0.8,0.55
+WG-00161,Srinivasa Rao,West Godavari,Achanta,Chilli,9.93,71.3,Medium,84,16.825112,81.611396,0.8,0.72,0.53
+WG-00162,Lakshmi Devi,West Godavari,Akiveedu,Paddy,3.85,75.8,Low,89,16.443998,81.680604,0.81,0.77,0.63
+WG-00163,Venkata Ramana,West Godavari,Attili,Paddy,2.15,66.1,Medium,83,16.700624,81.587213,0.87,0.75,0.48
+WG-00164,Sailaja,West Godavari,Bhimavaram,Paddy,10.95,83.7,Low,95,16.593189,81.364754,0.92,0.85,0.63
+WG-00165,Ramesh Babu,West Godavari,Elamanchili,Red Gram,4.03,81.4,Low,88,16.844608,81.557931,0.92,0.85,0.6
+WG-00166,Padma Priya,West Godavari,Iragavaram,Cotton,7.48,76.1,Low,90,16.534525,81.802075,0.92,0.85,0.59
+WG-00167,Kiran Kumar,West Godavari,Mogalthur,Red Gram,6.07,61.0,Medium,80,16.583676,81.364913,0.75,0.64,0.46
+WG-00168,Anitha,West Godavari,Narasapuram,Maize,3.18,64.6,Medium,87,16.662962,81.698758,0.78,0.67,0.52
+WG-00169,Satyanarayana,West Godavari,Palacoderu,Paddy,3.53,77.0,Low,93,16.658838,81.380238,0.8,0.75,0.55
+WG-00170,Rajeshwari,West Godavari,Palacole,Paddy,11.23,65.8,Medium,84,16.492239,81.617826,0.79,0.72,0.57
+WG-00171,Mohan Rao,West Godavari,Pentapadu,Maize,5.44,68.9,Medium,88,16.479945,81.653055,0.84,0.75,0.53
+WG-00172,Divya,West Godavari,Penugonda,Paddy,10.7,88.4,Low,98,16.600597,81.754189,0.9,0.85,0.65
+WG-00173,Prasad,West Godavari,Penumantra,Paddy,2.01,71.7,Medium,87,16.632807,81.605936,0.86,0.82,0.51
+WG-00174,Swapna,West Godavari,Poduru,Paddy,2.25,79.8,Low,87,16.68631,81.33694,0.83,0.77,0.62
+WG-00175,Naresh,West Godavari,Tadepalligudem,Chilli,2.44,63.7,Medium,86,16.70415,81.652334,0.85,0.75,0.53
+WG-00176,Bhavani,West Godavari,Tanuku,Paddy,1.7,64.9,Medium,88,16.543268,81.733372,0.73,0.62,0.48
+WG-00177,Srinivasa Rao,West Godavari,Undi,Cotton,4.43,65.7,Medium,89,16.890539,81.487732,0.77,0.74,0.56
+WG-00178,Lakshmi Devi,West Godavari,Veeravasaram,Chilli,3.26,66.8,Medium,90,16.53297,81.807008,0.87,0.77,0.59
+WG-00179,Venkata Ramana,West Godavari,Ganapavaram,Paddy,2.11,83.2,Low,92,16.60875,81.71131,0.85,0.77,0.57
+WG-00180,Sailaja,West Godavari,Kalla,Cotton,11.88,59.8,High,85,16.372645,81.647177,0.71,0.64,0.54
+WG-00181,Srinivasa Rao,West Godavari,Achanta,Paddy,7.39,71.9,Medium,87,16.95151,81.508527,0.86,0.78,0.53
+WG-00182,Lakshmi Devi,West Godavari,Akiveedu,Paddy,4.72,82.1,Low,91,16.808085,81.622932,0.82,0.76,0.58
+WG-00183,Venkata Ramana,West Godavari,Attili,Paddy,4.04,66.1,Medium,90,16.46897,81.602095,0.83,0.71,0.55
+WG-00184,Sailaja,West Godavari,Bhimavaram,Paddy,3.29,84.7,Low,90,16.665274,81.633769,0.92,0.82,0.66
+WG-00185,Ramesh Babu,West Godavari,Elamanchili,Red Gram,11.71,70.9,Medium,83,16.622297,81.846682,0.88,0.81,0.53
+WG-00186,Padma Priya,West Godavari,Iragavaram,Paddy,5.94,83.1,Low,91,16.688503,81.628127,0.92,0.83,0.58
+WG-00187,Kiran Kumar,West Godavari,Mogalthur,Red Gram,3.91,67.4,Medium,83,16.757849,81.588269,0.81,0.73,0.53
+WG-00188,Anitha,West Godavari,Narasapuram,Paddy,8.81,66.1,Medium,85,16.462509,81.767634,0.85,0.8,0.5
+WG-00189,Satyanarayana,West Godavari,Palacoderu,Paddy,2.9,69.4,Medium,88,16.354829,81.635309,0.89,0.85,0.59
+WG-00190,Rajeshwari,West Godavari,Palacole,Paddy,6.37,66.1,Medium,87,16.40922,81.475378,0.77,0.75,0.48
+WG-00191,Mohan Rao,West Godavari,Pentapadu,Paddy,5.21,67.1,Medium,85,16.630218,81.735852,0.82,0.75,0.57
+WG-00192,Divya,West Godavari,Penugonda,Maize,1.6,76.1,Low,93,16.761426,81.584243,0.8,0.74,0.58
+WG-00193,Prasad,West Godavari,Penumantra,Red Gram,0.83,62.3,Medium,84,16.593291,81.504619,0.81,0.71,0.48
+WG-00194,Swapna,West Godavari,Poduru,Paddy,0.86,66.7,Medium,84,16.506458,81.689493,0.73,0.62,0.51
+WG-00195,Naresh,West Godavari,Tadepalligudem,Paddy,6.73,65.7,Medium,87,16.522519,81.659939,0.79,0.76,0.55
+WG-00196,Bhavani,West Godavari,Tanuku,Paddy,5.19,75.3,Low,89,16.707027,81.684328,0.89,0.79,0.57
+WG-00197,Srinivasa Rao,West Godavari,Undi,Red Gram,2.4,79.7,Low,92,16.438213,81.458681,0.92,0.85,0.63
+WG-00198,Lakshmi Devi,West Godavari,Veeravasaram,Cotton,7.85,75.5,Low,94,16.502215,81.584918,0.8,0.71,0.61
+WG-00199,Venkata Ramana,West Godavari,Ganapavaram,Paddy,7.76,87.8,Low,91,16.922319,81.515823,0.92,0.85,0.57
+WG-00200,Sailaja,West Godavari,Kalla,Paddy,4.78,67.5,Medium,86,16.506327,81.373144,0.86,0.77,0.5
+WG-00201,Srinivasa Rao,West Godavari,Achanta,Red Gram,1.6,65.9,Medium,87,16.51262,81.47618,0.88,0.78,0.48
+WG-00202,Lakshmi Devi,West Godavari,Akiveedu,Paddy,8.55,70.3,Medium,85,16.919273,81.529502,0.78,0.7,0.53
+WG-00203,Venkata Ramana,West Godavari,Attili,Cotton,3.21,64.3,Medium,82,16.644228,81.646109,0.82,0.72,0.51
+WG-00204,Sailaja,West Godavari,Bhimavaram,Paddy,9.9,68.4,Medium,84,16.609504,81.53795,0.78,0.7,0.51
+WG-00205,Ramesh Babu,West Godavari,Elamanchili,Red Gram,1.4,77.1,Low,85,16.531046,81.410084,0.81,0.76,0.62
+WG-00206,Padma Priya,West Godavari,Iragavaram,Paddy,7.42,77.1,Low,87,16.811766,81.555944,0.9,0.85,0.57
+WG-00207,Kiran Kumar,West Godavari,Mogalthur,Cotton,8.31,71.6,Medium,84,16.497212,81.568956,0.84,0.78,0.53
+WG-00208,Anitha,West Godavari,Narasapuram,Paddy,5.75,82.4,Low,92,16.67407,81.453788,0.89,0.85,0.58
+WG-00209,Satyanarayana,West Godavari,Palacoderu,Paddy,5.51,82.0,Low,88,16.597198,81.783228,0.84,0.74,0.54
+WG-00210,Rajeshwari,West Godavari,Palacole,Paddy,10.09,71.7,Medium,88,16.440688,81.568283,0.87,0.78,0.5
+WG-00211,Mohan Rao,West Godavari,Pentapadu,Paddy,1.2,68.3,Medium,86,16.643773,81.43654,0.89,0.85,0.5
+WG-00212,Divya,West Godavari,Penugonda,Cotton,11.37,76.7,Low,86,16.441851,81.509609,0.89,0.85,0.54
+WG-00213,Prasad,West Godavari,Penumantra,Paddy,1.22,80.2,Low,89,16.37638,81.660114,0.89,0.8,0.53
+WG-00214,Swapna,West Godavari,Poduru,Red Gram,11.44,63.8,Medium,82,16.529408,81.537162,0.74,0.69,0.52
+WG-00215,Naresh,West Godavari,Tadepalligudem,Chilli,5.01,69.0,Medium,89,16.45305,81.615775,0.87,0.78,0.57
+WG-00216,Bhavani,West Godavari,Tanuku,Paddy,1.57,69.7,Medium,91,16.404639,81.473816,0.88,0.77,0.51
+WG-00217,Srinivasa Rao,West Godavari,Undi,Paddy,5.54,85.0,Low,89,16.396324,81.483588,0.89,0.78,0.63
+WG-00218,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,3.7,64.7,Medium,81,16.464021,81.615857,0.88,0.78,0.5
+WG-00219,Venkata Ramana,West Godavari,Ganapavaram,Maize,8.75,60.6,Medium,80,16.367334,81.563252,0.82,0.78,0.55
+WG-00220,Sailaja,West Godavari,Kalla,Paddy,6.26,66.2,Medium,86,16.885576,81.593949,0.86,0.82,0.53
+WG-00221,Srinivasa Rao,West Godavari,Achanta,Paddy,6.36,66.5,Medium,87,16.619931,81.824661,0.81,0.78,0.57
+WG-00222,Lakshmi Devi,West Godavari,Akiveedu,Cotton,5.54,55.8,High,85,16.664157,81.787934,0.71,0.64,0.5
+WG-00223,Venkata Ramana,West Godavari,Attili,Cotton,10.91,75.2,Low,85,16.491574,81.731263,0.89,0.85,0.57
+WG-00224,Sailaja,West Godavari,Bhimavaram,Paddy,7.19,80.0,Low,93,16.755521,81.452961,0.87,0.84,0.58
+WG-00225,Ramesh Babu,West Godavari,Elamanchili,Paddy,11.05,82.3,Low,96,16.808535,81.58973,0.89,0.81,0.63
+WG-00226,Padma Priya,West Godavari,Iragavaram,Paddy,11.57,72.0,Medium,89,16.538473,81.697637,0.84,0.78,0.52
+WG-00227,Kiran Kumar,West Godavari,Mogalthur,Paddy,7.04,79.6,Low,89,16.391019,81.555938,0.92,0.85,0.59
+WG-00228,Anitha,West Godavari,Narasapuram,Cotton,2.84,65.8,Medium,87,16.483561,81.810215,0.74,0.7,0.52
+WG-00229,Satyanarayana,West Godavari,Palacoderu,Paddy,4.62,73.6,Medium,86,16.52255,81.645144,0.87,0.78,0.57
+WG-00230,Rajeshwari,West Godavari,Palacole,Paddy,7.83,71.1,Medium,83,16.61978,81.39616,0.81,0.7,0.61
+WG-00231,Mohan Rao,West Godavari,Pentapadu,Maize,11.39,60.3,Medium,81,16.395892,81.640985,0.71,0.61,0.46
+WG-00232,Divya,West Godavari,Penugonda,Paddy,0.83,87.7,Low,90,16.46408,81.698752,0.92,0.85,0.57
+WG-00233,Prasad,West Godavari,Penumantra,Chilli,2.5,68.5,Medium,85,16.582975,81.371875,0.78,0.67,0.52
+WG-00234,Swapna,West Godavari,Poduru,Paddy,5.07,86.0,Low,90,16.816807,81.599838,0.91,0.85,0.57
+WG-00235,Naresh,West Godavari,Tadepalligudem,Paddy,11.72,67.4,Medium,91,16.653312,81.563929,0.77,0.67,0.53
+WG-00236,Bhavani,West Godavari,Tanuku,Paddy,4.08,76.4,Low,93,16.456475,81.646185,0.9,0.8,0.61
+WG-00237,Srinivasa Rao,West Godavari,Undi,Red Gram,10.92,58.5,High,87,16.491217,81.62941,0.77,0.66,0.46
+WG-00238,Lakshmi Devi,West Godavari,Veeravasaram,Chilli,3.46,63.2,Medium,89,16.439864,81.527969,0.79,0.67,0.53
+WG-00239,Venkata Ramana,West Godavari,Ganapavaram,Cotton,1.25,68.6,Medium,87,16.570111,81.837102,0.76,0.64,0.58
+WG-00240,Sailaja,West Godavari,Kalla,Red Gram,2.94,66.2,Medium,83,16.451735,81.682837,0.86,0.75,0.52
+WG-00241,Srinivasa Rao,West Godavari,Achanta,Cotton,6.94,70.5,Medium,90,16.419181,81.689554,0.85,0.73,0.61
+WG-00242,Lakshmi Devi,West Godavari,Akiveedu,Chilli,7.0,66.2,Medium,84,16.519367,81.487547,0.8,0.72,0.57
+WG-00243,Venkata Ramana,West Godavari,Attili,Paddy,5.83,65.5,Medium,86,16.434982,81.623552,0.86,0.78,0.57
+WG-00244,Sailaja,West Godavari,Bhimavaram,Paddy,10.69,83.2,Low,97,16.586147,81.415125,0.85,0.78,0.6
+WG-00245,Ramesh Babu,West Godavari,Elamanchili,Paddy,11.77,66.6,Medium,84,16.756197,81.699889,0.79,0.74,0.56
+WG-00246,Padma Priya,West Godavari,Iragavaram,Paddy,5.06,73.3,Medium,86,16.604009,81.548717,0.87,0.8,0.57
+WG-00247,Kiran Kumar,West Godavari,Mogalthur,Cotton,10.99,70.5,Medium,89,16.395703,81.664978,0.81,0.76,0.49
+WG-00248,Anitha,West Godavari,Narasapuram,Paddy,11.71,79.9,Low,94,16.650899,81.596033,0.92,0.85,0.62
+WG-00249,Satyanarayana,West Godavari,Palacoderu,Maize,7.14,75.4,Low,91,16.621119,81.777811,0.81,0.76,0.58
+WG-00250,Rajeshwari,West Godavari,Palacole,Paddy,8.62,79.8,Low,90,16.447513,81.777187,0.91,0.85,0.64
+WG-00251,Mohan Rao,West Godavari,Pentapadu,Paddy,2.36,74.1,Medium,86,16.56087,81.673572,0.85,0.76,0.61
+WG-00252,Divya,West Godavari,Penugonda,Red Gram,2.15,64.0,Medium,90,16.556953,81.64696,0.84,0.77,0.51
+WG-00253,Prasad,West Godavari,Penumantra,Paddy,9.75,65.9,Medium,85,16.45129,81.393554,0.77,0.72,0.48
+WG-00254,Swapna,West Godavari,Poduru,Paddy,3.83,68.2,Medium,83,16.52682,81.781813,0.76,0.69,0.49
+WG-00255,Naresh,West Godavari,Tadepalligudem,Red Gram,4.19,79.7,Low,92,16.520039,81.827257,0.86,0.78,0.59
+WG-00256,Bhavani,West Godavari,Tanuku,Paddy,2.78,67.1,Medium,88,16.836987,81.569964,0.82,0.76,0.56
+WG-00257,Srinivasa Rao,West Godavari,Undi,Chilli,1.69,77.9,Low,94,16.650683,81.698602,0.82,0.7,0.57
+WG-00258,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,7.5,88.3,Low,99,16.64178,81.839053,0.92,0.85,0.65
+WG-00259,Venkata Ramana,West Godavari,Ganapavaram,Paddy,6.37,88.0,Low,96,16.723018,81.661394,0.92,0.85,0.57
+WG-00260,Sailaja,West Godavari,Kalla,Paddy,11.67,77.8,Low,89,16.48302,81.672891,0.92,0.81,0.6
+WG-00261,Srinivasa Rao,West Godavari,Achanta,Paddy,11.6,68.8,Medium,85,16.558358,81.651926,0.75,0.67,0.57
+WG-00262,Lakshmi Devi,West Godavari,Akiveedu,Paddy,8.51,74.9,Medium,93,16.498205,81.444501,0.9,0.85,0.51
+WG-00263,Venkata Ramana,West Godavari,Attili,Maize,1.6,78.9,Low,86,16.588984,81.732292,0.92,0.85,0.57
+WG-00264,Sailaja,West Godavari,Bhimavaram,Paddy,10.23,75.2,Low,87,16.631111,81.404892,0.92,0.85,0.51
+WG-00265,Ramesh Babu,West Godavari,Elamanchili,Paddy,10.45,81.6,Low,90,16.65333,81.519304,0.89,0.79,0.58
+WG-00266,Padma Priya,West Godavari,Iragavaram,Chilli,3.46,75.6,Low,91,16.529385,81.719899,0.92,0.85,0.62
+WG-00267,Kiran Kumar,West Godavari,Mogalthur,Paddy,6.08,78.3,Low,93,16.701229,81.590495,0.84,0.81,0.55
+WG-00268,Anitha,West Godavari,Narasapuram,Cotton,5.44,67.8,Medium,86,16.60382,81.736111,0.77,0.67,0.58
+WG-00269,Satyanarayana,West Godavari,Palacoderu,Paddy,8.65,79.2,Low,95,16.755805,81.445645,0.92,0.83,0.55
+WG-00270,Rajeshwari,West Godavari,Palacole,Paddy,5.02,72.0,Medium,91,16.717593,81.734037,0.79,0.68,0.53
+WG-00271,Mohan Rao,West Godavari,Pentapadu,Paddy,5.96,75.4,Low,90,16.674305,81.810702,0.9,0.85,0.6
+WG-00272,Divya,West Godavari,Penugonda,Red Gram,3.36,80.4,Low,92,16.461549,81.710742,0.86,0.76,0.58
+WG-00273,Prasad,West Godavari,Penumantra,Paddy,9.08,74.8,Medium,87,16.359606,81.641481,0.78,0.7,0.54
+WG-00274,Swapna,West Godavari,Poduru,Paddy,7.7,83.9,Low,97,16.584505,81.605522,0.92,0.85,0.56
+WG-00275,Naresh,West Godavari,Tadepalligudem,Paddy,4.25,89.2,Low,91,16.57157,81.397978,0.92,0.85,0.64
+WG-00276,Bhavani,West Godavari,Tanuku,Maize,9.35,67.3,Medium,86,16.594909,81.598264,0.8,0.72,0.55
+WG-00277,Srinivasa Rao,West Godavari,Undi,Red Gram,6.89,77.9,Low,93,16.374149,81.644168,0.83,0.78,0.62
+WG-00278,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,1.56,72.5,Medium,89,16.460813,81.391316,0.83,0.76,0.51
+WG-00279,Venkata Ramana,West Godavari,Ganapavaram,Paddy,6.88,76.3,Low,87,16.608591,81.636134,0.79,0.76,0.59
+WG-00280,Sailaja,West Godavari,Kalla,Chilli,5.32,76.3,Low,88,16.742903,81.634633,0.89,0.81,0.58
+WG-00281,Srinivasa Rao,West Godavari,Achanta,Red Gram,3.29,78.5,Low,95,16.60296,81.697954,0.9,0.85,0.64
+WG-00282,Lakshmi Devi,West Godavari,Akiveedu,Red Gram,3.37,63.4,Medium,89,16.395707,81.495933,0.73,0.66,0.5
+WG-00283,Venkata Ramana,West Godavari,Attili,Cotton,9.39,56.5,High,79,16.500142,81.614894,0.73,0.65,0.46
+WG-00284,Sailaja,West Godavari,Bhimavaram,Paddy,2.78,77.0,Low,89,16.45074,81.651059,0.87,0.84,0.57
+WG-00285,Ramesh Babu,West Godavari,Elamanchili,Red Gram,7.81,61.3,Medium,86,16.753811,81.645867,0.74,0.7,0.49
+WG-00286,Padma Priya,West Godavari,Iragavaram,Cotton,2.07,61.1,Medium,80,16.537727,81.523634,0.79,0.75,0.57
+WG-00287,Kiran Kumar,West Godavari,Mogalthur,Chilli,9.99,70.0,Medium,90,16.558953,81.803189,0.81,0.73,0.54
+WG-00288,Anitha,West Godavari,Narasapuram,Paddy,10.87,86.0,Low,91,16.80463,81.520883,0.92,0.81,0.62
+WG-00289,Satyanarayana,West Godavari,Palacoderu,Paddy,4.37,66.6,Medium,88,16.624778,81.848046,0.82,0.71,0.52
+WG-00290,Rajeshwari,West Godavari,Palacole,Paddy,8.01,85.0,Low,89,16.536599,81.828628,0.89,0.8,0.66
+WG-00291,Mohan Rao,West Godavari,Pentapadu,Paddy,10.5,83.7,Low,97,16.561702,81.628629,0.92,0.83,0.6
+WG-00292,Divya,West Godavari,Penugonda,Paddy,6.52,79.5,Low,88,16.60835,81.53536,0.84,0.79,0.56
+WG-00293,Prasad,West Godavari,Penumantra,Paddy,6.75,66.1,Medium,85,16.693033,81.63629,0.86,0.79,0.56
+WG-00294,Swapna,West Godavari,Poduru,Cotton,1.98,78.4,Low,87,16.497895,81.472264,0.84,0.77,0.54
+WG-00295,Naresh,West Godavari,Tadepalligudem,Paddy,10.81,72.3,Medium,85,16.404652,81.651906,0.81,0.73,0.56
+WG-00296,Bhavani,West Godavari,Tanuku,Maize,4.83,61.2,Medium,81,16.72682,81.585918,0.81,0.78,0.52
+WG-00297,Srinivasa Rao,West Godavari,Undi,Paddy,7.05,81.4,Low,88,16.611676,81.785451,0.86,0.74,0.64
+WG-00298,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,11.36,66.9,Medium,86,16.612007,81.845127,0.88,0.83,0.53
+WG-00299,Venkata Ramana,West Godavari,Ganapavaram,Red Gram,4.71,66.9,Medium,88,16.720422,81.646227,0.88,0.85,0.53
+WG-00300,Sailaja,West Godavari,Kalla,Paddy,1.56,69.8,Medium,87,16.454066,81.593864,0.89,0.79,0.52
+WG-00301,Srinivasa Rao,West Godavari,Achanta,Paddy,8.94,74.4,Medium,93,16.670666,81.453905,0.81,0.77,0.53
+WG-00302,Lakshmi Devi,West Godavari,Akiveedu,Paddy,3.91,66.2,Medium,84,16.4988,81.505915,0.86,0.8,0.58
+WG-00303,Venkata Ramana,West Godavari,Attili,Paddy,10.64,73.9,Medium,88,16.615,81.838308,0.79,0.67,0.54
+WG-00304,Sailaja,West Godavari,Bhimavaram,Cotton,0.94,57.9,High,86,16.63926,81.580097,0.79,0.69,0.47
+WG-00305,Ramesh Babu,West Godavari,Elamanchili,Chilli,8.94,75.9,Low,94,16.741481,81.447473,0.86,0.8,0.57
+WG-00306,Padma Priya,West Godavari,Iragavaram,Paddy,7.58,81.0,Low,86,16.574356,81.522118,0.83,0.74,0.62
+WG-00307,Kiran Kumar,West Godavari,Mogalthur,Paddy,4.4,70.7,Medium,92,16.683022,81.648256,0.86,0.76,0.5
+WG-00308,Anitha,West Godavari,Narasapuram,Maize,6.52,63.1,Medium,82,16.440074,81.76047,0.72,0.69,0.52
+WG-00309,Satyanarayana,West Godavari,Palacoderu,Cotton,11.09,69.8,Medium,83,16.654082,81.389403,0.75,0.72,0.52
+WG-00310,Rajeshwari,West Godavari,Palacole,Chilli,6.92,65.2,Medium,83,16.625448,81.332071,0.84,0.81,0.59
+WG-00311,Mohan Rao,West Godavari,Pentapadu,Paddy,0.84,83.5,Low,94,16.506008,81.490229,0.92,0.8,0.65
+WG-00312,Divya,West Godavari,Penugonda,Red Gram,8.56,68.8,Medium,90,16.529584,81.704681,0.86,0.77,0.52
+WG-00313,Prasad,West Godavari,Penumantra,Paddy,3.96,81.1,Low,90,16.445028,81.499499,0.85,0.74,0.6
+WG-00314,Swapna,West Godavari,Poduru,Paddy,3.42,69.2,Medium,84,16.663613,81.667542,0.89,0.85,0.54
+WG-00315,Naresh,West Godavari,Tadepalligudem,Paddy,9.13,73.9,Medium,89,16.74016,81.674767,0.83,0.75,0.56
+WG-00316,Bhavani,West Godavari,Tanuku,Chilli,10.8,71.4,Medium,91,16.63845,81.360006,0.82,0.75,0.54
+WG-00317,Srinivasa Rao,West Godavari,Undi,Paddy,2.68,73.8,Medium,86,16.729259,81.65581,0.85,0.78,0.53
+WG-00318,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,10.52,78.0,Low,86,16.751925,81.514139,0.91,0.85,0.56
+WG-00319,Venkata Ramana,West Godavari,Ganapavaram,Red Gram,6.38,59.0,High,87,16.890904,81.605186,0.73,0.61,0.55
+WG-00320,Sailaja,West Godavari,Kalla,Paddy,5.51,79.2,Low,95,16.623355,81.39273,0.92,0.85,0.53
+WG-00321,Srinivasa Rao,West Godavari,Achanta,Maize,7.17,71.3,Medium,91,16.778992,81.590398,0.91,0.84,0.51
+WG-00322,Lakshmi Devi,West Godavari,Akiveedu,Paddy,3.03,82.8,Low,91,16.598456,81.437654,0.92,0.83,0.58
+WG-00323,Venkata Ramana,West Godavari,Attili,Paddy,6.02,80.7,Low,89,16.544415,81.744523,0.89,0.8,0.6
+WG-00324,Sailaja,West Godavari,Bhimavaram,Paddy,3.6,81.8,Low,96,16.550042,81.471043,0.85,0.79,0.58
+WG-00325,Ramesh Babu,West Godavari,Elamanchili,Paddy,7.01,81.7,Low,93,16.71071,81.696183,0.88,0.84,0.56
+WG-00326,Padma Priya,West Godavari,Iragavaram,Paddy,10.2,69.6,Medium,88,16.482649,81.442396,0.76,0.71,0.51
+WG-00327,Kiran Kumar,West Godavari,Mogalthur,Paddy,9.25,76.1,Low,91,16.592491,81.454211,0.92,0.85,0.52
+WG-00328,Anitha,West Godavari,Narasapuram,Maize,2.27,65.6,Medium,90,16.496895,81.442571,0.87,0.81,0.58
+WG-00329,Satyanarayana,West Godavari,Palacoderu,Paddy,4.29,68.4,Medium,88,16.778522,81.546775,0.76,0.66,0.56
+WG-00330,Rajeshwari,West Godavari,Palacole,Paddy,5.97,76.4,Low,91,16.407032,81.514508,0.83,0.74,0.58
+WG-00331,Mohan Rao,West Godavari,Pentapadu,Maize,2.55,62.9,Medium,84,16.545933,81.618233,0.81,0.74,0.55
+WG-00332,Divya,West Godavari,Penugonda,Paddy,5.87,82.5,Low,89,16.481242,81.468282,0.88,0.79,0.6
+WG-00333,Prasad,West Godavari,Penumantra,Paddy,4.05,75.3,Low,86,16.51137,81.477488,0.87,0.84,0.63
+WG-00334,Swapna,West Godavari,Poduru,Paddy,1.13,68.1,Medium,87,16.480001,81.739756,0.89,0.82,0.5
+WG-00335,Naresh,West Godavari,Tadepalligudem,Paddy,2.36,74.1,Medium,89,16.593618,81.746357,0.87,0.84,0.62
+WG-00336,Bhavani,West Godavari,Tanuku,Paddy,3.73,73.3,Medium,88,16.597826,81.614824,0.83,0.78,0.61
+WG-00337,Srinivasa Rao,West Godavari,Undi,Paddy,7.16,74.6,Medium,88,16.516863,81.614682,0.92,0.82,0.6
+WG-00338,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,9.64,65.6,Medium,89,16.645116,81.489942,0.76,0.74,0.52
+WG-00339,Venkata Ramana,West Godavari,Ganapavaram,Paddy,7.08,69.7,Medium,87,16.431103,81.448999,0.79,0.68,0.55
+WG-00340,Sailaja,West Godavari,Kalla,Cotton,0.98,57.5,High,88,16.594261,81.599788,0.7,0.66,0.54
+WG-00341,Srinivasa Rao,West Godavari,Achanta,Cotton,2.09,57.2,High,85,16.35376,81.587416,0.7,0.62,0.54
+WG-00342,Lakshmi Devi,West Godavari,Akiveedu,Paddy,11.47,71.6,Medium,84,16.428531,81.659766,0.86,0.76,0.6
+WG-00343,Venkata Ramana,West Godavari,Attili,Paddy,8.18,65.1,Medium,88,16.425514,81.506962,0.84,0.73,0.53
+WG-00344,Sailaja,West Godavari,Bhimavaram,Cotton,10.96,79.2,Low,95,16.646491,81.442635,0.88,0.81,0.57
+WG-00345,Ramesh Babu,West Godavari,Elamanchili,Paddy,1.89,69.2,Medium,92,16.456357,81.659543,0.78,0.71,0.54
+WG-00346,Padma Priya,West Godavari,Iragavaram,Chilli,5.93,60.1,Medium,82,16.628789,81.485755,0.8,0.73,0.54
+WG-00347,Kiran Kumar,West Godavari,Mogalthur,Paddy,6.01,86.3,Low,96,16.783813,81.544656,0.92,0.85,0.58
+WG-00348,Anitha,West Godavari,Narasapuram,Paddy,8.31,72.3,Medium,88,16.524527,81.442044,0.79,0.74,0.5
+WG-00349,Satyanarayana,West Godavari,Palacoderu,Red Gram,7.93,69.6,Medium,89,16.520098,81.389909,0.83,0.72,0.5
+WG-00350,Rajeshwari,West Godavari,Palacole,Paddy,5.01,65.5,Medium,89,16.442739,81.547734,0.81,0.78,0.59
+WG-00351,Mohan Rao,West Godavari,Pentapadu,Maize,10.53,74.1,Medium,90,16.556517,81.414221,0.92,0.83,0.53
+WG-00352,Divya,West Godavari,Penugonda,Paddy,3.27,65.8,Medium,91,16.61774,81.394633,0.8,0.76,0.54
+WG-00353,Prasad,West Godavari,Penumantra,Red Gram,1.6,60.0,Medium,82,16.388752,81.546216,0.78,0.75,0.48
+WG-00354,Swapna,West Godavari,Poduru,Red Gram,8.24,61.0,Medium,81,16.497829,81.763066,0.76,0.73,0.54
+WG-00355,Naresh,West Godavari,Tadepalligudem,Paddy,10.87,67.9,Medium,90,16.537084,81.673336,0.82,0.73,0.49
+WG-00356,Bhavani,West Godavari,Tanuku,Paddy,7.92,85.7,Low,96,16.455043,81.382141,0.89,0.8,0.64
+WG-00357,Srinivasa Rao,West Godavari,Undi,Red Gram,11.05,77.3,Low,88,16.458037,81.643753,0.86,0.75,0.64
+WG-00358,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,2.96,68.8,Medium,90,16.620272,81.723504,0.83,0.78,0.55
+WG-00359,Venkata Ramana,West Godavari,Ganapavaram,Paddy,5.44,81.4,Low,94,16.548192,81.637094,0.87,0.82,0.63
+WG-00360,Sailaja,West Godavari,Kalla,Maize,9.2,60.7,Medium,80,16.866224,81.521524,0.7,0.61,0.51
+WG-00361,Srinivasa Rao,West Godavari,Achanta,Cotton,11.92,63.0,Medium,89,16.405505,81.521511,0.81,0.77,0.52
+WG-00362,Lakshmi Devi,West Godavari,Akiveedu,Paddy,4.12,71.8,Medium,87,16.464863,81.61735,0.91,0.83,0.58
+WG-00363,Venkata Ramana,West Godavari,Attili,Red Gram,5.44,64.2,Medium,84,16.685732,81.743303,0.73,0.66,0.52
+WG-00364,Sailaja,West Godavari,Bhimavaram,Chilli,1.52,70.7,Medium,86,16.566826,81.380218,0.88,0.76,0.55
+WG-00365,Ramesh Babu,West Godavari,Elamanchili,Paddy,9.07,75.6,Low,94,16.623243,81.328021,0.91,0.85,0.57
+WG-00366,Padma Priya,West Godavari,Iragavaram,Paddy,10.54,71.3,Medium,91,16.495958,81.627014,0.85,0.76,0.59
+WG-00367,Kiran Kumar,West Godavari,Mogalthur,Paddy,6.18,81.1,Low,90,16.80877,81.62427,0.83,0.79,0.55
+WG-00368,Anitha,West Godavari,Narasapuram,Paddy,1.81,87.3,Low,93,16.639561,81.365129,0.89,0.8,0.61
+WG-00369,Satyanarayana,West Godavari,Palacoderu,Paddy,2.65,73.2,Medium,93,16.511151,81.797571,0.84,0.72,0.57
+WG-00370,Rajeshwari,West Godavari,Palacole,Paddy,3.28,82.8,Low,93,16.557786,81.463861,0.92,0.84,0.57
+WG-00371,Mohan Rao,West Godavari,Pentapadu,Red Gram,3.52,76.9,Low,86,16.669029,81.78435,0.92,0.83,0.54
+WG-00372,Divya,West Godavari,Penugonda,Paddy,5.02,74.5,Medium,87,16.48066,81.500731,0.9,0.83,0.58
+WG-00373,Prasad,West Godavari,Penumantra,Cotton,5.44,65.2,Medium,90,16.945453,81.516883,0.8,0.75,0.49
+WG-00374,Swapna,West Godavari,Poduru,Red Gram,0.95,77.2,Low,85,16.436506,81.757194,0.87,0.78,0.54
+WG-00375,Naresh,West Godavari,Tadepalligudem,Maize,11.4,80.7,Low,91,16.446274,81.56569,0.82,0.74,0.64
+WG-00376,Bhavani,West Godavari,Tanuku,Cotton,3.49,74.8,Medium,93,16.529095,81.667748,0.88,0.81,0.59
+WG-00377,Srinivasa Rao,West Godavari,Undi,Cotton,1.93,66.6,Medium,83,16.702149,81.631992,0.86,0.75,0.58
+WG-00378,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,6.34,67.8,Medium,82,16.911968,81.54295,0.85,0.82,0.49
+WG-00379,Venkata Ramana,West Godavari,Ganapavaram,Chilli,1.89,57.7,High,81,16.448846,81.465354,0.75,0.69,0.45
+WG-00380,Sailaja,West Godavari,Kalla,Cotton,1.08,72.3,Medium,89,16.459984,81.528512,0.89,0.82,0.5
+WG-00381,Srinivasa Rao,West Godavari,Achanta,Paddy,6.69,71.1,Medium,86,16.655859,81.628466,0.91,0.82,0.5
+WG-00382,Lakshmi Devi,West Godavari,Akiveedu,Paddy,1.52,72.5,Medium,88,16.404038,81.460968,0.89,0.83,0.54
+WG-00383,Venkata Ramana,West Godavari,Attili,Paddy,6.98,68.6,Medium,83,16.815804,81.616124,0.86,0.83,0.57
+WG-00384,Sailaja,West Godavari,Bhimavaram,Red Gram,3.1,66.2,Medium,85,16.553233,81.766893,0.8,0.74,0.48
+WG-00385,Ramesh Babu,West Godavari,Elamanchili,Cotton,6.73,58.3,High,81,16.644179,81.807857,0.81,0.73,0.54
+WG-00386,Padma Priya,West Godavari,Iragavaram,Maize,5.77,68.2,Medium,85,16.371392,81.702481,0.77,0.7,0.52
+WG-00387,Kiran Kumar,West Godavari,Mogalthur,Maize,8.98,79.5,Low,95,16.41478,81.627391,0.92,0.85,0.55
+WG-00388,Anitha,West Godavari,Narasapuram,Red Gram,9.45,64.5,Medium,84,16.376457,81.707261,0.84,0.8,0.58
+WG-00389,Satyanarayana,West Godavari,Palacoderu,Chilli,2.04,65.2,Medium,84,16.419866,81.45914,0.77,0.7,0.48
+WG-00390,Rajeshwari,West Godavari,Palacole,Paddy,11.6,81.6,Low,89,16.605034,81.719063,0.92,0.85,0.54
+WG-00391,Mohan Rao,West Godavari,Pentapadu,Paddy,9.95,74.6,Medium,91,16.754209,81.708318,0.9,0.85,0.53
+WG-00392,Divya,West Godavari,Penugonda,Maize,2.19,70.5,Medium,93,16.819013,81.620385,0.79,0.72,0.58
+WG-00393,Prasad,West Godavari,Penumantra,Cotton,11.85,74.9,Medium,88,16.584234,81.482378,0.9,0.82,0.56
+WG-00394,Swapna,West Godavari,Poduru,Cotton,1.36,65.2,Medium,88,16.391344,81.477181,0.88,0.83,0.48
+WG-00395,Naresh,West Godavari,Tadepalligudem,Red Gram,2.42,77.5,Low,92,16.380434,81.514729,0.92,0.85,0.58
+WG-00396,Bhavani,West Godavari,Tanuku,Maize,6.65,60.9,Medium,88,16.569151,81.637535,0.74,0.67,0.5
+WG-00397,Srinivasa Rao,West Godavari,Undi,Cotton,4.12,77.3,Low,92,16.752273,81.572996,0.81,0.77,0.63
+WG-00398,Lakshmi Devi,West Godavari,Veeravasaram,Cotton,10.57,57.4,High,85,16.551515,81.646155,0.74,0.63,0.5
+WG-00399,Venkata Ramana,West Godavari,Ganapavaram,Paddy,1.51,70.7,Medium,87,16.550809,81.553567,0.77,0.67,0.56
+WG-00400,Sailaja,West Godavari,Kalla,Paddy,1.47,70.4,Medium,89,16.414229,81.428791,0.8,0.69,0.58
+WG-00401,Srinivasa Rao,West Godavari,Achanta,Paddy,8.8,67.9,Medium,84,16.745108,81.451582,0.77,0.7,0.6
+WG-00402,Lakshmi Devi,West Godavari,Akiveedu,Cotton,10.63,55.8,High,86,16.802396,81.58594,0.67,0.63,0.46
+WG-00403,Venkata Ramana,West Godavari,Attili,Red Gram,10.98,77.3,Low,94,16.532528,81.579987,0.92,0.85,0.56
+WG-00404,Sailaja,West Godavari,Bhimavaram,Cotton,3.08,72.1,Medium,85,16.424412,81.511975,0.89,0.85,0.5
+WG-00405,Ramesh Babu,West Godavari,Elamanchili,Paddy,9.05,82.3,Low,96,16.551956,81.561099,0.92,0.85,0.55
+WG-00406,Padma Priya,West Godavari,Iragavaram,Red Gram,2.0,77.8,Low,90,16.459314,81.77747,0.81,0.77,0.63
+WG-00407,Kiran Kumar,West Godavari,Mogalthur,Paddy,5.57,74.6,Medium,93,16.489889,81.4061,0.79,0.76,0.56
+WG-00408,Anitha,West Godavari,Narasapuram,Paddy,5.88,67.4,Medium,85,16.599454,81.740151,0.76,0.69,0.59
+WG-00409,Satyanarayana,West Godavari,Palacoderu,Paddy,2.22,87.4,Low,89,16.691763,81.631273,0.92,0.85,0.59
+WG-00410,Rajeshwari,West Godavari,Palacole,Maize,9.24,64.2,Medium,89,16.629147,81.521682,0.79,0.76,0.54
+WG-00411,Mohan Rao,West Godavari,Pentapadu,Maize,3.03,63.1,Medium,86,16.661367,81.526861,0.84,0.76,0.5
+WG-00412,Divya,West Godavari,Penugonda,Chilli,7.9,57.6,High,87,16.861589,81.542611,0.7,0.61,0.55
+WG-00413,Prasad,West Godavari,Penumantra,Cotton,7.24,71.7,Medium,86,16.464882,81.761291,0.83,0.77,0.58
+WG-00414,Swapna,West Godavari,Poduru,Paddy,3.78,82.7,Low,91,16.408732,81.490629,0.82,0.74,0.59
+WG-00415,Naresh,West Godavari,Tadepalligudem,Paddy,4.16,79.8,Low,94,16.55783,81.803323,0.92,0.85,0.63
+WG-00416,Bhavani,West Godavari,Tanuku,Chilli,10.47,64.1,Medium,83,16.747444,81.461034,0.77,0.68,0.49
+WG-00417,Srinivasa Rao,West Godavari,Undi,Red Gram,3.97,68.9,Medium,92,16.38367,81.657784,0.83,0.73,0.49
+WG-00418,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,4.44,82.0,Low,96,16.772517,81.564363,0.86,0.83,0.56
+WG-00419,Venkata Ramana,West Godavari,Ganapavaram,Red Gram,11.86,62.2,Medium,81,16.42916,81.478837,0.76,0.66,0.48
+WG-00420,Sailaja,West Godavari,Kalla,Paddy,11.61,88.8,Low,95,16.759135,81.666408,0.9,0.85,0.68
+WG-00421,Srinivasa Rao,West Godavari,Achanta,Paddy,3.68,88.2,Low,94,16.515947,81.508461,0.92,0.8,0.61
+WG-00422,Lakshmi Devi,West Godavari,Akiveedu,Red Gram,9.11,68.9,Medium,89,16.580229,81.725631,0.88,0.82,0.5
+WG-00423,Venkata Ramana,West Godavari,Attili,Paddy,6.13,78.9,Low,91,16.462906,81.741693,0.92,0.85,0.64
+WG-00424,Sailaja,West Godavari,Bhimavaram,Paddy,8.5,74.5,Medium,90,16.570523,81.683096,0.9,0.79,0.58
+WG-00425,Ramesh Babu,West Godavari,Elamanchili,Paddy,1.54,80.3,Low,94,16.772258,81.662948,0.92,0.82,0.59
+WG-00426,Padma Priya,West Godavari,Iragavaram,Paddy,9.27,84.4,Low,95,16.60002,81.440982,0.92,0.85,0.55
+WG-00427,Kiran Kumar,West Godavari,Mogalthur,Paddy,7.77,81.2,Low,95,16.623604,81.477665,0.92,0.83,0.63
+WG-00428,Anitha,West Godavari,Narasapuram,Paddy,5.74,85.8,Low,91,16.846303,81.580514,0.92,0.82,0.64
+WG-00429,Satyanarayana,West Godavari,Palacoderu,Red Gram,10.76,77.9,Low,92,16.429075,81.457468,0.81,0.74,0.56
+WG-00430,Rajeshwari,West Godavari,Palacole,Cotton,6.43,70.4,Medium,92,16.606918,81.366084,0.86,0.76,0.55
+WG-00431,Mohan Rao,West Godavari,Pentapadu,Paddy,3.04,77.9,Low,88,16.555223,81.353023,0.84,0.72,0.53
+WG-00432,Divya,West Godavari,Penugonda,Paddy,11.88,81.5,Low,93,16.705659,81.718758,0.92,0.81,0.59
+WG-00433,Prasad,West Godavari,Penumantra,Paddy,10.08,66.5,Medium,89,16.441774,81.478689,0.75,0.68,0.6
+WG-00434,Swapna,West Godavari,Poduru,Paddy,9.71,68.6,Medium,86,16.579989,81.447109,0.88,0.79,0.56
+WG-00435,Naresh,West Godavari,Tadepalligudem,Paddy,8.57,82.7,Low,91,16.823249,81.503711,0.87,0.83,0.58
+WG-00436,Bhavani,West Godavari,Tanuku,Paddy,4.67,67.2,Medium,86,16.468741,81.642401,0.78,0.71,0.6
+WG-00437,Srinivasa Rao,West Godavari,Undi,Paddy,1.26,72.0,Medium,92,16.41893,81.658683,0.77,0.74,0.54
+WG-00438,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,2.02,80.4,Low,88,16.559095,81.849109,0.87,0.84,0.62
+WG-00439,Venkata Ramana,West Godavari,Ganapavaram,Maize,3.28,62.9,Medium,88,16.659972,81.418285,0.77,0.69,0.49
+WG-00440,Sailaja,West Godavari,Kalla,Paddy,6.33,68.9,Medium,85,16.446321,81.685563,0.84,0.73,0.53
+WG-00441,Srinivasa Rao,West Godavari,Achanta,Paddy,9.38,85.9,Low,94,16.720417,81.733555,0.89,0.84,0.57
+WG-00442,Lakshmi Devi,West Godavari,Akiveedu,Cotton,10.86,68.1,Medium,90,16.419989,81.428414,0.82,0.79,0.51
+WG-00443,Venkata Ramana,West Godavari,Attili,Paddy,3.06,68.3,Medium,88,16.597901,81.520878,0.84,0.78,0.56
+WG-00444,Sailaja,West Godavari,Bhimavaram,Paddy,4.13,72.6,Medium,93,16.651647,81.460834,0.79,0.68,0.56
+WG-00445,Ramesh Babu,West Godavari,Elamanchili,Paddy,9.79,72.0,Medium,87,16.863662,81.613679,0.86,0.83,0.55
+WG-00446,Padma Priya,West Godavari,Iragavaram,Paddy,8.79,75.7,Low,89,16.70664,81.622742,0.83,0.77,0.53
+WG-00447,Kiran Kumar,West Godavari,Mogalthur,Red Gram,11.77,74.1,Medium,86,16.66198,81.469034,0.91,0.85,0.62
+WG-00448,Anitha,West Godavari,Narasapuram,Paddy,11.04,68.1,Medium,89,16.396601,81.591576,0.79,0.71,0.53
+WG-00449,Satyanarayana,West Godavari,Palacoderu,Paddy,6.49,75.9,Low,86,16.391541,81.502136,0.85,0.78,0.62
+WG-00450,Rajeshwari,West Godavari,Palacole,Red Gram,4.88,82.4,Low,93,16.655027,81.364313,0.92,0.83,0.6
+WG-00451,Mohan Rao,West Godavari,Pentapadu,Paddy,9.38,74.9,Medium,92,16.534452,81.381159,0.92,0.85,0.53
+WG-00452,Divya,West Godavari,Penugonda,Paddy,4.38,70.9,Medium,92,16.515401,81.813238,0.8,0.71,0.57
+WG-00453,Prasad,West Godavari,Penumantra,Paddy,2.57,80.8,Low,94,16.621305,81.554839,0.92,0.84,0.54
+WG-00454,Swapna,West Godavari,Poduru,Red Gram,11.34,81.7,Low,91,16.641179,81.421458,0.86,0.76,0.62
+WG-00455,Naresh,West Godavari,Tadepalligudem,Paddy,5.71,77.5,Low,89,16.784969,81.531742,0.81,0.72,0.63
+WG-00456,Bhavani,West Godavari,Tanuku,Paddy,1.37,76.9,Low,91,16.799088,81.492548,0.83,0.78,0.62
+WG-00457,Srinivasa Rao,West Godavari,Undi,Paddy,6.92,79.7,Low,89,16.63288,81.459927,0.88,0.77,0.59
+WG-00458,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,2.78,69.3,Medium,82,16.477299,81.514051,0.76,0.68,0.53
+WG-00459,Venkata Ramana,West Godavari,Ganapavaram,Maize,0.77,82.4,Low,90,16.764667,81.618119,0.92,0.85,0.63
+WG-00460,Sailaja,West Godavari,Kalla,Maize,5.29,67.2,Medium,90,16.451401,81.406911,0.88,0.77,0.51
+WG-00461,Srinivasa Rao,West Godavari,Achanta,Paddy,2.76,65.9,Medium,82,16.438541,81.4691,0.77,0.67,0.5
+WG-00462,Lakshmi Devi,West Godavari,Akiveedu,Paddy,10.35,73.6,Medium,90,16.639624,81.560737,0.83,0.77,0.55
+WG-00463,Venkata Ramana,West Godavari,Attili,Red Gram,7.53,66.8,Medium,91,16.357213,81.623017,0.84,0.76,0.51
+WG-00464,Sailaja,West Godavari,Bhimavaram,Paddy,6.24,73.6,Medium,88,16.712224,81.648425,0.8,0.73,0.58
+WG-00465,Ramesh Babu,West Godavari,Elamanchili,Red Gram,2.29,63.6,Medium,85,16.674332,81.592465,0.84,0.77,0.51
+WG-00466,Padma Priya,West Godavari,Iragavaram,Paddy,4.86,83.7,Low,96,16.474747,81.599302,0.92,0.85,0.64
+WG-00467,Kiran Kumar,West Godavari,Mogalthur,Paddy,7.73,88.3,Low,91,16.391,81.535771,0.92,0.85,0.68
+WG-00468,Anitha,West Godavari,Narasapuram,Paddy,9.74,81.8,Low,87,16.426448,81.747732,0.88,0.85,0.58
+WG-00469,Satyanarayana,West Godavari,Palacoderu,Chilli,10.1,69.0,Medium,82,16.674416,81.674906,0.9,0.81,0.58
+WG-00470,Rajeshwari,West Godavari,Palacole,Paddy,2.94,79.7,Low,87,16.434067,81.566942,0.87,0.75,0.53
+WG-00471,Mohan Rao,West Godavari,Pentapadu,Paddy,10.81,84.5,Low,93,16.47889,81.764448,0.92,0.84,0.62
+WG-00472,Divya,West Godavari,Penugonda,Chilli,7.01,56.9,High,87,16.596904,81.538108,0.78,0.74,0.45
+WG-00473,Prasad,West Godavari,Penumantra,Chilli,6.83,63.5,Medium,85,16.627078,81.72683,0.72,0.64,0.56
+WG-00474,Swapna,West Godavari,Poduru,Paddy,6.04,80.0,Low,95,16.506655,81.579592,0.92,0.85,0.64
+WG-00475,Naresh,West Godavari,Tadepalligudem,Paddy,7.46,74.4,Medium,90,16.690942,81.735264,0.81,0.72,0.55
+WG-00476,Bhavani,West Godavari,Tanuku,Paddy,0.98,88.0,Low,98,16.376321,81.486695,0.89,0.84,0.67
+WG-00477,Srinivasa Rao,West Godavari,Undi,Maize,5.89,82.3,Low,93,16.506951,81.712776,0.85,0.77,0.58
+WG-00478,Lakshmi Devi,West Godavari,Veeravasaram,Cotton,3.4,66.7,Medium,87,16.643639,81.822364,0.8,0.69,0.5
+WG-00479,Venkata Ramana,West Godavari,Ganapavaram,Red Gram,10.4,81.4,Low,90,16.729808,81.45884,0.91,0.85,0.65
+WG-00480,Sailaja,West Godavari,Kalla,Cotton,9.45,56.1,High,87,16.752648,81.486074,0.82,0.77,0.51
+WG-00481,Srinivasa Rao,West Godavari,Achanta,Chilli,10.52,80.5,Low,87,16.779303,81.599178,0.84,0.72,0.54
+WG-00482,Lakshmi Devi,West Godavari,Akiveedu,Paddy,4.85,79.1,Low,87,16.883634,81.507849,0.86,0.78,0.62
+WG-00483,Venkata Ramana,West Godavari,Attili,Chilli,8.22,78.9,Low,93,16.518972,81.403541,0.82,0.73,0.59
+WG-00484,Sailaja,West Godavari,Bhimavaram,Paddy,1.42,66.0,Medium,82,16.522774,81.83107,0.86,0.83,0.5
+WG-00485,Ramesh Babu,West Godavari,Elamanchili,Cotton,11.03,55.6,High,79,16.63599,81.562214,0.8,0.68,0.5
+WG-00486,Padma Priya,West Godavari,Iragavaram,Chilli,2.4,76.2,Low,87,16.648996,81.622611,0.86,0.8,0.63
+WG-00487,Kiran Kumar,West Godavari,Mogalthur,Paddy,10.88,79.6,Low,93,16.426955,81.516826,0.85,0.76,0.54
+WG-00488,Anitha,West Godavari,Narasapuram,Cotton,3.44,69.2,Medium,85,16.643137,81.341621,0.78,0.66,0.6
+WG-00489,Satyanarayana,West Godavari,Palacoderu,Paddy,10.95,87.4,Low,89,16.584902,81.443974,0.92,0.85,0.61
+WG-00490,Rajeshwari,West Godavari,Palacole,Cotton,10.53,65.5,Medium,85,16.73927,81.455981,0.85,0.79,0.5
+WG-00491,Mohan Rao,West Godavari,Pentapadu,Paddy,8.31,65.7,Medium,87,16.578495,81.803836,0.74,0.67,0.52
+WG-00492,Divya,West Godavari,Penugonda,Paddy,3.94,65.3,Medium,89,16.407449,81.67087,0.85,0.8,0.55
+WG-00493,Prasad,West Godavari,Penumantra,Paddy,3.39,76.5,Low,86,16.847427,81.624111,0.9,0.85,0.59
+WG-00494,Swapna,West Godavari,Poduru,Paddy,8.57,77.9,Low,87,16.881966,81.488345,0.82,0.72,0.63
+WG-00495,Naresh,West Godavari,Tadepalligudem,Chilli,3.51,62.5,Medium,87,16.531217,81.685457,0.78,0.7,0.51
+WG-00496,Bhavani,West Godavari,Tanuku,Paddy,9.34,82.4,Low,95,16.347168,81.577319,0.92,0.81,0.55
+WG-00497,Srinivasa Rao,West Godavari,Undi,Paddy,5.85,77.5,Low,91,16.572478,81.778994,0.85,0.76,0.55
+WG-00498,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,1.35,82.1,Low,87,16.40777,81.65097,0.89,0.79,0.63
+WG-00499,Venkata Ramana,West Godavari,Ganapavaram,Cotton,3.38,62.9,Medium,85,16.553717,81.361229,0.83,0.71,0.58
+WG-00500,Sailaja,West Godavari,Kalla,Paddy,6.75,71.5,Medium,92,16.531619,81.82516,0.88,0.85,0.57
+WG-00501,Srinivasa Rao,West Godavari,Achanta,Cotton,4.44,65.6,Medium,90,16.641191,81.660772,0.81,0.73,0.51
+WG-00502,Lakshmi Devi,West Godavari,Akiveedu,Paddy,9.05,78.2,Low,95,16.582888,81.5502,0.82,0.7,0.53
+WG-00503,Venkata Ramana,West Godavari,Attili,Maize,7.33,63.2,Medium,90,16.62499,81.82685,0.85,0.78,0.52
+WG-00504,Sailaja,West Godavari,Bhimavaram,Paddy,7.25,86.3,Low,96,16.800657,81.510368,0.92,0.85,0.6
+WG-00505,Ramesh Babu,West Godavari,Elamanchili,Paddy,5.07,83.2,Low,91,16.521303,81.461699,0.87,0.83,0.58
+WG-00506,Padma Priya,West Godavari,Iragavaram,Cotton,3.43,70.9,Medium,87,16.372724,81.63352,0.85,0.75,0.51
+WG-00507,Kiran Kumar,West Godavari,Mogalthur,Paddy,7.52,72.5,Medium,93,16.62511,81.71001,0.78,0.72,0.55
+WG-00508,Anitha,West Godavari,Narasapuram,Paddy,11.04,70.7,Medium,90,16.832266,81.638812,0.87,0.84,0.59
+WG-00509,Satyanarayana,West Godavari,Palacoderu,Paddy,2.28,87.9,Low,89,16.483083,81.60625,0.88,0.84,0.59
+WG-00510,Rajeshwari,West Godavari,Palacole,Red Gram,2.84,65.4,Medium,90,16.639178,81.674752,0.88,0.77,0.56
+WG-00511,Mohan Rao,West Godavari,Pentapadu,Paddy,3.09,76.0,Low,87,16.680517,81.663563,0.85,0.77,0.6
+WG-00512,Divya,West Godavari,Penugonda,Red Gram,1.2,79.3,Low,92,16.767047,81.643786,0.92,0.85,0.62
+WG-00513,Prasad,West Godavari,Penumantra,Paddy,6.14,66.4,Medium,85,16.508729,81.673436,0.82,0.74,0.54
+WG-00514,Swapna,West Godavari,Poduru,Red Gram,8.82,65.3,Medium,90,16.367159,81.686941,0.87,0.84,0.59
+WG-00515,Naresh,West Godavari,Tadepalligudem,Cotton,1.11,72.7,Medium,89,16.581134,81.782948,0.92,0.85,0.57
+WG-00516,Bhavani,West Godavari,Tanuku,Paddy,4.57,78.2,Low,94,16.583275,81.598941,0.91,0.85,0.59
+WG-00517,Srinivasa Rao,West Godavari,Undi,Paddy,6.03,66.9,Medium,82,16.54344,81.467863,0.83,0.76,0.51
+WG-00518,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,7.94,69.1,Medium,87,16.679373,81.681713,0.87,0.82,0.6
+WG-00519,Venkata Ramana,West Godavari,Ganapavaram,Cotton,3.84,76.5,Low,91,16.377161,81.629122,0.88,0.77,0.59
+WG-00520,Sailaja,West Godavari,Kalla,Cotton,7.87,55.4,High,78,16.488973,81.675657,0.71,0.68,0.54
+WG-00521,Srinivasa Rao,West Godavari,Achanta,Maize,0.8,68.5,Medium,91,16.623656,81.436143,0.82,0.76,0.48
+WG-00522,Lakshmi Devi,West Godavari,Akiveedu,Paddy,5.63,75.9,Low,92,16.584507,81.573666,0.92,0.84,0.62
+WG-00523,Venkata Ramana,West Godavari,Attili,Cotton,8.53,65.6,Medium,90,16.955813,81.507347,0.78,0.69,0.57
+WG-00524,Sailaja,West Godavari,Bhimavaram,Paddy,3.79,88.4,Low,95,16.523446,81.454741,0.92,0.85,0.64
+WG-00525,Ramesh Babu,West Godavari,Elamanchili,Chilli,0.83,71.8,Medium,86,16.651473,81.828991,0.81,0.73,0.58
+WG-00526,Padma Priya,West Godavari,Iragavaram,Red Gram,9.43,76.8,Low,94,16.873935,81.461097,0.88,0.79,0.61
+WG-00527,Kiran Kumar,West Godavari,Mogalthur,Paddy,3.38,78.6,Low,88,16.822857,81.633248,0.92,0.8,0.54
+WG-00528,Anitha,West Godavari,Narasapuram,Paddy,5.85,84.9,Low,96,16.474191,81.379601,0.86,0.77,0.6
+WG-00529,Satyanarayana,West Godavari,Palacoderu,Paddy,7.38,68.7,Medium,87,16.562439,81.853012,0.75,0.67,0.53
+WG-00530,Rajeshwari,West Godavari,Palacole,Chilli,2.62,63.6,Medium,87,16.506987,81.656826,0.73,0.67,0.55
+WG-00531,Mohan Rao,West Godavari,Pentapadu,Paddy,4.05,73.5,Medium,92,16.624537,81.329643,0.92,0.85,0.59
+WG-00532,Divya,West Godavari,Penugonda,Paddy,6.52,89.4,Low,90,16.791324,81.523517,0.92,0.85,0.66
+WG-00533,Prasad,West Godavari,Penumantra,Chilli,11.29,71.7,Medium,88,16.623356,81.721203,0.88,0.84,0.58
+WG-00534,Swapna,West Godavari,Poduru,Paddy,9.96,82.3,Low,89,16.410779,81.642519,0.92,0.85,0.59
+WG-00535,Naresh,West Godavari,Tadepalligudem,Paddy,8.6,80.5,Low,91,16.535257,81.390526,0.92,0.81,0.6
+WG-00536,Bhavani,West Godavari,Tanuku,Red Gram,2.88,59.8,High,87,16.675449,81.769899,0.84,0.76,0.51
+WG-00537,Srinivasa Rao,West Godavari,Undi,Paddy,2.08,74.0,Medium,86,16.566038,81.779585,0.9,0.83,0.59
+WG-00538,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,3.41,76.9,Low,88,16.382425,81.698375,0.84,0.76,0.54
+WG-00539,Venkata Ramana,West Godavari,Ganapavaram,Cotton,11.61,67.4,Medium,83,16.557395,81.547531,0.83,0.79,0.55
+WG-00540,Sailaja,West Godavari,Kalla,Paddy,9.43,66.0,Medium,82,16.465273,81.404477,0.77,0.74,0.56
+WG-00541,Srinivasa Rao,West Godavari,Achanta,Paddy,10.21,81.8,Low,91,16.59495,81.744374,0.92,0.85,0.58
+WG-00542,Lakshmi Devi,West Godavari,Akiveedu,Chilli,3.48,62.7,Medium,85,16.636772,81.413507,0.78,0.67,0.5
+WG-00543,Venkata Ramana,West Godavari,Attili,Paddy,11.22,69.8,Medium,87,16.600922,81.38416,0.75,0.72,0.52
+WG-00544,Sailaja,West Godavari,Bhimavaram,Paddy,11.33,66.0,Medium,90,16.762836,81.514972,0.81,0.73,0.54
+WG-00545,Ramesh Babu,West Godavari,Elamanchili,Paddy,5.22,79.2,Low,87,16.637784,81.736195,0.89,0.85,0.62
+WG-00546,Padma Priya,West Godavari,Iragavaram,Paddy,8.2,76.2,Low,85,16.603884,81.783606,0.86,0.75,0.54
+WG-00547,Kiran Kumar,West Godavari,Mogalthur,Paddy,9.31,88.2,Low,93,16.752606,81.712351,0.88,0.85,0.59
+WG-00548,Anitha,West Godavari,Narasapuram,Paddy,7.62,72.4,Medium,87,16.744721,81.448101,0.8,0.71,0.51
+WG-00549,Satyanarayana,West Godavari,Palacoderu,Paddy,4.79,75.4,Low,85,16.350466,81.64599,0.85,0.75,0.59
+WG-00550,Rajeshwari,West Godavari,Palacole,Paddy,11.98,84.4,Low,94,16.682505,81.665672,0.87,0.79,0.63
+WG-00551,Mohan Rao,West Godavari,Pentapadu,Paddy,7.86,85.9,Low,92,16.547619,81.796416,0.92,0.85,0.57
+WG-00552,Divya,West Godavari,Penugonda,Paddy,4.53,84.3,Low,90,16.466357,81.429993,0.92,0.82,0.59
+WG-00553,Prasad,West Godavari,Penumantra,Paddy,4.45,80.3,Low,93,16.766882,81.483864,0.91,0.85,0.65
+WG-00554,Swapna,West Godavari,Poduru,Chilli,4.15,68.8,Medium,85,16.67343,81.606344,0.81,0.77,0.5
+WG-00555,Naresh,West Godavari,Tadepalligudem,Chilli,3.44,74.0,Medium,85,16.504175,81.497689,0.78,0.7,0.54
+WG-00556,Bhavani,West Godavari,Tanuku,Red Gram,6.89,73.5,Medium,91,16.430685,81.4104,0.8,0.69,0.55
+WG-00557,Srinivasa Rao,West Godavari,Undi,Paddy,5.85,66.0,Medium,81,16.629396,81.764419,0.87,0.77,0.49
+WG-00558,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,6.01,80.3,Low,94,16.623922,81.589987,0.92,0.85,0.56
+WG-00559,Venkata Ramana,West Godavari,Ganapavaram,Paddy,9.56,74.2,Medium,93,16.578088,81.579451,0.82,0.71,0.51
+WG-00560,Sailaja,West Godavari,Kalla,Paddy,6.34,73.9,Medium,88,16.631643,81.692083,0.92,0.82,0.54
+WG-00561,Srinivasa Rao,West Godavari,Achanta,Red Gram,9.03,70.8,Medium,89,16.626359,81.736439,0.76,0.69,0.59
+WG-00562,Lakshmi Devi,West Godavari,Akiveedu,Paddy,7.49,67.0,Medium,86,16.611085,81.472944,0.82,0.79,0.57
+WG-00563,Venkata Ramana,West Godavari,Attili,Paddy,5.51,85.8,Low,92,16.564409,81.595218,0.84,0.81,0.6
+WG-00564,Sailaja,West Godavari,Bhimavaram,Cotton,10.52,63.2,Medium,82,16.430649,81.636731,0.75,0.69,0.5
+WG-00565,Ramesh Babu,West Godavari,Elamanchili,Paddy,6.12,89.3,Low,93,16.742729,81.504127,0.92,0.83,0.65
+WG-00566,Padma Priya,West Godavari,Iragavaram,Maize,8.43,81.4,Low,91,16.683643,81.628344,0.92,0.85,0.65
+WG-00567,Kiran Kumar,West Godavari,Mogalthur,Paddy,5.53,87.4,Low,93,16.573208,81.824692,0.92,0.83,0.6
+WG-00568,Anitha,West Godavari,Narasapuram,Paddy,9.0,81.2,Low,96,16.52644,81.798155,0.9,0.8,0.63
+WG-00569,Satyanarayana,West Godavari,Palacoderu,Paddy,5.97,78.7,Low,89,16.753686,81.628405,0.92,0.82,0.6
+WG-00570,Rajeshwari,West Godavari,Palacole,Maize,7.77,60.9,Medium,81,16.629296,81.775413,0.82,0.7,0.47
+WG-00571,Mohan Rao,West Godavari,Pentapadu,Red Gram,4.68,69.9,Medium,88,16.379298,81.569275,0.8,0.7,0.6
+WG-00572,Divya,West Godavari,Penugonda,Paddy,7.97,75.8,Low,87,16.727153,81.681249,0.92,0.85,0.55
+WG-00573,Prasad,West Godavari,Penumantra,Paddy,5.06,79.6,Low,92,16.878418,81.511758,0.92,0.85,0.59
+WG-00574,Swapna,West Godavari,Poduru,Red Gram,4.95,74.9,Medium,85,16.574904,81.69458,0.88,0.81,0.54
+WG-00575,Naresh,West Godavari,Tadepalligudem,Paddy,8.44,83.3,Low,95,16.859569,81.535522,0.92,0.85,0.64
+WG-00576,Bhavani,West Godavari,Tanuku,Chilli,11.95,59.8,High,87,16.638655,81.74434,0.74,0.72,0.51
+WG-00577,Srinivasa Rao,West Godavari,Undi,Paddy,3.03,85.3,Low,96,16.468531,81.573822,0.92,0.85,0.65
+WG-00578,Lakshmi Devi,West Godavari,Veeravasaram,Chilli,7.59,59.6,High,84,16.589873,81.449732,0.83,0.74,0.48
+WG-00579,Venkata Ramana,West Godavari,Ganapavaram,Paddy,3.14,66.3,Medium,87,16.563645,81.823226,0.74,0.68,0.53
+WG-00580,Sailaja,West Godavari,Kalla,Paddy,6.38,83.4,Low,89,16.660604,81.616967,0.92,0.85,0.64
+WG-00581,Srinivasa Rao,West Godavari,Achanta,Cotton,4.32,68.2,Medium,85,16.866382,81.626451,0.86,0.79,0.5
+WG-00582,Lakshmi Devi,West Godavari,Akiveedu,Paddy,9.9,83.0,Low,89,16.603202,81.824421,0.88,0.82,0.62
+WG-00583,Venkata Ramana,West Godavari,Attili,Paddy,1.77,80.3,Low,93,16.540309,81.348188,0.92,0.81,0.64
+WG-00584,Sailaja,West Godavari,Bhimavaram,Paddy,5.24,69.1,Medium,86,16.687377,81.5794,0.88,0.8,0.6
+WG-00585,Ramesh Babu,West Godavari,Elamanchili,Red Gram,8.1,60.3,Medium,85,16.444859,81.391195,0.78,0.66,0.5
+WG-00586,Padma Priya,West Godavari,Iragavaram,Maize,8.39,76.2,Low,90,16.584815,81.641909,0.84,0.74,0.52
+WG-00587,Kiran Kumar,West Godavari,Mogalthur,Chilli,7.01,71.0,Medium,85,16.791626,81.5386,0.9,0.85,0.56
+WG-00588,Anitha,West Godavari,Narasapuram,Paddy,11.1,65.2,Medium,89,16.520583,81.685027,0.83,0.72,0.56
+WG-00589,Satyanarayana,West Godavari,Palacoderu,Paddy,1.38,66.7,Medium,89,16.596104,81.559374,0.76,0.65,0.58
+WG-00590,Rajeshwari,West Godavari,Palacole,Chilli,7.77,69.9,Medium,91,16.824854,81.577529,0.75,0.68,0.49
+WG-00591,Mohan Rao,West Godavari,Pentapadu,Paddy,5.47,81.6,Low,94,16.58618,81.81631,0.83,0.71,0.55
+WG-00592,Divya,West Godavari,Penugonda,Chilli,1.94,68.0,Medium,87,16.618964,81.621114,0.87,0.78,0.56
+WG-00593,Prasad,West Godavari,Penumantra,Paddy,3.45,67.5,Medium,90,16.44706,81.614894,0.88,0.84,0.54
+WG-00594,Swapna,West Godavari,Poduru,Cotton,5.43,68.2,Medium,86,16.527743,81.541009,0.83,0.76,0.59
+WG-00595,Naresh,West Godavari,Tadepalligudem,Maize,5.82,78.7,Low,90,16.81724,81.553823,0.89,0.79,0.61
+WG-00596,Bhavani,West Godavari,Tanuku,Cotton,4.28,72.4,Medium,88,16.64646,81.354728,0.89,0.83,0.52
+WG-00597,Srinivasa Rao,West Godavari,Undi,Paddy,7.96,84.9,Low,96,16.625725,81.500147,0.92,0.85,0.66
+WG-00598,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,9.88,83.1,Low,91,16.525557,81.586533,0.89,0.79,0.56
+WG-00599,Venkata Ramana,West Godavari,Ganapavaram,Paddy,5.27,80.5,Low,87,16.416675,81.547419,0.92,0.83,0.64
+WG-00600,Sailaja,West Godavari,Kalla,Cotton,3.07,77.4,Low,86,16.499414,81.822433,0.86,0.74,0.56
+WG-00601,Srinivasa Rao,West Godavari,Achanta,Red Gram,7.37,70.9,Medium,89,16.578085,81.438249,0.82,0.75,0.53
+WG-00602,Lakshmi Devi,West Godavari,Akiveedu,Cotton,8.56,57.7,High,79,16.56698,81.735158,0.68,0.6,0.5
+WG-00603,Venkata Ramana,West Godavari,Attili,Paddy,10.48,83.6,Low,96,16.523437,81.675712,0.9,0.79,0.56
+WG-00604,Sailaja,West Godavari,Bhimavaram,Paddy,3.39,82.4,Low,92,16.558606,81.537977,0.89,0.79,0.64
+WG-00605,Ramesh Babu,West Godavari,Elamanchili,Paddy,0.95,68.2,Medium,86,16.795144,81.585773,0.79,0.71,0.49
+WG-00606,Padma Priya,West Godavari,Iragavaram,Paddy,8.4,82.9,Low,88,16.59181,81.703408,0.86,0.78,0.64
+WG-00607,Kiran Kumar,West Godavari,Mogalthur,Paddy,11.01,76.8,Low,87,16.565071,81.60913,0.79,0.67,0.62
+WG-00608,Anitha,West Godavari,Narasapuram,Red Gram,9.48,81.1,Low,96,16.628759,81.595155,0.82,0.72,0.6
+WG-00609,Satyanarayana,West Godavari,Palacoderu,Chilli,10.82,56.9,High,87,16.55472,81.755193,0.71,0.67,0.53
+WG-00610,Rajeshwari,West Godavari,Palacole,Maize,6.95,61.8,Medium,83,16.636864,81.503927,0.76,0.69,0.49
+WG-00611,Mohan Rao,West Godavari,Pentapadu,Red Gram,1.51,78.2,Low,89,16.545918,81.77121,0.92,0.85,0.57
+WG-00612,Divya,West Godavari,Penugonda,Paddy,8.45,71.5,Medium,92,16.756821,81.641498,0.8,0.71,0.5
+WG-00613,Prasad,West Godavari,Penumantra,Paddy,8.18,68.3,Medium,91,16.524156,81.503775,0.86,0.81,0.59
+WG-00614,Swapna,West Godavari,Poduru,Red Gram,1.97,73.8,Medium,92,16.777193,81.479933,0.84,0.76,0.53
+WG-00615,Naresh,West Godavari,Tadepalligudem,Paddy,4.46,73.8,Medium,85,16.847286,81.555924,0.85,0.83,0.53
+WG-00616,Bhavani,West Godavari,Tanuku,Paddy,7.27,82.6,Low,89,16.466531,81.454894,0.9,0.82,0.61
+WG-00617,Srinivasa Rao,West Godavari,Undi,Paddy,2.34,88.2,Low,89,16.337323,81.647,0.86,0.78,0.65
+WG-00618,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,7.67,73.5,Medium,84,16.451536,81.413147,0.9,0.81,0.51
+WG-00619,Venkata Ramana,West Godavari,Ganapavaram,Chilli,1.06,56.8,High,87,16.481141,81.500862,0.76,0.66,0.51
+WG-00620,Sailaja,West Godavari,Kalla,Maize,10.73,79.8,Low,90,16.463955,81.589579,0.86,0.84,0.55
+WG-00621,Srinivasa Rao,West Godavari,Achanta,Red Gram,11.86,69.8,Medium,91,16.739933,81.68266,0.85,0.76,0.59
+WG-00622,Lakshmi Devi,West Godavari,Akiveedu,Paddy,6.93,65.9,Medium,89,16.594921,81.426052,0.79,0.71,0.49
+WG-00623,Venkata Ramana,West Godavari,Attili,Paddy,9.0,88.1,Low,98,16.58331,81.793476,0.89,0.79,0.62
+WG-00624,Sailaja,West Godavari,Bhimavaram,Paddy,8.42,64.6,Medium,83,16.381178,81.652074,0.86,0.78,0.56
+WG-00625,Ramesh Babu,West Godavari,Elamanchili,Paddy,1.22,78.2,Low,87,16.467044,81.439056,0.87,0.75,0.62
+WG-00626,Padma Priya,West Godavari,Iragavaram,Maize,7.54,60.3,Medium,80,16.560316,81.474675,0.84,0.73,0.56
+WG-00627,Kiran Kumar,West Godavari,Mogalthur,Maize,7.13,67.1,Medium,83,16.824029,81.492333,0.88,0.8,0.57
+WG-00628,Anitha,West Godavari,Narasapuram,Paddy,2.5,65.3,Medium,82,16.638794,81.613877,0.84,0.77,0.47
+WG-00629,Satyanarayana,West Godavari,Palacoderu,Paddy,0.89,67.2,Medium,91,16.437678,81.639936,0.81,0.77,0.55
+WG-00630,Rajeshwari,West Godavari,Palacole,Paddy,7.41,82.3,Low,90,16.596283,81.67372,0.92,0.84,0.62
+WG-00631,Mohan Rao,West Godavari,Pentapadu,Maize,3.6,73.5,Medium,91,16.573871,81.366285,0.9,0.79,0.53
+WG-00632,Divya,West Godavari,Penugonda,Cotton,7.55,78.4,Low,93,16.755606,81.45187,0.9,0.85,0.6
+WG-00633,Prasad,West Godavari,Penumantra,Cotton,6.65,61.8,Medium,89,16.681839,81.735,0.85,0.81,0.55
+WG-00634,Swapna,West Godavari,Poduru,Cotton,5.08,77.1,Low,91,16.494239,81.498838,0.88,0.84,0.63
+WG-00635,Naresh,West Godavari,Tadepalligudem,Paddy,9.53,77.5,Low,88,16.458521,81.373701,0.92,0.83,0.58
+WG-00636,Bhavani,West Godavari,Tanuku,Cotton,4.65,61.9,Medium,81,16.654535,81.354203,0.74,0.71,0.51
+WG-00637,Srinivasa Rao,West Godavari,Undi,Cotton,5.62,70.7,Medium,89,16.382744,81.580574,0.9,0.85,0.61
+WG-00638,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,5.55,79.9,Low,90,16.410015,81.521004,0.92,0.85,0.6
+WG-00639,Venkata Ramana,West Godavari,Ganapavaram,Paddy,11.4,72.6,Medium,89,16.499923,81.448167,0.85,0.78,0.56
+WG-00640,Sailaja,West Godavari,Kalla,Paddy,7.12,85.7,Low,93,16.39223,81.483724,0.92,0.85,0.55
+WG-00641,Srinivasa Rao,West Godavari,Achanta,Paddy,10.25,80.6,Low,92,16.750666,81.673404,0.92,0.85,0.57
+WG-00642,Lakshmi Devi,West Godavari,Akiveedu,Paddy,10.78,67.9,Medium,85,16.571724,81.439804,0.8,0.78,0.52
+WG-00643,Venkata Ramana,West Godavari,Attili,Paddy,7.34,77.4,Low,91,16.459884,81.654734,0.89,0.8,0.56
+WG-00644,Sailaja,West Godavari,Bhimavaram,Red Gram,11.39,77.0,Low,90,16.341383,81.645984,0.87,0.77,0.61
+WG-00645,Ramesh Babu,West Godavari,Elamanchili,Paddy,8.4,67.9,Medium,89,16.624156,81.421854,0.87,0.78,0.5
+WG-00646,Padma Priya,West Godavari,Iragavaram,Maize,6.88,66.5,Medium,88,16.60696,81.377468,0.8,0.69,0.56
+WG-00647,Kiran Kumar,West Godavari,Mogalthur,Paddy,5.1,67.5,Medium,90,16.361089,81.67139,0.76,0.72,0.49
+WG-00648,Anitha,West Godavari,Narasapuram,Paddy,2.56,81.6,Low,96,16.438462,81.758393,0.82,0.76,0.59
+WG-00649,Satyanarayana,West Godavari,Palacoderu,Paddy,1.11,80.0,Low,94,16.609953,81.632589,0.92,0.85,0.54
+WG-00650,Rajeshwari,West Godavari,Palacole,Paddy,9.32,70.5,Medium,84,16.762854,81.54486,0.9,0.81,0.59
+WG-00651,Mohan Rao,West Godavari,Pentapadu,Paddy,3.12,75.5,Low,93,16.427053,81.405435,0.91,0.85,0.52
+WG-00652,Divya,West Godavari,Penugonda,Paddy,3.09,67.8,Medium,88,16.481777,81.594085,0.77,0.66,0.53
+WG-00653,Prasad,West Godavari,Penumantra,Paddy,8.39,73.2,Medium,90,16.74697,81.67906,0.81,0.71,0.61
+WG-00654,Swapna,West Godavari,Poduru,Paddy,8.17,69.3,Medium,86,16.512844,81.725774,0.87,0.77,0.51
+WG-00655,Naresh,West Godavari,Tadepalligudem,Paddy,7.46,78.5,Low,88,16.758026,81.64077,0.92,0.85,0.58
+WG-00656,Bhavani,West Godavari,Tanuku,Paddy,3.35,86.5,Low,98,16.681343,81.678385,0.85,0.75,0.65
+WG-00657,Srinivasa Rao,West Godavari,Undi,Red Gram,11.03,80.7,Low,94,16.529313,81.691013,0.92,0.85,0.58
+WG-00658,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,9.16,75.6,Low,87,16.583795,81.579511,0.81,0.78,0.53
+WG-00659,Venkata Ramana,West Godavari,Ganapavaram,Paddy,8.17,78.1,Low,90,16.34701,81.628784,0.91,0.84,0.56
+WG-00660,Sailaja,West Godavari,Kalla,Maize,2.36,79.4,Low,94,16.657024,81.532473,0.92,0.8,0.57
+WG-00661,Srinivasa Rao,West Godavari,Achanta,Chilli,5.94,69.6,Medium,89,16.896802,81.586093,0.87,0.77,0.55
+WG-00662,Lakshmi Devi,West Godavari,Akiveedu,Paddy,3.65,72.6,Medium,93,16.664809,81.385263,0.84,0.82,0.62
+WG-00663,Venkata Ramana,West Godavari,Attili,Paddy,1.2,87.3,Low,93,16.739063,81.600226,0.92,0.82,0.57
+WG-00664,Sailaja,West Godavari,Bhimavaram,Paddy,8.99,68.3,Medium,85,16.609511,81.766917,0.88,0.83,0.5
+WG-00665,Ramesh Babu,West Godavari,Elamanchili,Chilli,8.83,70.4,Medium,83,16.704539,81.740956,0.91,0.8,0.6
+WG-00666,Padma Priya,West Godavari,Iragavaram,Chilli,2.77,69.2,Medium,84,16.466815,81.683284,0.89,0.81,0.51
+WG-00667,Kiran Kumar,West Godavari,Mogalthur,Paddy,6.73,79.1,Low,93,16.520964,81.715966,0.91,0.85,0.63
+WG-00668,Anitha,West Godavari,Narasapuram,Paddy,11.2,65.1,Medium,81,16.665616,81.786125,0.84,0.76,0.58
+WG-00669,Satyanarayana,West Godavari,Palacoderu,Maize,9.61,75.0,Low,87,16.480829,81.452358,0.86,0.81,0.54
+WG-00670,Rajeshwari,West Godavari,Palacole,Cotton,11.51,58.4,High,86,16.482824,81.644501,0.72,0.61,0.54
+WG-00671,Mohan Rao,West Godavari,Pentapadu,Red Gram,1.08,59.0,High,80,16.642535,81.516889,0.75,0.66,0.51
+WG-00672,Divya,West Godavari,Penugonda,Red Gram,2.64,74.2,Medium,91,16.667605,81.728702,0.78,0.67,0.56
+WG-00673,Prasad,West Godavari,Penumantra,Paddy,1.75,88.3,Low,97,16.791906,81.572868,0.92,0.85,0.59
+WG-00674,Swapna,West Godavari,Poduru,Paddy,9.77,85.6,Low,97,16.854873,81.626519,0.92,0.85,0.55
+WG-00675,Naresh,West Godavari,Tadepalligudem,Paddy,1.72,76.6,Low,93,16.395264,81.526875,0.9,0.83,0.53
+WG-00676,Bhavani,West Godavari,Tanuku,Paddy,9.18,70.7,Medium,87,16.597532,81.420879,0.83,0.73,0.58
+WG-00677,Srinivasa Rao,West Godavari,Undi,Paddy,1.5,70.9,Medium,86,16.500255,81.511245,0.76,0.72,0.57
+WG-00678,Lakshmi Devi,West Godavari,Veeravasaram,Chilli,4.14,78.8,Low,94,16.749276,81.652047,0.89,0.85,0.61
+WG-00679,Venkata Ramana,West Godavari,Ganapavaram,Paddy,4.6,72.1,Medium,84,16.583252,81.785314,0.88,0.8,0.58
+WG-00680,Sailaja,West Godavari,Kalla,Maize,9.76,66.0,Medium,87,16.375809,81.64151,0.83,0.77,0.52
+WG-00681,Srinivasa Rao,West Godavari,Achanta,Chilli,7.89,57.4,High,81,16.736394,81.48458,0.74,0.65,0.5
+WG-00682,Lakshmi Devi,West Godavari,Akiveedu,Paddy,11.32,72.9,Medium,88,16.554952,81.58967,0.91,0.83,0.52
+WG-00683,Venkata Ramana,West Godavari,Attili,Cotton,2.93,71.3,Medium,84,16.761672,81.693353,0.78,0.71,0.54
+WG-00684,Sailaja,West Godavari,Bhimavaram,Maize,3.62,81.7,Low,89,16.390615,81.668111,0.92,0.85,0.59
+WG-00685,Ramesh Babu,West Godavari,Elamanchili,Paddy,4.07,68.2,Medium,89,16.745849,81.446481,0.81,0.76,0.52
+WG-00686,Padma Priya,West Godavari,Iragavaram,Paddy,3.62,69.0,Medium,92,16.7363,81.673122,0.78,0.72,0.49
+WG-00687,Kiran Kumar,West Godavari,Mogalthur,Paddy,8.24,67.1,Medium,88,16.429485,81.660605,0.86,0.8,0.51
+WG-00688,Anitha,West Godavari,Narasapuram,Paddy,9.0,77.2,Low,86,16.397157,81.534569,0.92,0.8,0.64
+WG-00689,Satyanarayana,West Godavari,Palacoderu,Paddy,4.49,81.1,Low,94,16.92395,81.531075,0.92,0.83,0.57
+WG-00690,Rajeshwari,West Godavari,Palacole,Chilli,11.46,77.9,Low,88,16.626934,81.608362,0.91,0.85,0.63
+WG-00691,Mohan Rao,West Godavari,Pentapadu,Cotton,6.91,76.8,Low,93,16.529691,81.760432,0.92,0.85,0.55
+WG-00692,Divya,West Godavari,Penugonda,Cotton,9.08,79.6,Low,87,16.902675,81.51911,0.91,0.82,0.58
+WG-00693,Prasad,West Godavari,Penumantra,Paddy,11.87,88.4,Low,95,16.836395,81.631306,0.86,0.75,0.61
+WG-00694,Swapna,West Godavari,Poduru,Paddy,9.03,71.5,Medium,86,16.581952,81.359199,0.86,0.81,0.59
+WG-00695,Naresh,West Godavari,Tadepalligudem,Cotton,5.06,64.3,Medium,86,16.440139,81.522005,0.83,0.75,0.56
+WG-00696,Bhavani,West Godavari,Tanuku,Paddy,0.76,68.1,Medium,85,16.835333,81.568693,0.85,0.77,0.5
+WG-00697,Srinivasa Rao,West Godavari,Undi,Paddy,9.61,74.8,Medium,91,16.647745,81.686584,0.82,0.76,0.57
+WG-00698,Lakshmi Devi,West Godavari,Veeravasaram,Chilli,3.58,78.2,Low,90,16.44631,81.413945,0.85,0.82,0.55
+WG-00699,Venkata Ramana,West Godavari,Ganapavaram,Paddy,3.92,70.3,Medium,84,16.489365,81.599113,0.75,0.68,0.5
+WG-00700,Sailaja,West Godavari,Kalla,Paddy,10.03,70.1,Medium,86,16.854949,81.597489,0.9,0.79,0.49
+WG-00701,Srinivasa Rao,West Godavari,Achanta,Paddy,11.33,65.9,Medium,85,16.570627,81.375604,0.77,0.7,0.51
+WG-00702,Lakshmi Devi,West Godavari,Akiveedu,Red Gram,5.35,69.1,Medium,85,16.687788,81.670668,0.84,0.72,0.55
+WG-00703,Venkata Ramana,West Godavari,Attili,Paddy,10.59,81.3,Low,87,16.514446,81.461374,0.92,0.82,0.56
+WG-00704,Sailaja,West Godavari,Bhimavaram,Paddy,11.95,77.8,Low,90,16.625619,81.463771,0.83,0.75,0.53
+WG-00705,Ramesh Babu,West Godavari,Elamanchili,Red Gram,5.09,78.9,Low,89,16.43177,81.699406,0.85,0.79,0.64
+WG-00706,Padma Priya,West Godavari,Iragavaram,Paddy,9.65,70.0,Medium,84,16.5399,81.364802,0.85,0.77,0.5
+WG-00707,Kiran Kumar,West Godavari,Mogalthur,Paddy,10.94,72.2,Medium,84,16.394372,81.536629,0.9,0.85,0.57
+WG-00708,Anitha,West Godavari,Narasapuram,Paddy,2.73,71.0,Medium,84,16.590865,81.822196,0.79,0.68,0.54
+WG-00709,Satyanarayana,West Godavari,Palacoderu,Paddy,2.18,73.9,Medium,88,16.541875,81.443428,0.77,0.71,0.52
+WG-00710,Rajeshwari,West Godavari,Palacole,Paddy,8.38,74.2,Medium,88,16.517411,81.59167,0.86,0.81,0.52
+WG-00711,Mohan Rao,West Godavari,Pentapadu,Maize,8.74,69.6,Medium,84,16.658603,81.696307,0.75,0.71,0.6
+WG-00712,Divya,West Godavari,Penugonda,Cotton,6.01,74.0,Medium,92,16.737214,81.579085,0.79,0.7,0.51
+WG-00713,Prasad,West Godavari,Penumantra,Maize,3.03,70.8,Medium,89,16.474213,81.539501,0.9,0.85,0.6
+WG-00714,Swapna,West Godavari,Poduru,Red Gram,7.52,79.4,Low,87,16.71481,81.73255,0.86,0.76,0.61
+WG-00715,Naresh,West Godavari,Tadepalligudem,Red Gram,3.93,63.8,Medium,82,16.453934,81.73504,0.75,0.73,0.47
+WG-00716,Bhavani,West Godavari,Tanuku,Cotton,10.21,68.8,Medium,91,16.729546,81.502841,0.84,0.81,0.6
+WG-00717,Srinivasa Rao,West Godavari,Undi,Paddy,10.47,87.0,Low,94,16.531484,81.637492,0.91,0.82,0.57
+WG-00718,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,4.32,85.1,Low,94,16.474656,81.624412,0.92,0.85,0.56
+WG-00719,Venkata Ramana,West Godavari,Ganapavaram,Paddy,9.52,79.1,Low,88,16.770911,81.488321,0.89,0.85,0.63
+WG-00720,Sailaja,West Godavari,Kalla,Cotton,2.37,74.3,Medium,85,16.494498,81.513731,0.79,0.73,0.61
+WG-00721,Srinivasa Rao,West Godavari,Achanta,Cotton,10.54,56.9,High,84,16.661053,81.607159,0.72,0.62,0.52
+WG-00722,Lakshmi Devi,West Godavari,Akiveedu,Paddy,7.72,79.5,Low,94,16.65116,81.813878,0.92,0.84,0.56
+WG-00723,Venkata Ramana,West Godavari,Attili,Cotton,7.03,60.3,Medium,84,16.659908,81.408914,0.75,0.72,0.46
+WG-00724,Sailaja,West Godavari,Bhimavaram,Paddy,0.83,87.0,Low,92,16.508056,81.596431,0.9,0.85,0.63
+WG-00725,Ramesh Babu,West Godavari,Elamanchili,Paddy,7.53,76.9,Low,91,16.591488,81.389668,0.92,0.85,0.59
+WG-00726,Padma Priya,West Godavari,Iragavaram,Paddy,7.26,72.7,Medium,85,16.578989,81.454504,0.78,0.69,0.57
+WG-00727,Kiran Kumar,West Godavari,Mogalthur,Cotton,6.04,73.3,Medium,93,16.883917,81.512901,0.78,0.75,0.57
+WG-00728,Anitha,West Godavari,Narasapuram,Red Gram,10.22,59.7,High,81,16.506035,81.78288,0.7,0.66,0.48
+WG-00729,Satyanarayana,West Godavari,Palacoderu,Paddy,8.4,88.6,Low,99,16.5293,81.694143,0.91,0.85,0.64
+WG-00730,Rajeshwari,West Godavari,Palacole,Paddy,10.24,78.9,Low,92,16.630034,81.743516,0.92,0.85,0.55
+WG-00731,Mohan Rao,West Godavari,Pentapadu,Cotton,6.59,66.7,Medium,88,16.559114,81.378412,0.89,0.8,0.48
+WG-00732,Divya,West Godavari,Penugonda,Cotton,10.78,73.6,Medium,85,16.485866,81.484859,0.89,0.84,0.61
+WG-00733,Prasad,West Godavari,Penumantra,Cotton,4.3,61.4,Medium,86,16.5142,81.715419,0.72,0.62,0.5
+WG-00734,Swapna,West Godavari,Poduru,Paddy,3.91,68.1,Medium,91,16.646521,81.609153,0.81,0.79,0.59
+WG-00735,Naresh,West Godavari,Tadepalligudem,Red Gram,3.04,68.5,Medium,91,16.41064,81.509795,0.78,0.66,0.5
+WG-00736,Bhavani,West Godavari,Tanuku,Chilli,4.88,66.7,Medium,89,16.824198,81.519118,0.88,0.77,0.57
+WG-00737,Srinivasa Rao,West Godavari,Undi,Red Gram,5.48,72.2,Medium,87,16.646135,81.395926,0.82,0.76,0.59
+WG-00738,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,6.55,74.7,Medium,85,16.390789,81.656629,0.79,0.71,0.52
+WG-00739,Venkata Ramana,West Godavari,Ganapavaram,Red Gram,6.71,73.6,Medium,87,16.742224,81.578426,0.83,0.76,0.53
+WG-00740,Sailaja,West Godavari,Kalla,Red Gram,10.18,61.3,Medium,84,16.674326,81.748162,0.75,0.67,0.49
+WG-00741,Srinivasa Rao,West Godavari,Achanta,Paddy,6.74,77.5,Low,88,16.92686,81.525583,0.81,0.75,0.61
+WG-00742,Lakshmi Devi,West Godavari,Akiveedu,Paddy,6.54,70.3,Medium,86,16.528467,81.562332,0.77,0.71,0.52
+WG-00743,Venkata Ramana,West Godavari,Attili,Paddy,8.93,82.0,Low,93,16.553424,81.703367,0.83,0.79,0.64
+WG-00744,Sailaja,West Godavari,Bhimavaram,Paddy,7.14,78.1,Low,91,16.888703,81.515044,0.8,0.76,0.61
+WG-00745,Ramesh Babu,West Godavari,Elamanchili,Cotton,1.51,61.1,Medium,85,16.397099,81.55401,0.81,0.7,0.54
+WG-00746,Padma Priya,West Godavari,Iragavaram,Paddy,6.38,71.7,Medium,83,16.817388,81.571785,0.89,0.85,0.58
+WG-00747,Kiran Kumar,West Godavari,Mogalthur,Paddy,9.29,69.2,Medium,84,16.446699,81.506253,0.84,0.82,0.52
+WG-00748,Anitha,West Godavari,Narasapuram,Cotton,7.75,70.6,Medium,91,16.634314,81.413367,0.83,0.76,0.59
+WG-00749,Satyanarayana,West Godavari,Palacoderu,Chilli,3.53,64.5,Medium,85,16.504214,81.461032,0.79,0.77,0.51
+WG-00750,Rajeshwari,West Godavari,Palacole,Paddy,8.81,86.9,Low,94,16.749509,81.635936,0.92,0.85,0.56
+WG-00751,Mohan Rao,West Godavari,Pentapadu,Red Gram,9.17,67.4,Medium,86,16.774983,81.661968,0.87,0.77,0.57
+WG-00752,Divya,West Godavari,Penugonda,Paddy,5.56,82.4,Low,94,16.631419,81.545374,0.91,0.84,0.59
+WG-00753,Prasad,West Godavari,Penumantra,Paddy,9.71,68.6,Medium,82,16.455411,81.535366,0.75,0.64,0.52
+WG-00754,Swapna,West Godavari,Poduru,Paddy,8.64,73.9,Medium,91,16.464091,81.702791,0.92,0.85,0.62
+WG-00755,Naresh,West Godavari,Tadepalligudem,Cotton,7.83,60.1,Medium,88,16.456801,81.595019,0.84,0.78,0.52
+WG-00756,Bhavani,West Godavari,Tanuku,Paddy,1.77,74.9,Medium,92,16.489501,81.429858,0.8,0.72,0.55
+WG-00757,Srinivasa Rao,West Godavari,Undi,Red Gram,11.71,60.1,Medium,79,16.729936,81.499473,0.85,0.73,0.56
+WG-00758,Lakshmi Devi,West Godavari,Veeravasaram,Red Gram,2.67,64.6,Medium,83,16.467845,81.727181,0.82,0.78,0.49
+WG-00759,Venkata Ramana,West Godavari,Ganapavaram,Chilli,6.97,61.2,Medium,83,16.952786,81.503081,0.85,0.77,0.57
+WG-00760,Sailaja,West Godavari,Kalla,Paddy,5.49,88.2,Low,98,16.508733,81.779067,0.86,0.81,0.66
+WG-00761,Srinivasa Rao,West Godavari,Achanta,Cotton,7.24,76.0,Low,93,16.514583,81.390201,0.87,0.77,0.6
+WG-00762,Lakshmi Devi,West Godavari,Akiveedu,Paddy,1.96,77.1,Low,95,16.644161,81.607284,0.79,0.75,0.61
+WG-00763,Venkata Ramana,West Godavari,Attili,Chilli,2.55,66.1,Medium,84,16.429188,81.502914,0.79,0.74,0.51
+WG-00764,Sailaja,West Godavari,Bhimavaram,Paddy,4.78,75.8,Low,85,16.451414,81.446814,0.79,0.71,0.56
+WG-00765,Ramesh Babu,West Godavari,Elamanchili,Red Gram,1.61,69.0,Medium,87,16.540297,81.420835,0.85,0.75,0.6
+WG-00766,Padma Priya,West Godavari,Iragavaram,Chilli,4.59,61.3,Medium,87,16.619365,81.697038,0.8,0.74,0.49
+WG-00767,Kiran Kumar,West Godavari,Mogalthur,Paddy,4.52,71.7,Medium,85,16.5612,81.830865,0.77,0.66,0.54
+WG-00768,Anitha,West Godavari,Narasapuram,Paddy,3.83,82.9,Low,96,16.57863,81.749366,0.91,0.85,0.55
+WG-00769,Satyanarayana,West Godavari,Palacoderu,Paddy,8.98,86.0,Low,90,16.415212,81.68853,0.92,0.82,0.59
+WG-00770,Rajeshwari,West Godavari,Palacole,Maize,8.08,81.4,Low,90,16.83884,81.577433,0.82,0.72,0.64
+WG-00771,Mohan Rao,West Godavari,Pentapadu,Paddy,9.07,69.2,Medium,87,16.359992,81.605793,0.86,0.82,0.59
+WG-00772,Divya,West Godavari,Penugonda,Cotton,9.82,68.9,Medium,91,16.436325,81.600177,0.83,0.79,0.56
+WG-00773,Prasad,West Godavari,Penumantra,Maize,10.16,79.9,Low,93,16.885703,81.504823,0.87,0.82,0.55
+WG-00774,Swapna,West Godavari,Poduru,Cotton,8.84,78.4,Low,87,16.409326,81.659166,0.88,0.79,0.61
+WG-00775,Naresh,West Godavari,Tadepalligudem,Chilli,0.84,65.7,Medium,88,16.622788,81.347991,0.74,0.64,0.58
+WG-00776,Bhavani,West Godavari,Tanuku,Maize,3.24,66.2,Medium,87,16.630232,81.365068,0.73,0.7,0.56
+WG-00777,Srinivasa Rao,West Godavari,Undi,Paddy,5.9,68.5,Medium,85,16.623857,81.336131,0.87,0.75,0.56
+WG-00778,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,9.9,88.5,Low,94,16.514104,81.739966,0.92,0.82,0.58
+WG-00779,Venkata Ramana,West Godavari,Ganapavaram,Cotton,11.39,59.8,High,82,16.928615,81.506191,0.76,0.66,0.53
+WG-00780,Sailaja,West Godavari,Kalla,Maize,11.49,68.2,Medium,88,16.492089,81.694031,0.82,0.79,0.58
+WG-00781,Srinivasa Rao,West Godavari,Achanta,Red Gram,4.4,59.6,High,81,16.515188,81.735785,0.7,0.63,0.49
+WG-00782,Lakshmi Devi,West Godavari,Akiveedu,Cotton,10.49,72.9,Medium,86,16.750529,81.686363,0.89,0.84,0.59
+WG-00783,Venkata Ramana,West Godavari,Attili,Red Gram,6.85,69.5,Medium,89,16.526987,81.664401,0.75,0.64,0.52
+WG-00784,Sailaja,West Godavari,Bhimavaram,Red Gram,10.36,69.4,Medium,88,16.475198,81.723922,0.87,0.79,0.5
+WG-00785,Ramesh Babu,West Godavari,Elamanchili,Red Gram,6.29,59.5,High,81,16.727003,81.626484,0.82,0.78,0.56
+WG-00786,Padma Priya,West Godavari,Iragavaram,Paddy,10.86,75.5,Low,90,16.653966,81.701679,0.79,0.75,0.53
+WG-00787,Kiran Kumar,West Godavari,Mogalthur,Paddy,4.37,74.8,Medium,90,16.576058,81.748253,0.89,0.85,0.61
+WG-00788,Anitha,West Godavari,Narasapuram,Maize,3.95,73.0,Medium,92,16.490746,81.659373,0.79,0.74,0.56
+WG-00789,Satyanarayana,West Godavari,Palacoderu,Red Gram,5.56,66.0,Medium,88,16.422405,81.533681,0.84,0.73,0.52
+WG-00790,Rajeshwari,West Godavari,Palacole,Paddy,10.21,67.9,Medium,84,16.599937,81.368494,0.76,0.72,0.59
+WG-00791,Mohan Rao,West Godavari,Pentapadu,Paddy,3.62,74.9,Medium,92,16.640892,81.368635,0.86,0.77,0.54
+WG-00792,Divya,West Godavari,Penugonda,Cotton,1.38,78.5,Low,90,16.669968,81.471733,0.86,0.82,0.55
+WG-00793,Prasad,West Godavari,Penumantra,Paddy,2.8,66.0,Medium,90,16.880071,81.520134,0.84,0.77,0.59
+WG-00794,Swapna,West Godavari,Poduru,Paddy,2.89,73.7,Medium,92,16.507537,81.757526,0.79,0.68,0.61
+WG-00795,Naresh,West Godavari,Tadepalligudem,Chilli,1.57,62.3,Medium,87,16.586061,81.361333,0.85,0.74,0.56
+WG-00796,Bhavani,West Godavari,Tanuku,Paddy,5.03,84.5,Low,97,16.618222,81.757584,0.88,0.79,0.56
+WG-00797,Srinivasa Rao,West Godavari,Undi,Paddy,3.18,71.6,Medium,90,16.582432,81.494799,0.79,0.74,0.5
+WG-00798,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,9.48,72.0,Medium,91,16.471978,81.59244,0.87,0.76,0.55
+WG-00799,Venkata Ramana,West Godavari,Ganapavaram,Paddy,9.22,80.6,Low,94,16.443118,81.553239,0.92,0.85,0.62
+WG-00800,Sailaja,West Godavari,Kalla,Paddy,1.19,81.9,Low,92,16.712142,81.712675,0.91,0.84,0.64
+WG-00801,Srinivasa Rao,West Godavari,Achanta,Paddy,2.25,87.6,Low,97,16.479743,81.399427,0.92,0.85,0.61
+WG-00802,Lakshmi Devi,West Godavari,Akiveedu,Cotton,4.4,57.2,High,84,16.550641,81.636635,0.68,0.6,0.54
+WG-00803,Venkata Ramana,West Godavari,Attili,Maize,1.51,69.8,Medium,91,16.661334,81.772549,0.82,0.75,0.59
+WG-00804,Sailaja,West Godavari,Bhimavaram,Paddy,6.72,75.4,Low,88,16.646318,81.653474,0.8,0.75,0.53
+WG-00805,Ramesh Babu,West Godavari,Elamanchili,Cotton,7.52,69.1,Medium,83,16.497511,81.737613,0.78,0.71,0.57
+WG-00806,Padma Priya,West Godavari,Iragavaram,Chilli,1.22,60.6,Medium,82,16.56318,81.766659,0.83,0.71,0.49
+WG-00807,Kiran Kumar,West Godavari,Mogalthur,Paddy,8.53,68.4,Medium,82,16.763728,81.563892,0.87,0.75,0.58
+WG-00808,Anitha,West Godavari,Narasapuram,Paddy,6.26,85.8,Low,96,16.524109,81.562999,0.91,0.85,0.56
+WG-00809,Satyanarayana,West Godavari,Palacoderu,Red Gram,1.03,57.8,High,79,16.59551,81.760262,0.79,0.71,0.54
+WG-00810,Rajeshwari,West Godavari,Palacole,Paddy,2.85,87.9,Low,98,16.919092,81.541289,0.92,0.85,0.59
+WG-00811,Mohan Rao,West Godavari,Pentapadu,Paddy,4.76,71.5,Medium,89,16.612821,81.381622,0.84,0.79,0.59
+WG-00812,Divya,West Godavari,Penugonda,Paddy,1.24,83.7,Low,97,16.390356,81.607942,0.92,0.85,0.6
+WG-00813,Prasad,West Godavari,Penumantra,Paddy,9.27,80.1,Low,93,16.847186,81.608025,0.87,0.79,0.58
+WG-00814,Swapna,West Godavari,Poduru,Paddy,7.38,76.7,Low,88,16.432899,81.684763,0.82,0.77,0.53
+WG-00815,Naresh,West Godavari,Tadepalligudem,Maize,10.76,62.4,Medium,89,16.642104,81.360977,0.76,0.68,0.51
+WG-00816,Bhavani,West Godavari,Tanuku,Red Gram,5.37,80.4,Low,88,16.575636,81.835494,0.9,0.83,0.6
+WG-00817,Srinivasa Rao,West Godavari,Undi,Maize,4.45,71.8,Medium,83,16.758688,81.54894,0.86,0.83,0.52
+WG-00818,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,2.46,79.5,Low,92,16.421923,81.659286,0.83,0.81,0.62
+WG-00819,Venkata Ramana,West Godavari,Ganapavaram,Red Gram,11.39,77.5,Low,86,16.823874,81.527746,0.92,0.85,0.63
+WG-00820,Sailaja,West Godavari,Kalla,Paddy,10.22,66.5,Medium,88,16.425787,81.529205,0.81,0.76,0.54
+WG-00821,Srinivasa Rao,West Godavari,Achanta,Red Gram,8.67,70.9,Medium,92,16.433312,81.626519,0.89,0.8,0.52
+WG-00822,Lakshmi Devi,West Godavari,Akiveedu,Paddy,5.12,85.9,Low,94,16.535903,81.684136,0.91,0.84,0.66
+WG-00823,Venkata Ramana,West Godavari,Attili,Paddy,4.58,71.2,Medium,89,16.898887,81.585126,0.78,0.75,0.5
+WG-00824,Sailaja,West Godavari,Bhimavaram,Paddy,9.16,84.1,Low,93,16.49281,81.503257,0.88,0.8,0.56
+WG-00825,Ramesh Babu,West Godavari,Elamanchili,Paddy,2.13,88.3,Low,90,16.475247,81.373357,0.92,0.85,0.65
+WG-00826,Padma Priya,West Godavari,Iragavaram,Paddy,8.59,71.8,Medium,83,16.730365,81.594382,0.79,0.7,0.56
+WG-00827,Kiran Kumar,West Godavari,Mogalthur,Chilli,7.83,59.5,High,79,16.428609,81.752125,0.71,0.68,0.48
+WG-00828,Anitha,West Godavari,Narasapuram,Paddy,7.64,81.6,Low,92,16.386156,81.630068,0.92,0.85,0.63
+WG-00829,Satyanarayana,West Godavari,Palacoderu,Paddy,2.55,77.3,Low,93,16.54312,81.689597,0.92,0.84,0.61
+WG-00830,Rajeshwari,West Godavari,Palacole,Paddy,9.69,82.1,Low,89,16.691141,81.792783,0.87,0.8,0.57
+WG-00831,Mohan Rao,West Godavari,Pentapadu,Paddy,8.12,75.9,Low,91,16.832882,81.615738,0.79,0.72,0.56
+WG-00832,Divya,West Godavari,Penugonda,Paddy,6.26,72.9,Medium,90,16.642606,81.598681,0.88,0.77,0.54
+WG-00833,Prasad,West Godavari,Penumantra,Paddy,4.19,74.7,Medium,88,16.653129,81.351324,0.85,0.77,0.58
+WG-00834,Swapna,West Godavari,Poduru,Paddy,11.6,81.8,Low,90,16.45671,81.480303,0.92,0.85,0.59
+WG-00835,Naresh,West Godavari,Tadepalligudem,Cotton,9.41,58.0,High,82,16.616381,81.757488,0.73,0.71,0.49
+WG-00836,Bhavani,West Godavari,Tanuku,Chilli,9.49,80.1,Low,86,16.706918,81.710363,0.87,0.75,0.56
+WG-00837,Srinivasa Rao,West Godavari,Undi,Paddy,7.93,81.0,Low,96,16.820062,81.624582,0.92,0.85,0.61
+WG-00838,Lakshmi Devi,West Godavari,Veeravasaram,Cotton,5.81,57.6,High,83,16.667874,81.703013,0.82,0.71,0.46
+WG-00839,Venkata Ramana,West Godavari,Ganapavaram,Cotton,6.89,69.0,Medium,83,16.427133,81.678832,0.79,0.7,0.6
+WG-00840,Sailaja,West Godavari,Kalla,Paddy,7.51,68.5,Medium,83,16.501272,81.500808,0.82,0.7,0.59
+WG-00841,Srinivasa Rao,West Godavari,Achanta,Cotton,9.32,76.6,Low,90,16.471666,81.724587,0.88,0.78,0.58
+WG-00842,Lakshmi Devi,West Godavari,Akiveedu,Maize,10.68,81.0,Low,86,16.634228,81.575972,0.88,0.76,0.54
+WG-00843,Venkata Ramana,West Godavari,Attili,Cotton,8.76,61.3,Medium,87,16.675472,81.805333,0.79,0.75,0.49
+WG-00844,Sailaja,West Godavari,Bhimavaram,Maize,2.53,66.5,Medium,87,16.482331,81.78864,0.88,0.85,0.58
+WG-00845,Ramesh Babu,West Godavari,Elamanchili,Red Gram,3.65,70.8,Medium,91,16.566317,81.769903,0.83,0.79,0.6
+WG-00846,Padma Priya,West Godavari,Iragavaram,Paddy,5.3,73.3,Medium,85,16.663059,81.635849,0.78,0.75,0.57
+WG-00847,Kiran Kumar,West Godavari,Mogalthur,Paddy,11.93,73.0,Medium,90,16.696248,81.59717,0.77,0.72,0.6
+WG-00848,Anitha,West Godavari,Narasapuram,Paddy,9.89,82.9,Low,96,16.560332,81.419808,0.92,0.85,0.65
+WG-00849,Satyanarayana,West Godavari,Palacoderu,Paddy,2.91,75.1,Low,86,16.678398,81.577161,0.78,0.68,0.6
+WG-00850,Rajeshwari,West Godavari,Palacole,Paddy,8.04,78.7,Low,93,16.674327,81.639136,0.87,0.82,0.55
+WG-00851,Mohan Rao,West Godavari,Pentapadu,Paddy,4.93,85.0,Low,97,16.514362,81.436253,0.85,0.79,0.6
+WG-00852,Divya,West Godavari,Penugonda,Maize,11.13,72.1,Medium,86,16.616366,81.844895,0.83,0.74,0.56
+WG-00853,Prasad,West Godavari,Penumantra,Paddy,8.04,66.3,Medium,84,16.671247,81.750156,0.85,0.79,0.5
+WG-00854,Swapna,West Godavari,Poduru,Paddy,3.07,78.2,Low,91,16.464969,81.42906,0.81,0.72,0.58
+WG-00855,Naresh,West Godavari,Tadepalligudem,Paddy,3.65,74.5,Medium,90,16.449507,81.493263,0.79,0.74,0.56
+WG-00856,Bhavani,West Godavari,Tanuku,Red Gram,11.39,76.3,Low,91,16.561752,81.546942,0.89,0.78,0.53
+WG-00857,Srinivasa Rao,West Godavari,Undi,Paddy,7.55,73.0,Medium,84,16.466698,81.584183,0.88,0.8,0.54
+WG-00858,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,1.7,83.9,Low,97,16.618307,81.34408,0.87,0.83,0.59
+WG-00859,Venkata Ramana,West Godavari,Ganapavaram,Paddy,5.94,88.6,Low,95,16.724443,81.647191,0.92,0.85,0.65
+WG-00860,Sailaja,West Godavari,Kalla,Maize,1.31,63.0,Medium,90,16.519171,81.640291,0.73,0.71,0.57
+WG-00861,Srinivasa Rao,West Godavari,Achanta,Paddy,9.09,76.6,Low,88,16.613894,81.390357,0.87,0.76,0.55
+WG-00862,Lakshmi Devi,West Godavari,Akiveedu,Paddy,11.11,81.3,Low,88,16.624097,81.721159,0.82,0.7,0.62
+WG-00863,Venkata Ramana,West Godavari,Attili,Paddy,8.57,65.2,Medium,89,16.439962,81.451472,0.81,0.72,0.51
+WG-00864,Sailaja,West Godavari,Bhimavaram,Paddy,3.97,81.0,Low,87,16.666209,81.805594,0.92,0.81,0.63
+WG-00865,Ramesh Babu,West Godavari,Elamanchili,Paddy,8.59,65.9,Medium,89,16.520645,81.824811,0.86,0.76,0.54
+WG-00866,Padma Priya,West Godavari,Iragavaram,Paddy,2.92,85.9,Low,97,16.697184,81.660336,0.92,0.85,0.55
+WG-00867,Kiran Kumar,West Godavari,Mogalthur,Paddy,11.9,76.6,Low,89,16.657206,81.632864,0.88,0.79,0.55
+WG-00868,Anitha,West Godavari,Narasapuram,Chilli,4.53,59.5,High,85,16.650349,81.670978,0.79,0.77,0.5
+WG-00869,Satyanarayana,West Godavari,Palacoderu,Chilli,5.45,63.5,Medium,89,16.654418,81.610499,0.72,0.65,0.48
+WG-00870,Rajeshwari,West Godavari,Palacole,Paddy,4.3,68.6,Medium,82,16.615732,81.494829,0.78,0.71,0.49
+WG-00871,Mohan Rao,West Godavari,Pentapadu,Chilli,3.77,56.9,High,79,16.512611,81.802373,0.73,0.62,0.49
+WG-00872,Divya,West Godavari,Penugonda,Paddy,8.84,65.6,Medium,88,16.343804,81.687094,0.85,0.8,0.5
+WG-00873,Prasad,West Godavari,Penumantra,Cotton,9.81,68.3,Medium,85,16.613653,81.480839,0.87,0.81,0.52
+WG-00874,Swapna,West Godavari,Poduru,Paddy,11.1,80.5,Low,86,16.612487,81.344437,0.92,0.83,0.6
+WG-00875,Naresh,West Godavari,Tadepalligudem,Paddy,11.75,65.9,Medium,84,16.537179,81.580763,0.86,0.75,0.53
+WG-00876,Bhavani,West Godavari,Tanuku,Red Gram,6.94,70.0,Medium,91,16.733351,81.585943,0.89,0.82,0.55
+WG-00877,Srinivasa Rao,West Godavari,Undi,Chilli,1.29,59.1,High,88,16.524775,81.780191,0.7,0.65,0.5
+WG-00878,Lakshmi Devi,West Godavari,Veeravasaram,Chilli,9.66,74.7,Medium,94,16.716454,81.628349,0.81,0.71,0.55
+WG-00879,Venkata Ramana,West Godavari,Ganapavaram,Cotton,1.93,67.6,Medium,90,16.587469,81.355555,0.89,0.82,0.52
+WG-00880,Sailaja,West Godavari,Kalla,Cotton,1.94,64.5,Medium,87,16.772362,81.613878,0.81,0.72,0.54
+WG-00881,Srinivasa Rao,West Godavari,Achanta,Paddy,4.01,70.0,Medium,89,16.448183,81.631523,0.77,0.65,0.57
+WG-00882,Lakshmi Devi,West Godavari,Akiveedu,Paddy,3.63,78.9,Low,91,16.644984,81.394504,0.92,0.85,0.59
+WG-00883,Venkata Ramana,West Godavari,Attili,Chilli,8.72,74.6,Medium,91,16.61233,81.635006,0.91,0.85,0.62
+WG-00884,Sailaja,West Godavari,Bhimavaram,Paddy,9.65,79.1,Low,93,16.637825,81.380089,0.91,0.81,0.62
+WG-00885,Ramesh Babu,West Godavari,Elamanchili,Paddy,9.54,87.8,Low,95,16.470923,81.686432,0.92,0.85,0.65
+WG-00886,Padma Priya,West Godavari,Iragavaram,Maize,4.32,81.8,Low,88,16.636993,81.53021,0.86,0.8,0.56
+WG-00887,Kiran Kumar,West Godavari,Mogalthur,Paddy,5.74,75.0,Low,91,16.388462,81.590294,0.85,0.81,0.51
+WG-00888,Anitha,West Godavari,Narasapuram,Chilli,11.38,64.2,Medium,84,16.461002,81.740087,0.88,0.8,0.59
+WG-00889,Satyanarayana,West Godavari,Palacoderu,Paddy,9.01,88.4,Low,98,16.629059,81.848469,0.91,0.82,0.59
+WG-00890,Rajeshwari,West Godavari,Palacole,Maize,2.18,75.8,Low,89,16.768228,81.651536,0.84,0.75,0.55
+WG-00891,Mohan Rao,West Godavari,Pentapadu,Paddy,8.66,87.7,Low,96,16.480457,81.750624,0.92,0.83,0.66
+WG-00892,Divya,West Godavari,Penugonda,Maize,7.3,59.9,High,82,16.555953,81.518772,0.85,0.76,0.5
+WG-00893,Prasad,West Godavari,Penumantra,Paddy,5.86,79.1,Low,91,16.423978,81.66676,0.85,0.75,0.55
+WG-00894,Swapna,West Godavari,Poduru,Maize,7.35,71.9,Medium,86,16.64905,81.471587,0.85,0.77,0.51
+WG-00895,Naresh,West Godavari,Tadepalligudem,Red Gram,6.71,81.8,Low,91,16.7736,81.618962,0.92,0.85,0.62
+WG-00896,Bhavani,West Godavari,Tanuku,Paddy,1.49,70.7,Medium,87,16.493036,81.784297,0.76,0.67,0.6
+WG-00897,Srinivasa Rao,West Godavari,Undi,Cotton,8.03,72.1,Medium,91,16.440729,81.748416,0.84,0.75,0.55
+WG-00898,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,0.78,70.0,Medium,91,16.620081,81.729585,0.76,0.68,0.56
+WG-00899,Venkata Ramana,West Godavari,Ganapavaram,Chilli,6.99,61.7,Medium,82,16.489904,81.505258,0.74,0.65,0.46
+WG-00900,Sailaja,West Godavari,Kalla,Paddy,3.01,70.1,Medium,88,16.468603,81.592736,0.86,0.75,0.5
+WG-00901,Srinivasa Rao,West Godavari,Achanta,Paddy,11.2,80.4,Low,93,16.829636,81.581873,0.85,0.77,0.59
+WG-00902,Lakshmi Devi,West Godavari,Akiveedu,Chilli,9.9,76.9,Low,90,16.385753,81.532267,0.92,0.85,0.59
+WG-00903,Venkata Ramana,West Godavari,Attili,Paddy,10.44,75.2,Low,87,16.435402,81.498496,0.86,0.74,0.56
+WG-00904,Sailaja,West Godavari,Bhimavaram,Red Gram,6.42,69.3,Medium,85,16.364976,81.636793,0.86,0.8,0.5
+WG-00905,Ramesh Babu,West Godavari,Elamanchili,Paddy,8.51,66.2,Medium,83,16.508978,81.69573,0.74,0.67,0.59
+WG-00906,Padma Priya,West Godavari,Iragavaram,Paddy,3.46,68.4,Medium,86,16.554332,81.500557,0.8,0.75,0.52
+WG-00907,Kiran Kumar,West Godavari,Mogalthur,Paddy,6.97,71.3,Medium,86,16.736687,81.544571,0.87,0.85,0.51
+WG-00908,Anitha,West Godavari,Narasapuram,Paddy,2.01,85.6,Low,94,16.475815,81.758609,0.92,0.85,0.58
+WG-00909,Satyanarayana,West Godavari,Palacoderu,Paddy,3.36,72.6,Medium,84,16.490795,81.543444,0.77,0.7,0.5
+WG-00910,Rajeshwari,West Godavari,Palacole,Red Gram,3.19,78.5,Low,91,16.591449,81.566936,0.91,0.81,0.61
+WG-00911,Mohan Rao,West Godavari,Pentapadu,Paddy,1.9,81.4,Low,96,16.449725,81.709558,0.92,0.85,0.61
+WG-00912,Divya,West Godavari,Penugonda,Cotton,6.42,64.5,Medium,84,16.624138,81.838504,0.8,0.72,0.54
+WG-00913,Prasad,West Godavari,Penumantra,Paddy,10.1,82.8,Low,94,16.502641,81.711576,0.92,0.81,0.58
+WG-00914,Swapna,West Godavari,Poduru,Chilli,3.53,60.4,Medium,88,16.671064,81.810938,0.76,0.65,0.52
+WG-00915,Naresh,West Godavari,Tadepalligudem,Maize,8.77,79.1,Low,94,16.583812,81.471492,0.92,0.83,0.59
+WG-00916,Bhavani,West Godavari,Tanuku,Paddy,2.86,70.3,Medium,87,16.509082,81.590918,0.79,0.72,0.52
+WG-00917,Srinivasa Rao,West Godavari,Undi,Chilli,8.55,75.8,Low,92,16.630938,81.636447,0.8,0.73,0.6
+WG-00918,Lakshmi Devi,West Godavari,Veeravasaram,Chilli,10.11,64.9,Medium,83,16.791669,81.518721,0.79,0.69,0.58
+WG-00919,Venkata Ramana,West Godavari,Ganapavaram,Paddy,7.69,82.3,Low,92,16.734068,81.642542,0.82,0.73,0.58
+WG-00920,Sailaja,West Godavari,Kalla,Maize,11.6,74.9,Medium,85,16.902749,81.523943,0.9,0.8,0.58
+WG-00921,Srinivasa Rao,West Godavari,Achanta,Paddy,8.77,81.9,Low,87,16.454758,81.618431,0.83,0.75,0.62
+WG-00922,Lakshmi Devi,West Godavari,Akiveedu,Paddy,11.89,81.2,Low,90,16.600561,81.424466,0.89,0.85,0.62
+WG-00923,Venkata Ramana,West Godavari,Attili,Paddy,3.21,79.4,Low,87,16.872237,81.539804,0.9,0.8,0.62
+WG-00924,Sailaja,West Godavari,Bhimavaram,Maize,10.95,80.4,Low,89,16.622736,81.450331,0.91,0.84,0.59
+WG-00925,Ramesh Babu,West Godavari,Elamanchili,Chilli,7.65,64.5,Medium,88,16.673386,81.764585,0.86,0.79,0.57
+WG-00926,Padma Priya,West Godavari,Iragavaram,Paddy,3.26,81.9,Low,96,16.791122,81.626657,0.82,0.75,0.6
+WG-00927,Kiran Kumar,West Godavari,Mogalthur,Paddy,2.99,73.3,Medium,89,16.943487,81.503617,0.79,0.69,0.53
+WG-00928,Anitha,West Godavari,Narasapuram,Paddy,3.27,66.4,Medium,88,16.67107,81.670157,0.87,0.77,0.59
+WG-00929,Satyanarayana,West Godavari,Palacoderu,Maize,6.29,71.9,Medium,85,16.67617,81.345378,0.86,0.75,0.54
+WG-00930,Rajeshwari,West Godavari,Palacole,Paddy,1.11,84.1,Low,97,16.474095,81.471596,0.89,0.85,0.65
+WG-00931,Mohan Rao,West Godavari,Pentapadu,Maize,11.41,63.1,Medium,80,16.401583,81.60282,0.75,0.63,0.56
+WG-00932,Divya,West Godavari,Penugonda,Paddy,11.73,84.8,Low,94,16.642559,81.756992,0.92,0.85,0.57
+WG-00933,Prasad,West Godavari,Penumantra,Paddy,5.78,71.0,Medium,92,16.75696,81.647989,0.77,0.69,0.53
+WG-00934,Swapna,West Godavari,Poduru,Red Gram,9.7,64.3,Medium,81,16.614853,81.809713,0.86,0.82,0.56
+WG-00935,Naresh,West Godavari,Tadepalligudem,Maize,1.02,65.8,Medium,88,16.640249,81.732713,0.75,0.67,0.48
+WG-00936,Bhavani,West Godavari,Tanuku,Paddy,5.71,88.5,Low,91,16.465622,81.384963,0.92,0.85,0.64
+WG-00937,Srinivasa Rao,West Godavari,Undi,Paddy,11.06,69.1,Medium,89,16.502592,81.786648,0.84,0.81,0.59
+WG-00938,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,11.52,88.1,Low,95,16.896926,81.592369,0.92,0.85,0.62
+WG-00939,Venkata Ramana,West Godavari,Ganapavaram,Paddy,3.82,69.9,Medium,89,16.727301,81.617128,0.84,0.81,0.59
+WG-00940,Sailaja,West Godavari,Kalla,Paddy,8.87,86.1,Low,92,16.655886,81.398405,0.89,0.81,0.57
+WG-00941,Srinivasa Rao,West Godavari,Achanta,Paddy,6.03,68.4,Medium,90,16.447625,81.748055,0.75,0.69,0.56
+WG-00942,Lakshmi Devi,West Godavari,Akiveedu,Paddy,4.91,77.5,Low,90,16.553635,81.460098,0.91,0.8,0.55
+WG-00943,Venkata Ramana,West Godavari,Attili,Paddy,6.81,87.9,Low,92,16.537875,81.574444,0.92,0.85,0.64
+WG-00944,Sailaja,West Godavari,Bhimavaram,Chilli,5.36,66.4,Medium,91,16.437241,81.572541,0.83,0.74,0.53
+WG-00945,Ramesh Babu,West Godavari,Elamanchili,Maize,2.97,79.3,Low,88,16.536575,81.487865,0.84,0.75,0.57
+WG-00946,Padma Priya,West Godavari,Iragavaram,Paddy,7.86,70.1,Medium,85,16.451061,81.447928,0.81,0.72,0.57
+WG-00947,Kiran Kumar,West Godavari,Mogalthur,Maize,9.71,65.9,Medium,85,16.483721,81.654636,0.78,0.66,0.55
+WG-00948,Anitha,West Godavari,Narasapuram,Paddy,4.3,82.4,Low,94,16.48419,81.579,0.92,0.85,0.55
+WG-00949,Satyanarayana,West Godavari,Palacoderu,Paddy,3.69,76.5,Low,94,16.941196,81.515225,0.83,0.81,0.55
+WG-00950,Rajeshwari,West Godavari,Palacole,Paddy,8.26,70.3,Medium,91,16.682232,81.803381,0.82,0.74,0.53
+WG-00951,Mohan Rao,West Godavari,Pentapadu,Paddy,8.71,88.3,Low,97,16.645446,81.558202,0.9,0.85,0.62
+WG-00952,Divya,West Godavari,Penugonda,Red Gram,2.96,73.5,Medium,89,16.637459,81.511624,0.9,0.79,0.53
+WG-00953,Prasad,West Godavari,Penumantra,Paddy,3.73,81.0,Low,93,16.496238,81.682981,0.9,0.8,0.6
+WG-00954,Swapna,West Godavari,Poduru,Red Gram,11.82,66.2,Medium,82,16.738055,81.708932,0.84,0.81,0.49
+WG-00955,Naresh,West Godavari,Tadepalligudem,Paddy,6.47,71.9,Medium,84,16.535673,81.576369,0.91,0.79,0.55
+WG-00956,Bhavani,West Godavari,Tanuku,Maize,0.98,63.7,Medium,90,16.660562,81.610025,0.84,0.81,0.49
+WG-00957,Srinivasa Rao,West Godavari,Undi,Red Gram,5.33,61.0,Medium,84,16.435771,81.623404,0.85,0.81,0.56
+WG-00958,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,4.09,88.9,Low,95,16.910482,81.51286,0.92,0.85,0.67
+WG-00959,Venkata Ramana,West Godavari,Ganapavaram,Paddy,8.69,74.8,Medium,94,16.507234,81.606246,0.91,0.79,0.51
+WG-00960,Sailaja,West Godavari,Kalla,Paddy,2.83,65.0,Medium,81,16.613248,81.840008,0.88,0.77,0.5
+WG-00961,Srinivasa Rao,West Godavari,Achanta,Paddy,4.59,68.8,Medium,90,16.487778,81.388513,0.76,0.74,0.58
+WG-00962,Lakshmi Devi,West Godavari,Akiveedu,Paddy,11.07,71.7,Medium,84,16.909216,81.552959,0.87,0.76,0.58
+WG-00963,Venkata Ramana,West Godavari,Attili,Paddy,9.93,69.2,Medium,89,16.606952,81.742027,0.88,0.79,0.6
+WG-00964,Sailaja,West Godavari,Bhimavaram,Maize,9.3,82.4,Low,89,16.737966,81.689399,0.85,0.79,0.56
+WG-00965,Ramesh Babu,West Godavari,Elamanchili,Paddy,10.43,81.0,Low,95,16.359141,81.576125,0.84,0.78,0.61
+WG-00966,Padma Priya,West Godavari,Iragavaram,Paddy,3.8,73.7,Medium,88,16.41528,81.493937,0.79,0.74,0.6
+WG-00967,Kiran Kumar,West Godavari,Mogalthur,Paddy,10.21,70.5,Medium,87,16.735879,81.584732,0.77,0.68,0.58
+WG-00968,Anitha,West Godavari,Narasapuram,Paddy,9.9,69.4,Medium,89,16.551654,81.387027,0.9,0.8,0.57
+WG-00969,Satyanarayana,West Godavari,Palacoderu,Maize,3.55,80.8,Low,91,16.45573,81.700108,0.92,0.85,0.57
+WG-00970,Rajeshwari,West Godavari,Palacole,Chilli,9.55,58.1,High,87,16.828686,81.517598,0.78,0.68,0.55
+WG-00971,Mohan Rao,West Godavari,Pentapadu,Cotton,4.13,64.1,Medium,83,16.525729,81.506615,0.83,0.73,0.54
+WG-00972,Divya,West Godavari,Penugonda,Paddy,8.68,84.4,Low,95,16.4984,81.828006,0.9,0.82,0.56
+WG-00973,Prasad,West Godavari,Penumantra,Paddy,11.2,66.9,Medium,84,16.578616,81.72724,0.78,0.72,0.56
+WG-00974,Swapna,West Godavari,Poduru,Paddy,4.78,68.0,Medium,89,16.554359,81.673463,0.74,0.64,0.56
+WG-00975,Naresh,West Godavari,Tadepalligudem,Paddy,7.6,72.2,Medium,84,16.526515,81.511216,0.83,0.78,0.58
+WG-00976,Bhavani,West Godavari,Tanuku,Paddy,8.98,77.3,Low,85,16.742828,81.487629,0.88,0.78,0.58
+WG-00977,Srinivasa Rao,West Godavari,Undi,Paddy,11.2,66.1,Medium,84,16.614485,81.711592,0.74,0.67,0.55
+WG-00978,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,11.6,69.9,Medium,86,16.497096,81.704363,0.78,0.71,0.6
+WG-00979,Venkata Ramana,West Godavari,Ganapavaram,Paddy,5.05,86.8,Low,95,16.660666,81.647329,0.92,0.83,0.67
+WG-00980,Sailaja,West Godavari,Kalla,Paddy,11.68,76.8,Low,87,16.658238,81.821554,0.84,0.8,0.54
+WG-00981,Srinivasa Rao,West Godavari,Achanta,Paddy,5.19,65.5,Medium,90,16.733921,81.622104,0.84,0.8,0.49
+WG-00982,Lakshmi Devi,West Godavari,Akiveedu,Paddy,5.36,72.6,Medium,85,16.496568,81.825493,0.77,0.66,0.62
+WG-00983,Venkata Ramana,West Godavari,Attili,Paddy,9.15,72.5,Medium,93,16.59108,81.8197,0.91,0.85,0.6
+WG-00984,Sailaja,West Godavari,Bhimavaram,Paddy,4.78,77.0,Low,93,16.404922,81.463646,0.91,0.85,0.56
+WG-00985,Ramesh Babu,West Godavari,Elamanchili,Paddy,3.64,86.8,Low,90,16.522922,81.780409,0.92,0.85,0.58
+WG-00986,Padma Priya,West Godavari,Iragavaram,Chilli,2.72,70.9,Medium,85,16.509507,81.533461,0.76,0.71,0.57
+WG-00987,Kiran Kumar,West Godavari,Mogalthur,Paddy,10.69,75.2,Low,89,16.420579,81.444545,0.92,0.85,0.57
+WG-00988,Anitha,West Godavari,Narasapuram,Paddy,2.79,71.3,Medium,92,16.774414,81.526285,0.84,0.81,0.54
+WG-00989,Satyanarayana,West Godavari,Palacoderu,Cotton,8.79,67.2,Medium,87,16.764325,81.529357,0.89,0.81,0.52
+WG-00990,Rajeshwari,West Godavari,Palacole,Paddy,4.77,78.0,Low,91,16.545225,81.401575,0.85,0.78,0.57
+WG-00991,Mohan Rao,West Godavari,Pentapadu,Paddy,9.21,87.8,Low,93,16.64458,81.786594,0.88,0.83,0.61
+WG-00992,Divya,West Godavari,Penugonda,Paddy,6.44,67.9,Medium,90,16.460557,81.697414,0.77,0.72,0.53
+WG-00993,Prasad,West Godavari,Penumantra,Chilli,0.83,58.0,High,88,16.777004,81.519034,0.8,0.7,0.54
+WG-00994,Swapna,West Godavari,Poduru,Paddy,2.49,88.5,Low,97,16.640766,81.554848,0.87,0.78,0.56
+WG-00995,Naresh,West Godavari,Tadepalligudem,Red Gram,3.58,68.5,Medium,92,16.549257,81.528692,0.87,0.82,0.57
+WG-00996,Bhavani,West Godavari,Tanuku,Paddy,8.6,67.9,Medium,89,16.900589,81.543594,0.89,0.79,0.52
+WG-00997,Srinivasa Rao,West Godavari,Undi,Chilli,8.75,79.4,Low,92,16.452106,81.543342,0.82,0.73,0.56
+WG-00998,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,10.75,72.7,Medium,91,16.551652,81.367151,0.78,0.72,0.59
+WG-00999,Venkata Ramana,West Godavari,Ganapavaram,Paddy,4.4,72.6,Medium,90,16.46998,81.560916,0.78,0.67,0.59
+WG-01000,Sailaja,West Godavari,Kalla,Cotton,8.24,58.7,High,86,16.619421,81.563098,0.72,0.6,0.56
+WG-01001,Srinivasa Rao,West Godavari,Achanta,Cotton,8.32,71.0,Medium,90,16.500729,81.471819,0.8,0.72,0.56
+WG-01002,Lakshmi Devi,West Godavari,Akiveedu,Cotton,5.82,60.2,Medium,86,16.64257,81.51969,0.71,0.61,0.48
+WG-01003,Venkata Ramana,West Godavari,Attili,Paddy,6.09,72.0,Medium,84,16.34189,81.705875,0.88,0.85,0.52
+WG-01004,Sailaja,West Godavari,Bhimavaram,Paddy,9.95,79.9,Low,92,16.400437,81.667498,0.82,0.72,0.58
+WG-01005,Ramesh Babu,West Godavari,Elamanchili,Red Gram,5.17,79.5,Low,92,16.554899,81.522114,0.91,0.84,0.61
+WG-01006,Padma Priya,West Godavari,Iragavaram,Chilli,10.88,78.0,Low,89,16.759755,81.550407,0.92,0.8,0.54
+WG-01007,Kiran Kumar,West Godavari,Mogalthur,Paddy,11.78,70.8,Medium,88,16.462216,81.674074,0.86,0.76,0.58
+WG-01008,Anitha,West Godavari,Narasapuram,Paddy,10.89,82.0,Low,92,16.516637,81.665686,0.83,0.81,0.56
+WG-01009,Satyanarayana,West Godavari,Palacoderu,Cotton,9.75,67.3,Medium,90,16.466999,81.649728,0.81,0.77,0.48
+WG-01010,Rajeshwari,West Godavari,Palacole,Paddy,9.29,74.8,Medium,90,16.51843,81.773697,0.89,0.81,0.62
+WG-01011,Mohan Rao,West Godavari,Pentapadu,Paddy,8.64,66.3,Medium,89,16.520079,81.732067,0.77,0.75,0.48
+WG-01012,Divya,West Godavari,Penugonda,Cotton,6.02,75.9,Low,87,16.778496,81.632379,0.9,0.79,0.54
+WG-01013,Prasad,West Godavari,Penumantra,Paddy,8.23,76.1,Low,85,16.481336,81.413491,0.82,0.78,0.56
+WG-01014,Swapna,West Godavari,Poduru,Paddy,6.62,84.6,Low,90,16.642087,81.797797,0.92,0.83,0.66
+WG-01015,Naresh,West Godavari,Tadepalligudem,Cotton,2.48,66.5,Medium,89,16.636805,81.602726,0.85,0.79,0.56
+WG-01016,Bhavani,West Godavari,Tanuku,Cotton,1.35,68.3,Medium,83,16.751934,81.671926,0.81,0.69,0.54
+WG-01017,Srinivasa Rao,West Godavari,Undi,Red Gram,8.95,64.8,Medium,89,16.447429,81.451607,0.87,0.76,0.51
+WG-01018,Lakshmi Devi,West Godavari,Veeravasaram,Red Gram,2.33,76.8,Low,87,16.772073,81.552033,0.79,0.68,0.58
+WG-01019,Venkata Ramana,West Godavari,Ganapavaram,Chilli,2.26,71.6,Medium,84,16.643653,81.814047,0.85,0.76,0.58
+WG-01020,Sailaja,West Godavari,Kalla,Maize,6.74,60.0,Medium,87,16.594973,81.752984,0.76,0.65,0.47
+WG-01021,Srinivasa Rao,West Godavari,Achanta,Paddy,10.61,74.4,Medium,86,16.386712,81.619226,0.87,0.83,0.58
+WG-01022,Lakshmi Devi,West Godavari,Akiveedu,Cotton,5.02,55.8,High,86,16.780839,81.536858,0.83,0.72,0.55
+WG-01023,Venkata Ramana,West Godavari,Attili,Paddy,10.82,75.3,Low,93,16.712665,81.694888,0.92,0.81,0.54
+WG-01024,Sailaja,West Godavari,Bhimavaram,Cotton,4.3,72.6,Medium,92,16.395025,81.674776,0.86,0.81,0.51
+WG-01025,Ramesh Babu,West Godavari,Elamanchili,Paddy,3.27,70.3,Medium,88,16.344818,81.627096,0.84,0.77,0.58
+WG-01026,Padma Priya,West Godavari,Iragavaram,Paddy,1.42,76.6,Low,87,16.519697,81.732616,0.84,0.75,0.63
+WG-01027,Kiran Kumar,West Godavari,Mogalthur,Paddy,2.56,82.1,Low,87,16.667855,81.454345,0.88,0.85,0.57
+WG-01028,Anitha,West Godavari,Narasapuram,Paddy,6.49,84.4,Low,92,16.611876,81.793576,0.92,0.83,0.66
+WG-01029,Satyanarayana,West Godavari,Palacoderu,Red Gram,7.28,61.4,Medium,87,16.654701,81.642059,0.83,0.72,0.57
+WG-01030,Rajeshwari,West Godavari,Palacole,Chilli,3.99,73.1,Medium,88,16.473835,81.508658,0.92,0.82,0.57
+WG-01031,Mohan Rao,West Godavari,Pentapadu,Paddy,8.98,77.5,Low,86,16.608946,81.342859,0.86,0.75,0.55
+WG-01032,Divya,West Godavari,Penugonda,Paddy,5.08,88.6,Low,89,16.870695,81.465537,0.9,0.8,0.63
+WG-01033,Prasad,West Godavari,Penumantra,Chilli,1.34,67.2,Medium,84,16.48999,81.514519,0.79,0.72,0.57
+WG-01034,Swapna,West Godavari,Poduru,Cotton,3.12,78.0,Low,89,16.644318,81.562581,0.92,0.82,0.63
+WG-01035,Naresh,West Godavari,Tadepalligudem,Cotton,5.44,63.6,Medium,86,16.622556,81.496772,0.77,0.68,0.55
+WG-01036,Bhavani,West Godavari,Tanuku,Cotton,1.8,61.7,Medium,86,16.433416,81.657962,0.83,0.77,0.52
+WG-01037,Srinivasa Rao,West Godavari,Undi,Paddy,5.78,70.5,Medium,83,16.395445,81.624404,0.83,0.73,0.57
+WG-01038,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,6.32,65.7,Medium,89,16.560092,81.829136,0.88,0.85,0.55
+WG-01039,Venkata Ramana,West Godavari,Ganapavaram,Cotton,2.8,68.9,Medium,91,16.773951,81.539056,0.75,0.66,0.6
+WG-01040,Sailaja,West Godavari,Kalla,Paddy,9.48,71.6,Medium,84,16.505256,81.678016,0.85,0.79,0.51
+WG-01041,Srinivasa Rao,West Godavari,Achanta,Paddy,5.39,71.1,Medium,92,16.48826,81.791487,0.83,0.79,0.52
+WG-01042,Lakshmi Devi,West Godavari,Akiveedu,Paddy,6.38,85.2,Low,97,16.669566,81.580271,0.92,0.85,0.56
+WG-01043,Venkata Ramana,West Godavari,Attili,Paddy,1.23,84.1,Low,92,16.419489,81.663128,0.92,0.83,0.64
+WG-01044,Sailaja,West Godavari,Bhimavaram,Maize,11.04,76.5,Low,92,16.623549,81.371629,0.8,0.69,0.61
+WG-01045,Ramesh Babu,West Godavari,Elamanchili,Paddy,2.83,77.6,Low,95,16.446494,81.684565,0.85,0.76,0.59
+WG-01046,Padma Priya,West Godavari,Iragavaram,Chilli,3.33,70.5,Medium,87,16.572569,81.8275,0.75,0.7,0.51
+WG-01047,Kiran Kumar,West Godavari,Mogalthur,Chilli,8.52,62.8,Medium,83,16.605843,81.395997,0.84,0.79,0.52
+WG-01048,Anitha,West Godavari,Narasapuram,Paddy,6.02,72.3,Medium,89,16.496806,81.630493,0.86,0.79,0.51
+WG-01049,Satyanarayana,West Godavari,Palacoderu,Paddy,10.63,87.7,Low,94,16.464211,81.715302,0.86,0.8,0.63
+WG-01050,Rajeshwari,West Godavari,Palacole,Paddy,11.94,86.7,Low,96,16.760854,81.603181,0.92,0.84,0.6
+WG-01051,Mohan Rao,West Godavari,Pentapadu,Paddy,2.09,80.5,Low,96,16.445053,81.464171,0.92,0.85,0.65
+WG-01052,Divya,West Godavari,Penugonda,Paddy,10.15,75.1,Low,87,16.540417,81.628724,0.82,0.72,0.58
+WG-01053,Prasad,West Godavari,Penumantra,Paddy,6.4,70.0,Medium,87,16.854926,81.489815,0.89,0.82,0.56
+WG-01054,Swapna,West Godavari,Poduru,Paddy,10.04,86.4,Low,96,16.525436,81.485465,0.92,0.85,0.61
+WG-01055,Naresh,West Godavari,Tadepalligudem,Red Gram,2.46,63.8,Medium,82,16.621186,81.458526,0.72,0.68,0.5
+WG-01056,Bhavani,West Godavari,Tanuku,Paddy,8.21,76.0,Low,89,16.853498,81.480658,0.92,0.83,0.52
+WG-01057,Srinivasa Rao,West Godavari,Undi,Paddy,7.67,75.9,Low,89,16.43111,81.590917,0.9,0.85,0.53
+WG-01058,Lakshmi Devi,West Godavari,Veeravasaram,Cotton,4.75,64.9,Medium,86,16.746812,81.613983,0.88,0.85,0.57
+WG-01059,Venkata Ramana,West Godavari,Ganapavaram,Red Gram,1.34,74.6,Medium,89,16.575212,81.657193,0.92,0.82,0.51
+WG-01060,Sailaja,West Godavari,Kalla,Paddy,3.19,70.6,Medium,85,16.664631,81.556202,0.86,0.8,0.56
+WG-01061,Srinivasa Rao,West Godavari,Achanta,Paddy,3.2,69.0,Medium,91,16.926991,81.48805,0.75,0.73,0.59
+WG-01062,Lakshmi Devi,West Godavari,Akiveedu,Red Gram,4.03,70.3,Medium,84,16.537649,81.477506,0.8,0.7,0.54
+WG-01063,Venkata Ramana,West Godavari,Attili,Maize,8.86,63.3,Medium,83,16.394845,81.607301,0.87,0.78,0.57
+WG-01064,Sailaja,West Godavari,Bhimavaram,Chilli,7.0,64.3,Medium,85,16.503488,81.652487,0.79,0.73,0.48
+WG-01065,Ramesh Babu,West Godavari,Elamanchili,Paddy,10.84,73.4,Medium,91,16.848289,81.536998,0.77,0.67,0.55
+WG-01066,Padma Priya,West Godavari,Iragavaram,Chilli,9.62,69.1,Medium,92,16.537316,81.500579,0.75,0.72,0.56
+WG-01067,Kiran Kumar,West Godavari,Mogalthur,Chilli,3.66,79.6,Low,87,16.552954,81.433232,0.88,0.83,0.64
+WG-01068,Anitha,West Godavari,Narasapuram,Paddy,4.97,86.4,Low,91,16.541277,81.847491,0.92,0.85,0.58
+WG-01069,Satyanarayana,West Godavari,Palacoderu,Paddy,9.89,77.3,Low,87,16.612617,81.57502,0.92,0.81,0.59
+WG-01070,Rajeshwari,West Godavari,Palacole,Paddy,6.37,69.2,Medium,83,16.468773,81.647811,0.82,0.77,0.56
+WG-01071,Mohan Rao,West Godavari,Pentapadu,Paddy,1.15,75.6,Low,93,16.654901,81.698305,0.85,0.74,0.53
+WG-01072,Divya,West Godavari,Penugonda,Paddy,3.24,81.1,Low,91,16.616816,81.515071,0.88,0.77,0.6
+WG-01073,Prasad,West Godavari,Penumantra,Paddy,2.14,75.8,Low,92,16.627501,81.631845,0.91,0.84,0.6
+WG-01074,Swapna,West Godavari,Poduru,Paddy,2.79,70.6,Medium,85,16.948359,81.506249,0.8,0.77,0.6
+WG-01075,Naresh,West Godavari,Tadepalligudem,Paddy,3.29,74.7,Medium,87,16.748774,81.619955,0.8,0.72,0.53
+WG-01076,Bhavani,West Godavari,Tanuku,Maize,7.75,76.0,Low,87,16.340465,81.624177,0.84,0.78,0.6
+WG-01077,Srinivasa Rao,West Godavari,Undi,Paddy,7.92,68.4,Medium,90,16.753549,81.567745,0.79,0.71,0.5
+WG-01078,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,2.07,71.2,Medium,92,16.542352,81.457264,0.89,0.81,0.57
+WG-01079,Venkata Ramana,West Godavari,Ganapavaram,Paddy,10.21,86.2,Low,94,16.598466,81.820529,0.92,0.81,0.62
+WG-01080,Sailaja,West Godavari,Kalla,Maize,3.63,73.8,Medium,92,16.480157,81.655011,0.78,0.71,0.59
+WG-01081,Srinivasa Rao,West Godavari,Achanta,Paddy,11.03,73.1,Medium,93,16.41598,81.548222,0.85,0.81,0.58
+WG-01082,Lakshmi Devi,West Godavari,Akiveedu,Paddy,3.33,70.4,Medium,88,16.419837,81.666069,0.89,0.81,0.57
+WG-01083,Venkata Ramana,West Godavari,Attili,Paddy,8.29,75.3,Low,88,16.747674,81.54758,0.82,0.73,0.59
+WG-01084,Sailaja,West Godavari,Bhimavaram,Paddy,7.77,76.1,Low,91,16.577384,81.564119,0.9,0.84,0.57
+WG-01085,Ramesh Babu,West Godavari,Elamanchili,Red Gram,3.25,72.4,Medium,88,16.498668,81.557703,0.83,0.74,0.57
+WG-01086,Padma Priya,West Godavari,Iragavaram,Maize,11.0,72.9,Medium,93,16.456764,81.610672,0.8,0.7,0.52
+WG-01087,Kiran Kumar,West Godavari,Mogalthur,Paddy,11.27,66.7,Medium,88,16.616779,81.468448,0.75,0.71,0.58
+WG-01088,Anitha,West Godavari,Narasapuram,Paddy,5.97,69.6,Medium,86,16.422269,81.596757,0.86,0.74,0.59
+WG-01089,Satyanarayana,West Godavari,Palacoderu,Cotton,3.39,69.2,Medium,88,16.659188,81.416055,0.81,0.72,0.6
+WG-01090,Rajeshwari,West Godavari,Palacole,Paddy,6.83,81.5,Low,88,16.708009,81.698523,0.88,0.82,0.65
+WG-01091,Mohan Rao,West Godavari,Pentapadu,Paddy,5.21,75.9,Low,90,16.654865,81.519337,0.86,0.81,0.58
+WG-01092,Divya,West Godavari,Penugonda,Paddy,8.14,84.7,Low,97,16.840118,81.603048,0.92,0.84,0.64
+WG-01093,Prasad,West Godavari,Penumantra,Maize,3.18,79.1,Low,86,16.448265,81.569163,0.8,0.73,0.57
+WG-01094,Swapna,West Godavari,Poduru,Cotton,4.95,64.4,Medium,84,16.576025,81.710763,0.77,0.65,0.49
+WG-01095,Naresh,West Godavari,Tadepalligudem,Maize,5.84,66.8,Medium,90,16.447981,81.503379,0.77,0.75,0.49
+WG-01096,Bhavani,West Godavari,Tanuku,Maize,11.8,73.8,Medium,90,16.631186,81.575829,0.85,0.8,0.62
+WG-01097,Srinivasa Rao,West Godavari,Undi,Paddy,7.05,88.6,Low,96,16.651343,81.465786,0.92,0.81,0.66
+WG-01098,Lakshmi Devi,West Godavari,Veeravasaram,Red Gram,7.23,76.4,Low,92,16.564691,81.625889,0.92,0.81,0.55
+WG-01099,Venkata Ramana,West Godavari,Ganapavaram,Red Gram,5.48,74.8,Medium,92,16.679187,81.652873,0.78,0.75,0.56
+WG-01100,Sailaja,West Godavari,Kalla,Chilli,0.94,70.2,Medium,92,16.53135,81.410086,0.75,0.7,0.51
+WG-01101,Srinivasa Rao,West Godavari,Achanta,Paddy,9.03,79.9,Low,92,16.509464,81.489426,0.85,0.76,0.61
+WG-01102,Lakshmi Devi,West Godavari,Akiveedu,Cotton,11.29,60.3,Medium,82,16.637265,81.772138,0.7,0.62,0.55
+WG-01103,Venkata Ramana,West Godavari,Attili,Paddy,2.12,71.9,Medium,87,16.603846,81.844922,0.87,0.76,0.54
+WG-01104,Sailaja,West Godavari,Bhimavaram,Paddy,5.2,66.9,Medium,90,16.560071,81.345825,0.74,0.71,0.52
+WG-01105,Ramesh Babu,West Godavari,Elamanchili,Paddy,9.54,72.9,Medium,91,16.741809,81.49122,0.79,0.72,0.57
+WG-01106,Padma Priya,West Godavari,Iragavaram,Paddy,3.92,69.8,Medium,86,16.776337,81.603706,0.78,0.72,0.57
+WG-01107,Kiran Kumar,West Godavari,Mogalthur,Paddy,10.17,69.8,Medium,90,16.483894,81.703499,0.84,0.73,0.5
+WG-01108,Anitha,West Godavari,Narasapuram,Paddy,1.25,84.7,Low,90,16.517316,81.610326,0.84,0.72,0.58
+WG-01109,Satyanarayana,West Godavari,Palacoderu,Cotton,7.75,76.6,Low,86,16.662039,81.422161,0.92,0.85,0.63
+WG-01110,Rajeshwari,West Godavari,Palacole,Paddy,9.08,75.7,Low,85,16.622702,81.42443,0.85,0.82,0.59
+WG-01111,Mohan Rao,West Godavari,Pentapadu,Maize,0.92,60.5,Medium,81,16.639923,81.547776,0.81,0.73,0.54
+WG-01112,Divya,West Godavari,Penugonda,Paddy,4.43,71.1,Medium,92,16.622239,81.51023,0.88,0.85,0.51
+WG-01113,Prasad,West Godavari,Penumantra,Red Gram,6.03,71.9,Medium,93,16.678872,81.668566,0.9,0.82,0.55
+WG-01114,Swapna,West Godavari,Poduru,Red Gram,2.41,66.3,Medium,84,16.454094,81.731562,0.77,0.73,0.57
+WG-01115,Naresh,West Godavari,Tadepalligudem,Maize,6.06,65.7,Medium,84,16.40855,81.446103,0.87,0.83,0.55
+WG-01116,Bhavani,West Godavari,Tanuku,Cotton,11.6,56.4,High,85,16.44551,81.606174,0.81,0.73,0.52
+WG-01117,Srinivasa Rao,West Godavari,Undi,Cotton,3.96,70.4,Medium,89,16.358603,81.652633,0.78,0.67,0.55
+WG-01118,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,5.04,66.0,Medium,81,16.411584,81.678947,0.76,0.65,0.59
+WG-01119,Venkata Ramana,West Godavari,Ganapavaram,Maize,10.67,64.6,Medium,85,16.75199,81.51943,0.72,0.66,0.57
+WG-01120,Sailaja,West Godavari,Kalla,Paddy,7.25,69.1,Medium,83,16.497378,81.628969,0.86,0.76,0.52
+WG-01121,Srinivasa Rao,West Godavari,Achanta,Paddy,11.81,75.6,Low,91,16.597542,81.72404,0.81,0.72,0.62
+WG-01122,Lakshmi Devi,West Godavari,Akiveedu,Cotton,11.74,58.6,High,84,16.637053,81.77071,0.71,0.63,0.54
+WG-01123,Venkata Ramana,West Godavari,Attili,Maize,10.23,76.1,Low,87,16.611684,81.65329,0.92,0.85,0.61
+WG-01124,Sailaja,West Godavari,Bhimavaram,Paddy,4.85,66.5,Medium,85,16.562195,81.407326,0.77,0.73,0.58
+WG-01125,Ramesh Babu,West Godavari,Elamanchili,Paddy,9.02,70.7,Medium,91,16.803634,81.508664,0.87,0.79,0.59
+WG-01126,Padma Priya,West Godavari,Iragavaram,Chilli,8.2,69.6,Medium,91,16.457128,81.485321,0.88,0.85,0.49
+WG-01127,Kiran Kumar,West Godavari,Mogalthur,Paddy,11.62,86.1,Low,93,16.56157,81.689217,0.89,0.82,0.62
+WG-01128,Anitha,West Godavari,Narasapuram,Maize,5.86,77.9,Low,92,16.529698,81.732836,0.92,0.83,0.52
+WG-01129,Satyanarayana,West Godavari,Palacoderu,Paddy,8.39,74.2,Medium,86,16.836782,81.524138,0.89,0.81,0.56
+WG-01130,Rajeshwari,West Godavari,Palacole,Paddy,5.33,87.5,Low,90,16.662923,81.731935,0.92,0.85,0.6
+WG-01131,Mohan Rao,West Godavari,Pentapadu,Paddy,8.31,66.6,Medium,85,16.567166,81.752448,0.82,0.7,0.51
+WG-01132,Divya,West Godavari,Penugonda,Cotton,1.99,72.5,Medium,92,16.519199,81.481508,0.92,0.81,0.6
+WG-01133,Prasad,West Godavari,Penumantra,Paddy,11.44,88.5,Low,98,16.760354,81.668955,0.89,0.83,0.56
+WG-01134,Swapna,West Godavari,Poduru,Chilli,10.84,69.8,Medium,89,16.496117,81.377726,0.8,0.78,0.6
+WG-01135,Naresh,West Godavari,Tadepalligudem,Cotton,10.43,67.4,Medium,88,16.648245,81.770495,0.78,0.71,0.6
+WG-01136,Bhavani,West Godavari,Tanuku,Red Gram,1.09,80.4,Low,89,16.425878,81.663327,0.92,0.85,0.56
+WG-01137,Srinivasa Rao,West Godavari,Undi,Red Gram,10.12,71.0,Medium,87,16.498798,81.512214,0.85,0.78,0.56
+WG-01138,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,10.9,67.7,Medium,88,16.486539,81.590372,0.75,0.66,0.51
+WG-01139,Venkata Ramana,West Godavari,Ganapavaram,Paddy,2.27,71.8,Medium,86,16.571882,81.741966,0.8,0.77,0.55
+WG-01140,Sailaja,West Godavari,Kalla,Paddy,2.02,87.6,Low,94,16.463065,81.642747,0.92,0.85,0.67
+WG-01141,Srinivasa Rao,West Godavari,Achanta,Paddy,1.09,84.0,Low,90,16.861161,81.556611,0.83,0.71,0.56
+WG-01142,Lakshmi Devi,West Godavari,Akiveedu,Paddy,10.46,79.4,Low,87,16.556013,81.37189,0.86,0.77,0.62
+WG-01143,Venkata Ramana,West Godavari,Attili,Paddy,2.7,68.6,Medium,82,16.733341,81.625419,0.86,0.79,0.59
+WG-01144,Sailaja,West Godavari,Bhimavaram,Chilli,1.7,79.0,Low,90,16.621676,81.781344,0.84,0.74,0.56
+WG-01145,Ramesh Babu,West Godavari,Elamanchili,Paddy,8.49,87.7,Low,95,16.717323,81.709391,0.87,0.79,0.57
+WG-01146,Padma Priya,West Godavari,Iragavaram,Paddy,10.16,79.8,Low,96,16.341385,81.621305,0.84,0.74,0.63
+WG-01147,Kiran Kumar,West Godavari,Mogalthur,Maize,11.56,78.9,Low,86,16.378056,81.574536,0.86,0.82,0.62
+WG-01148,Anitha,West Godavari,Narasapuram,Paddy,1.86,85.9,Low,89,16.42567,81.412907,0.92,0.85,0.61
+WG-01149,Satyanarayana,West Godavari,Palacoderu,Paddy,8.62,83.3,Low,89,16.62356,81.507643,0.92,0.85,0.64
+WG-01150,Rajeshwari,West Godavari,Palacole,Paddy,8.16,68.1,Medium,88,16.588762,81.808722,0.8,0.7,0.56
+WG-01151,Mohan Rao,West Godavari,Pentapadu,Red Gram,9.36,75.1,Low,87,16.738724,81.454363,0.84,0.76,0.59
+WG-01152,Divya,West Godavari,Penugonda,Paddy,1.97,68.9,Medium,86,16.505653,81.760492,0.75,0.69,0.59
+WG-01153,Prasad,West Godavari,Penumantra,Paddy,2.44,74.2,Medium,86,16.445745,81.429673,0.84,0.8,0.53
+WG-01154,Swapna,West Godavari,Poduru,Chilli,8.54,74.1,Medium,90,16.532868,81.358627,0.89,0.84,0.57
+WG-01155,Naresh,West Godavari,Tadepalligudem,Paddy,4.61,71.0,Medium,83,16.337618,81.686902,0.82,0.79,0.57
+WG-01156,Bhavani,West Godavari,Tanuku,Red Gram,4.38,64.7,Medium,84,16.524047,81.800985,0.83,0.76,0.58
+WG-01157,Srinivasa Rao,West Godavari,Undi,Paddy,8.67,74.2,Medium,94,16.843562,81.64722,0.92,0.85,0.52
+WG-01158,Lakshmi Devi,West Godavari,Veeravasaram,Cotton,8.99,72.0,Medium,92,16.743224,81.626087,0.78,0.69,0.57
+WG-01159,Venkata Ramana,West Godavari,Ganapavaram,Maize,6.24,66.2,Medium,88,16.850068,81.655074,0.77,0.72,0.58
+WG-01160,Sailaja,West Godavari,Kalla,Paddy,9.65,83.4,Low,90,16.446848,81.49689,0.92,0.83,0.62
+WG-01161,Srinivasa Rao,West Godavari,Achanta,Paddy,5.36,77.4,Low,92,16.738842,81.720035,0.88,0.81,0.62
+WG-01162,Lakshmi Devi,West Godavari,Akiveedu,Maize,4.26,63.1,Medium,87,16.431997,81.650964,0.77,0.7,0.53
+WG-01163,Venkata Ramana,West Godavari,Attili,Paddy,1.95,78.2,Low,87,16.411627,81.66645,0.82,0.74,0.58
+WG-01164,Sailaja,West Godavari,Bhimavaram,Maize,11.61,66.3,Medium,86,16.388277,81.678109,0.79,0.76,0.5
+WG-01165,Ramesh Babu,West Godavari,Elamanchili,Paddy,3.72,75.5,Low,93,16.552863,81.69608,0.87,0.82,0.54
+WG-01166,Padma Priya,West Godavari,Iragavaram,Chilli,7.84,64.0,Medium,88,16.56701,81.784938,0.82,0.79,0.58
+WG-01167,Kiran Kumar,West Godavari,Mogalthur,Cotton,5.39,73.8,Medium,89,16.542771,81.809635,0.88,0.78,0.54
+WG-01168,Anitha,West Godavari,Narasapuram,Cotton,3.88,59.2,High,81,16.425709,81.59001,0.84,0.77,0.54
+WG-01169,Satyanarayana,West Godavari,Palacoderu,Red Gram,6.43,67.4,Medium,82,16.358673,81.64782,0.79,0.73,0.58
+WG-01170,Rajeshwari,West Godavari,Palacole,Paddy,9.72,72.8,Medium,90,16.603884,81.36849,0.8,0.73,0.6
+WG-01171,Mohan Rao,West Godavari,Pentapadu,Maize,9.6,60.5,Medium,89,16.615975,81.741928,0.75,0.72,0.5
+WG-01172,Divya,West Godavari,Penugonda,Maize,4.01,76.3,Low,89,16.448801,81.663172,0.91,0.85,0.6
+WG-01173,Prasad,West Godavari,Penumantra,Cotton,9.11,66.5,Medium,90,16.575481,81.443868,0.83,0.77,0.59
+WG-01174,Swapna,West Godavari,Poduru,Cotton,9.61,77.6,Low,95,16.680474,81.686115,0.8,0.75,0.56
+WG-01175,Naresh,West Godavari,Tadepalligudem,Chilli,10.37,71.2,Medium,86,16.562362,81.820724,0.84,0.79,0.52
+WG-01176,Bhavani,West Godavari,Tanuku,Paddy,1.3,88.0,Low,91,16.427506,81.637876,0.92,0.82,0.66
+WG-01177,Srinivasa Rao,West Godavari,Undi,Paddy,10.02,67.2,Medium,91,16.515755,81.527152,0.89,0.79,0.48
+WG-01178,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,11.42,77.3,Low,86,16.361884,81.661346,0.92,0.85,0.6
+WG-01179,Venkata Ramana,West Godavari,Ganapavaram,Paddy,8.94,76.0,Low,89,16.778804,81.477082,0.91,0.84,0.63
+WG-01180,Sailaja,West Godavari,Kalla,Cotton,7.39,60.3,Medium,87,16.427951,81.537582,0.79,0.68,0.5
+WG-01181,Srinivasa Rao,West Godavari,Achanta,Paddy,7.68,82.9,Low,93,16.349607,81.560999,0.92,0.83,0.55
+WG-01182,Lakshmi Devi,West Godavari,Akiveedu,Paddy,9.69,81.0,Low,91,16.591237,81.630829,0.85,0.75,0.59
+WG-01183,Venkata Ramana,West Godavari,Attili,Chilli,3.86,60.9,Medium,82,16.649918,81.581989,0.73,0.65,0.49
+WG-01184,Sailaja,West Godavari,Bhimavaram,Paddy,2.24,78.1,Low,92,16.468782,81.672027,0.81,0.77,0.56
+WG-01185,Ramesh Babu,West Godavari,Elamanchili,Chilli,11.56,66.0,Medium,83,16.49788,81.614509,0.79,0.73,0.54
+WG-01186,Padma Priya,West Godavari,Iragavaram,Paddy,5.54,72.4,Medium,89,16.95608,81.498754,0.89,0.85,0.53
+WG-01187,Kiran Kumar,West Godavari,Mogalthur,Cotton,2.42,55.7,High,80,16.519618,81.809632,0.78,0.68,0.52
+WG-01188,Anitha,West Godavari,Narasapuram,Maize,3.91,67.7,Medium,88,16.435727,81.683239,0.75,0.72,0.56
+WG-01189,Satyanarayana,West Godavari,Palacoderu,Paddy,3.74,75.8,Low,86,16.816023,81.51368,0.92,0.83,0.52
+WG-01190,Rajeshwari,West Godavari,Palacole,Chilli,10.55,76.6,Low,90,16.594986,81.383168,0.87,0.85,0.55
+WG-01191,Mohan Rao,West Godavari,Pentapadu,Paddy,4.03,65.2,Medium,90,16.474889,81.519063,0.88,0.77,0.51
+WG-01192,Divya,West Godavari,Penugonda,Paddy,11.95,70.5,Medium,86,16.499798,81.693126,0.89,0.81,0.51
+WG-01193,Prasad,West Godavari,Penumantra,Paddy,6.5,84.1,Low,92,16.848473,81.516126,0.86,0.77,0.57
+WG-01194,Swapna,West Godavari,Poduru,Red Gram,1.77,67.2,Medium,88,16.542728,81.54704,0.77,0.69,0.51
+WG-01195,Naresh,West Godavari,Tadepalligudem,Paddy,3.67,76.2,Low,86,16.825948,81.52183,0.92,0.85,0.62
+WG-01196,Bhavani,West Godavari,Tanuku,Paddy,4.34,89.2,Low,99,16.880196,81.600442,0.92,0.82,0.58
+WG-01197,Srinivasa Rao,West Godavari,Undi,Maize,3.92,77.6,Low,86,16.559439,81.476491,0.89,0.81,0.57
+WG-01198,Lakshmi Devi,West Godavari,Veeravasaram,Paddy,8.97,88.7,Low,95,16.640139,81.468097,0.92,0.85,0.68
+WG-01199,Venkata Ramana,West Godavari,Ganapavaram,Paddy,7.69,78.2,Low,90,16.46492,81.465066,0.82,0.74,0.63
+WG-01200,Sailaja,West Godavari,Kalla,Cotton,9.36,74.3,Medium,91,16.395493,81.558406,0.89,0.83,0.53

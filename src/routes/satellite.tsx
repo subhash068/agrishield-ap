@@ -1,27 +1,58 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
-import { Satellite, Layers, Maximize2, Radio, MapPin, Sprout, Droplets, AlertTriangle, Info, Globe, Mountain } from "lucide-react";
+import {
+  Satellite,
+  Layers,
+  Maximize2,
+  Radio,
+  MapPin,
+  Sprout,
+  Droplets,
+  AlertTriangle,
+  Info,
+  Globe,
+  Mountain,
+} from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import { useAppShell } from "@/components/app-shell-store";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { getParcels, type Parcel } from "@/lib/api";
 
 export const Route = createFileRoute("/satellite")({
   head: () => ({
     meta: [
       { title: "Satellite Monitoring · AgriShield AP" },
-      { name: "description", content: "Parcel-level satellite monitoring with NDVI / EVI / NDRE overlays across Andhra Pradesh." },
+      {
+        name: "description",
+        content:
+          "Parcel-level satellite monitoring with NDVI / EVI / NDRE overlays across Andhra Pradesh.",
+      },
     ],
   }),
   component: SatellitePage,
 });
 
-const LAYERS = ["NDVI", "EVI", "NDRE", "Soil Moisture", "Vegetation Stress", "Anomaly Hotspots", "Disease Probability"];
+const LAYERS = [
+  "NDVI",
+  "EVI",
+  "NDRE",
+  "Soil Moisture",
+  "Vegetation Stress",
+  "Anomaly Hotspots",
+  "Disease Probability",
+];
 const DISTRICT_GEOJSON_URL = "/data/ANDHRA_PRADESH_NEW_DISTRICTS.geojson";
 const MANDAL_GEOJSON_URL = "/data/ANDHRA_PRADESH_SUBDISTRICTS.geojson";
 
@@ -41,8 +72,10 @@ function normalizeDistrictName(name: string | undefined | null) {
 }
 
 function riskTone(parcel: Parcel) {
-  if (parcel.health >= 75) return { label: "Healthy", chip: "bg-success/20 text-success border-success/40" };
-  if (parcel.health >= 60) return { label: "Watch", chip: "bg-warning/20 text-warning border-warning/40" };
+  if (parcel.health >= 75)
+    return { label: "Healthy", chip: "bg-success/20 text-success border-success/40" };
+  if (parcel.health >= 60)
+    return { label: "Watch", chip: "bg-warning/20 text-warning border-warning/40" };
   return { label: "High Risk", chip: "bg-destructive/15 text-destructive border-destructive/30" };
 }
 
@@ -82,7 +115,8 @@ function SatellitePage() {
   const [basemap, setBasemap] = useState<"Satellite" | "Hybrid" | "Terrain">("Satellite");
   const [enabled, setEnabled] = useState<Record<string, boolean>>({ NDVI: true });
   const [selectedParcelId, setSelectedParcelId] = useState<string | null>(null);
-  const [districtFilter, setDistrictFilter] = useState("all");
+  const { selectedDistrict: districtFilter, setSelectedDistrict: setDistrictFilter } =
+    useAppShell();
   const [mandalFilter, setMandalFilter] = useState("all");
   const [districtGeoJson, setDistrictGeoJson] = useState<unknown>(null);
   const [mandalGeoJson, setMandalGeoJson] = useState<unknown>(null);
@@ -105,9 +139,17 @@ function SatellitePage() {
       .catch(() => setMandalGeoJson(null));
   }, []);
 
-  const districtOptions = useMemo(() => Array.from(new Set(parcels.map((parcel) => parcel.district))).sort((a, b) => a.localeCompare(b)), [parcels]);
+  const districtOptions = useMemo(
+    () =>
+      Array.from(new Set(parcels.map((parcel) => parcel.district))).sort((a, b) =>
+        a.localeCompare(b),
+      ),
+    [parcels],
+  );
   const mandalOptions = useMemo(() => {
-    const geojson = mandalGeoJson as { features?: Array<{ properties?: { dtname?: string; sdtname?: string } }> } | null;
+    const geojson = mandalGeoJson as {
+      features?: Array<{ properties?: { dtname?: string; sdtname?: string } }>;
+    } | null;
     const features = geojson?.features ?? [];
     return Array.from(
       new Set(
@@ -130,7 +172,10 @@ function SatellitePage() {
       }),
     [districtFilter, mandalFilter, parcels],
   );
-  const filteredSelectedParcel = useMemo(() => filteredParcels.find((parcel) => parcel.id === selectedParcelId) ?? null, [filteredParcels, selectedParcelId]);
+  const filteredSelectedParcel = useMemo(
+    () => filteredParcels.find((parcel) => parcel.id === selectedParcelId) ?? null,
+    [filteredParcels, selectedParcelId],
+  );
   const selectedRisk = filteredSelectedParcel ? riskTone(filteredSelectedParcel) : null;
 
   useEffect(() => {
@@ -154,7 +199,10 @@ function SatellitePage() {
         description="Parcel polygons, vegetation indices and AI hotspots over Sentinel-2 imagery."
         actions={
           <>
-            <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary gap-1.5 self-center">
+            <Badge
+              variant="outline"
+              className="border-primary/40 bg-primary/10 text-primary gap-1.5 self-center"
+            >
               <Radio className="h-3 w-3 animate-pulse" /> LIVE
             </Badge>
             <Button variant="outline" size="sm" className="gap-1.5">
@@ -180,7 +228,9 @@ function SatellitePage() {
               onSelectParcel={setSelectedParcelId}
             />
           ) : (
-            <div className="absolute inset-0 grid place-items-center text-muted-foreground text-sm">Loading satellite layer…</div>
+            <div className="absolute inset-0 grid place-items-center text-muted-foreground text-sm">
+              Loading satellite layer…
+            </div>
           )}
 
           <div className="absolute top-3 left-3 z-[400] glass-strong rounded-lg px-3 py-2 text-xs space-y-1">
@@ -226,14 +276,18 @@ function SatellitePage() {
                 <div
                   key={layer}
                   className={`flex items-center justify-between rounded-lg border px-3 py-2 cursor-pointer transition ${
-                    activeLayer === layer ? "border-primary/50 bg-primary/10" : "border-border/60 bg-muted/20 hover:border-primary/30"
+                    activeLayer === layer
+                      ? "border-primary/50 bg-primary/10"
+                      : "border-border/60 bg-muted/20 hover:border-primary/30"
                   }`}
                   onClick={() => setActiveLayer(layer)}
                 >
                   <span className="text-xs font-medium">{layer}</span>
                   <Switch
                     checked={enabled[layer] ?? false}
-                    onCheckedChange={(value) => setEnabled((current) => ({ ...current, [layer]: value }))}
+                    onCheckedChange={(value) =>
+                      setEnabled((current) => ({ ...current, [layer]: value }))
+                    }
                     onClick={(event) => event.stopPropagation()}
                   />
                 </div>
@@ -316,11 +370,17 @@ function SatellitePage() {
                     <div className="min-w-0 flex-1">
                       <div className="text-[10px] font-semibold leading-none">{option}</div>
                       <div className="mt-1 text-[9px] text-muted-foreground leading-none">
-                        {option === "Satellite" ? "Imagery + labels" : option === "Hybrid" ? "Imagery + labels" : "Terrain relief"}
+                        {option === "Satellite"
+                          ? "Imagery + labels"
+                          : option === "Hybrid"
+                            ? "Imagery + labels"
+                            : "Terrain relief"}
                       </div>
                     </div>
                   </div>
-                  {basemap === option ? <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-primary/20" /> : null}
+                  {basemap === option ? (
+                    <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-primary/20" />
+                  ) : null}
                 </button>
               ))}
             </div>
@@ -355,31 +415,66 @@ function SatellitePage() {
                 <div className="flex items-center justify-between gap-2">
                   <div>
                     <p className="font-semibold text-sm">{filteredSelectedParcel.id}</p>
-                    <p className="text-muted-foreground">{filteredSelectedParcel.crop} · {filteredSelectedParcel.farmer}</p>
+                    <p className="text-muted-foreground">
+                      {filteredSelectedParcel.crop} · {filteredSelectedParcel.farmer}
+                    </p>
                   </div>
-                  {selectedRisk ? <Badge className={selectedRisk.chip}>{selectedRisk.label}</Badge> : null}
+                  {selectedRisk ? (
+                    <Badge className={selectedRisk.chip}>{selectedRisk.label}</Badge>
+                  ) : null}
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <InfoCard icon={<Sprout className="h-3.5 w-3.5" />} label="Health" value={`${filteredSelectedParcel.health}%`} />
-                  <InfoCard icon={<Droplets className="h-3.5 w-3.5" />} label="NDVI" value={filteredSelectedParcel.ndvi.toFixed(2)} />
-                  <InfoCard icon={<AlertTriangle className="h-3.5 w-3.5" />} label="Risk" value={filteredSelectedParcel.risk} />
-                  <InfoCard icon={<MapPin className="h-3.5 w-3.5" />} label="Area" value={`${filteredSelectedParcel.acreage} ac`} />
+                  <InfoCard
+                    icon={<Sprout className="h-3.5 w-3.5" />}
+                    label="Health"
+                    value={`${filteredSelectedParcel.health}%`}
+                  />
+                  <InfoCard
+                    icon={<Droplets className="h-3.5 w-3.5" />}
+                    label="NDVI"
+                    value={filteredSelectedParcel.ndvi.toFixed(2)}
+                  />
+                  <InfoCard
+                    icon={<AlertTriangle className="h-3.5 w-3.5" />}
+                    label="Risk"
+                    value={filteredSelectedParcel.risk}
+                  />
+                  <InfoCard
+                    icon={<MapPin className="h-3.5 w-3.5" />}
+                    label="Area"
+                    value={`${filteredSelectedParcel.acreage} ac`}
+                  />
                 </div>
 
                 <div className="rounded-lg border border-border/60 bg-background/40 p-3 text-xs space-y-1.5">
-                  <p><span className="text-muted-foreground">District:</span> {filteredSelectedParcel.district}</p>
-                  <p><span className="text-muted-foreground">Mandal:</span> {filteredSelectedParcel.mandal}</p>
-                  <p><span className="text-muted-foreground">Layer value:</span> {metricForLayer(filteredSelectedParcel, activeLayer)}</p>
+                  <p>
+                    <span className="text-muted-foreground">District:</span>{" "}
+                    {filteredSelectedParcel.district}
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Mandal:</span>{" "}
+                    {filteredSelectedParcel.mandal}
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Layer value:</span>{" "}
+                    {metricForLayer(filteredSelectedParcel, activeLayer)}
+                  </p>
                 </div>
 
-                <Button size="sm" variant="outline" className="w-full" onClick={() => setSelectedParcelId(null)}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setSelectedParcelId(null)}
+                >
                   Clear selection
                 </Button>
               </>
             ) : (
               <p className="text-muted-foreground leading-relaxed">
-                Click any crop parcel on the map to inspect field health, risk level, and layer-specific values.
+                Click any crop parcel on the map to inspect field health, risk level, and
+                layer-specific values.
               </p>
             )}
           </div>
@@ -388,7 +483,9 @@ function SatellitePage() {
             <h4 className="font-semibold mb-1.5">AI Parcel Summary</h4>
             <p className="text-muted-foreground leading-relaxed">
               78.4% of monitored parcels are in healthy NDVI band (&gt; 0.55).
-              <span className="text-warning"> 12,847 stress alerts</span> are concentrated in Guntur, Anantapur and Kurnool. Recommend immediate field validation in 47 high-risk mandals.
+              <span className="text-warning"> 12,847 stress alerts</span> are concentrated in
+              Guntur, Anantapur and Kurnool. Recommend immediate field validation in 47 high-risk
+              mandals.
             </p>
           </div>
         </aside>

@@ -1,12 +1,23 @@
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
 import { Map as MapIcon, Search } from "lucide-react";
-import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, AreaChart, Area } from "recharts";
+import {
+  AreaChart,
+  Area,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
+import { useAppShell } from "@/components/app-shell-store";
 import { PageHeader } from "@/components/page-header";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { getParcels, getSpectralTrend, getWeatherForecast } from "@/lib/api";
 
@@ -14,7 +25,11 @@ export const Route = createFileRoute("/parcels")({
   head: () => ({
     meta: [
       { title: "Parcel Intelligence · AgriShield AP" },
-      { name: "description", content: "Drill into parcel-level health scores, growth analytics, stress probability and weather correlation." },
+      {
+        name: "description",
+        content:
+          "Drill into parcel-level health scores, growth analytics, stress probability and weather correlation.",
+      },
     ],
   }),
   component: ParcelsPage,
@@ -22,30 +37,39 @@ export const Route = createFileRoute("/parcels")({
 
 function ParcelsPage() {
   const { data: parcels = [] } = useQuery({ queryKey: ["parcels"], queryFn: getParcels });
-  const { data: spectralTrend = [] } = useQuery({ queryKey: ["spectral-trend"], queryFn: getSpectralTrend });
-  const { data: weatherForecast = [] } = useQuery({ queryKey: ["weather"], queryFn: getWeatherForecast });
+  const { data: spectralTrend = [] } = useQuery({
+    queryKey: ["spectral-trend"],
+    queryFn: getSpectralTrend,
+  });
+  const { data: weatherForecast = [] } = useQuery({
+    queryKey: ["weather"],
+    queryFn: getWeatherForecast,
+  });
+  const { searchTerm, setSearchTerm, selectedDistrict } = useAppShell();
 
-  const [q, setQ] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-
-  const selected = useMemo(() => {
-    if (!parcels.length) return null;
-    return parcels.find((p) => p.id === selectedId) ?? parcels[0];
-  }, [parcels, selectedId]);
 
   const filtered = useMemo(
     () =>
       parcels
         .filter(
-          (p) =>
-            !q ||
-            p.id.toLowerCase().includes(q.toLowerCase()) ||
-            p.farmer.toLowerCase().includes(q.toLowerCase()) ||
-            p.district.toLowerCase().includes(q.toLowerCase()),
+          (parcel) =>
+            (selectedDistrict === "all" || parcel.district === selectedDistrict) &&
+            (!searchTerm ||
+              parcel.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              parcel.farmer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              parcel.district.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              parcel.mandal.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              parcel.crop.toLowerCase().includes(searchTerm.toLowerCase())),
         )
         .slice(0, 80),
-    [parcels, q],
+    [parcels, searchTerm, selectedDistrict],
   );
+
+  const selected = useMemo(() => {
+    if (!filtered.length) return null;
+    return filtered.find((parcel) => parcel.id === selectedId) ?? filtered[0];
+  }, [filtered, selectedId]);
 
   return (
     <div>
@@ -61,29 +85,45 @@ function ParcelsPage() {
           <div className="p-3 border-b border-border/60">
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <Input className="pl-8 h-9 bg-muted/40" placeholder="Search parcel / farmer / district" value={q} onChange={e => setQ(e.target.value)} />
+              <Input
+                className="pl-8 h-9 bg-muted/40"
+                placeholder="Search parcel / farmer / district"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+              />
             </div>
-            <p className="mt-2 text-[10px] text-muted-foreground">{filtered.length} of {parcels.length} parcels</p>
+            <p className="mt-2 text-[10px] text-muted-foreground">
+              {filtered.length} of {parcels.length} parcels
+            </p>
           </div>
           <div className="flex-1 overflow-y-auto divide-y divide-border/40">
-            {filtered.map((p) => (
+            {filtered.map((parcel) => (
               <button
-                key={p.id}
-                onClick={() => setSelectedId(p.id)}
-                className={`w-full text-left p-3 hover:bg-muted/30 transition ${selected?.id === p.id ? "bg-primary/10 border-l-2 border-primary" : ""}`}
+                key={parcel.id}
+                onClick={() => setSelectedId(parcel.id)}
+                className={`w-full text-left p-3 hover:bg-muted/30 transition ${selected?.id === parcel.id ? "bg-primary/10 border-l-2 border-primary" : ""}`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold">{p.id}</span>
-                  <Badge variant="outline" className={`text-[10px] ${
-                    p.risk === "High" ? "border-destructive/40 text-destructive" :
-                    p.risk === "Medium" ? "border-warning/40 text-warning" :
-                    "border-success/40 text-success"
-                  }`}>{p.risk}</Badge>
+                  <span className="text-xs font-semibold">{parcel.id}</span>
+                  <Badge
+                    variant="outline"
+                    className={`text-[10px] ${
+                      parcel.risk === "High"
+                        ? "border-destructive/40 text-destructive"
+                        : parcel.risk === "Medium"
+                          ? "border-warning/40 text-warning"
+                          : "border-success/40 text-success"
+                    }`}
+                  >
+                    {parcel.risk}
+                  </Badge>
                 </div>
-                <div className="mt-0.5 text-[11px] text-muted-foreground truncate">{p.farmer} · {p.crop} · {p.district}</div>
+                <div className="mt-0.5 text-[11px] text-muted-foreground truncate">
+                  {parcel.farmer} · {parcel.crop} · {parcel.district}
+                </div>
                 <div className="mt-2 flex items-center gap-2">
-                  <Progress value={p.health} className="h-1 flex-1" />
-                  <span className="text-[10px] tabular-nums">{p.health}%</span>
+                  <Progress value={parcel.health} className="h-1 flex-1" />
+                  <span className="text-[10px] tabular-nums">{parcel.health}%</span>
                 </div>
               </button>
             ))}
@@ -97,7 +137,9 @@ function ParcelsPage() {
                 <p className="text-xs text-muted-foreground">Parcel</p>
                 <h2 className="text-2xl font-bold">{selected?.id ?? "--"}</h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {selected ? `${selected.farmer} · ${selected.crop} · ${selected.acreage} acres · ${selected.mandal}, ${selected.district}` : "No parcel selected"}
+                  {selected
+                    ? `${selected.farmer} · ${selected.crop} · ${selected.acreage} acres · ${selected.mandal}, ${selected.district}`
+                    : "No parcel selected"}
                 </p>
               </div>
               <div className="grid grid-cols-3 gap-2 text-center">
@@ -122,12 +164,29 @@ function ParcelsPage() {
               <h3 className="font-semibold text-sm mb-2">Spectral growth timeline</h3>
               <ResponsiveContainer width="100%" height={220}>
                 <AreaChart data={spectralTrend}>
-                  <defs><linearGradient id="pg" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="oklch(0.78 0.19 145)" stopOpacity={0.5} /><stop offset="100%" stopColor="oklch(0.78 0.19 145)" stopOpacity={0} /></linearGradient></defs>
+                  <defs>
+                    <linearGradient id="pg" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stopColor="oklch(0.78 0.19 145)" stopOpacity={0.5} />
+                      <stop offset="100%" stopColor="oklch(0.78 0.19 145)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid stroke="oklch(0.32 0.04 200 / 30%)" strokeDasharray="3 3" />
                   <XAxis dataKey="day" tick={{ fontSize: 9, fill: "oklch(0.68 0.03 200)" }} />
                   <YAxis tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />
-                  <Tooltip contentStyle={{ background: "oklch(0.21 0.04 200)", border: "1px solid oklch(0.32 0.04 200)", borderRadius: 8 }} />
-                  <Area type="monotone" dataKey="ndvi" stroke="oklch(0.78 0.19 145)" fill="url(#pg)" strokeWidth={2} />
+                  <Tooltip
+                    contentStyle={{
+                      background: "oklch(0.21 0.04 200)",
+                      border: "1px solid oklch(0.32 0.04 200)",
+                      borderRadius: 8,
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="ndvi"
+                    stroke="oklch(0.78 0.19 145)"
+                    fill="url(#pg)"
+                    strokeWidth={2}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -139,8 +198,19 @@ function ParcelsPage() {
                   <CartesianGrid stroke="oklch(0.32 0.04 200 / 30%)" strokeDasharray="3 3" />
                   <XAxis dataKey="day" tick={{ fontSize: 9, fill: "oklch(0.68 0.03 200)" }} />
                   <YAxis tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />
-                  <Tooltip contentStyle={{ background: "oklch(0.21 0.04 200)", border: "1px solid oklch(0.32 0.04 200)", borderRadius: 8 }} />
-                  <Line dataKey="rainfall" stroke="oklch(0.78 0.17 200)" strokeWidth={2} dot={false} />
+                  <Tooltip
+                    contentStyle={{
+                      background: "oklch(0.21 0.04 200)",
+                      border: "1px solid oklch(0.32 0.04 200)",
+                      borderRadius: 8,
+                    }}
+                  />
+                  <Line
+                    dataKey="rainfall"
+                    stroke="oklch(0.78 0.17 200)"
+                    strokeWidth={2}
+                    dot={false}
+                  />
                   <Line dataKey="temp" stroke="oklch(0.82 0.17 80)" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
@@ -149,8 +219,11 @@ function ParcelsPage() {
 
           <div className="glass rounded-xl p-5">
             <h3 className="font-semibold text-sm mb-3">Latest advisory</h3>
-            <p className="text-sm">Maintain irrigation at <span className="text-primary font-semibold">2.4 cm</span> over next 5 days. Apply
-              Tricyclazole if blast symptoms emerge. Forecast indicates 12 mm rainfall on Day 9 — defer top-dressing accordingly.</p>
+            <p className="text-sm">
+              Maintain irrigation at <span className="text-primary font-semibold">2.4 cm</span> over
+              next 5 days. Apply Tricyclazole if blast symptoms emerge. Forecast indicates 12 mm
+              rainfall on Day 9 — defer top-dressing accordingly.
+            </p>
           </div>
         </div>
       </div>
