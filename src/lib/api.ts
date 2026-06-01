@@ -96,6 +96,18 @@ export type Parcel = {
   ndvi: number;
   evi: number;
   ndre: number;
+  analytics: {
+    ndvi: number;
+    evi: number;
+    ndre: number;
+    soil_moisture: number;
+    vegetation_stress: number;
+    anomaly_hotspots: number;
+    disease_probability: number;
+    insight: string;
+    recommendation: string;
+    model: string;
+  };
   outline: Array<[number, number]>;
   geometry: {
     type: "Polygon";

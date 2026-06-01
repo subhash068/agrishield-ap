@@ -91,6 +91,19 @@ class WeatherSummaryOut(BaseModel):
     source: str = "open-meteo"
 
 
+class LayerAnalyticsOut(BaseModel):
+    ndvi: float
+    evi: float
+    ndre: float
+    soil_moisture: float
+    vegetation_stress: float
+    anomaly_hotspots: float
+    disease_probability: float
+    insight: str
+    recommendation: str
+    model: str = "AgriShield Parcel Analytics v2"
+
+
 class ParcelOut(BaseModel):
     id: str
     farmer: str
@@ -106,6 +119,7 @@ class ParcelOut(BaseModel):
     ndvi: float
     evi: float
     ndre: float
+    analytics: LayerAnalyticsOut
     outline: list[list[float]]
     geometry: dict | None = None
 

@@ -163,6 +163,12 @@ def _fallback_parcels() -> list[ParcelOut]:
                 ndvi=round(0.3 + seeded(index + 37) * 0.5, 2),
                 evi=round(0.2 + seeded(index + 41) * 0.6, 2),
                 ndre=round(0.15 + seeded(index + 47) * 0.45, 2),
+                analytics=_parcel_layer_analytics(
+                    health,
+                    round(0.3 + seeded(index + 37) * 0.5, 2),
+                    round(0.2 + seeded(index + 41) * 0.6, 2),
+                    round(0.15 + seeded(index + 47) * 0.45, 2),
+                ),
                 outline=outline,
                 geometry=geometry,
             )
@@ -222,6 +228,7 @@ def startup():
             cnt = db.execute(select(models.Alert.id)).first()
             if cnt is None:
                 seed_from_mock(db)
+            _ensure_parcel_schema(db)
             _ensure_parcel_geometry(db)
         finally:
             db.close()
@@ -289,6 +296,27 @@ def _ensure_parcel_geometry(db: Session) -> None:
         )
 
     db.commit()
+
+
+def _ensure_parcel_schema(db: Session) -> set[str]:
+    bind = db.get_bind()
+    inspector = inspect(bind)
+    parcel_columns = {column["name"] for column in inspector.get_columns("parcels")}
+
+    alterations: list[str] = []
+    if "evi" not in parcel_columns:
+        alterations.append("ALTER TABLE parcels ADD COLUMN IF NOT EXISTS evi double precision")
+    if "ndre" not in parcel_columns:
+        alterations.append("ALTER TABLE parcels ADD COLUMN IF NOT EXISTS ndre double precision")
+
+    if alterations:
+        for statement in alterations:
+            db.execute(text(statement))
+        db.commit()
+        inspector = inspect(bind)
+        parcel_columns = {column["name"] for column in inspector.get_columns("parcels")}
+
+    return parcel_columns
 
 
 def _fetch_live_weather():
@@ -458,6 +486,50 @@ def _get_live_forecast_point(target_day: str) -> WeatherForecastPointOut:
 
 def _clamp(value: float, minimum: float, maximum: float) -> float:
     return max(minimum, min(maximum, value))
+
+
+def _parcel_layer_analytics(health: float, ndvi: float, evi: float, ndre: float) -> dict:
+    ndvi_score = _clamp(ndvi, 0.0, 1.0)
+    evi_score = _clamp(evi, 0.0, 1.0)
+    ndre_score = _clamp(ndre, 0.0, 1.0)
+    stress_score = _clamp(1.0 - ndvi_score * 0.72 + (100.0 - health) / 240.0, 0.0, 1.0)
+    moisture_score = _clamp(0.2 + evi_score * 0.42 + ndvi_score * 0.28 - stress_score * 0.14, 0.0, 1.0)
+    anomaly_score = _clamp(
+        abs(ndvi_score - evi_score) * 0.52 + abs(ndvi_score - ndre_score) * 0.56 + stress_score * 0.18,
+        0.0,
+        1.0,
+    )
+    disease_score = _clamp(
+        (100.0 - health) / 100.0 * 0.58 + stress_score * 0.24 + anomaly_score * 0.18,
+        0.0,
+        1.0,
+    )
+
+    if disease_score >= 0.72:
+        insight = "High disease pressure cluster"
+        recommendation = "Schedule an urgent field visit and targeted scouting."
+    elif stress_score >= 0.58:
+        insight = "Vegetation stress building"
+        recommendation = "Check irrigation, nutrient balance, and early disease signs."
+    elif moisture_score < 0.42:
+        insight = "Moisture deficit detected"
+        recommendation = "Prioritise irrigation and soil moisture validation."
+    else:
+        insight = "Stable crop health pattern"
+        recommendation = "Continue routine monitoring and weekly scouting."
+
+    return {
+        "ndvi": round(ndvi_score, 3),
+        "evi": round(evi_score, 3),
+        "ndre": round(ndre_score, 3),
+        "soil_moisture": round(moisture_score, 3),
+        "vegetation_stress": round(stress_score, 3),
+        "anomaly_hotspots": round(anomaly_score, 3),
+        "disease_probability": round(disease_score, 3),
+        "insight": insight,
+        "recommendation": recommendation,
+        "model": "AgriShield Parcel Analytics v2",
+    }
 
 
 def _severity_from_stress(stress: float) -> str:
@@ -648,8 +720,7 @@ def parcels(db: Session = Depends(get_db)):
     import logging
 
     try:
-        inspector = inspect(db.get_bind())
-        parcel_columns = {column["name"] for column in inspector.get_columns("parcels")}
+        parcel_columns = _ensure_parcel_schema(db)
 
         # Build a column list based on what attributes actually exist on the SQLAlchemy model.
         # This prevents hard crashes when older schemas/models don't have evi/ndre columns.
@@ -667,8 +738,8 @@ def parcels(db: Session = Depends(get_db)):
             models.Parcel.lng,
             models.Parcel.ndvi,
         ]
-        has_evi = hasattr(models.Parcel, "evi")
-        has_ndre = hasattr(models.Parcel, "ndre")
+        has_evi = "evi" in parcel_columns
+        has_ndre = "ndre" in parcel_columns
         if has_evi:
             cols.append(models.Parcel.evi)
         if has_ndre:
@@ -716,6 +787,12 @@ def parcels(db: Session = Depends(get_db)):
 
             evi = r[idx] if has_evi else None; idx += (1 if has_evi else 0)
             ndre = r[idx] if has_ndre else None; idx += (1 if has_ndre else 0)
+            analytics = _parcel_layer_analytics(
+                float(health),
+                float(ndvi),
+                float(evi if evi is not None else ndvi),
+                float(ndre if ndre is not None else ndvi),
+            )
             outline, geometry = _parcel_geometry_payload(
                 pid,
                 district,
@@ -743,6 +820,7 @@ def parcels(db: Session = Depends(get_db)):
                     ndvi=ndvi,
                     evi=evi,
                     ndre=ndre,
+                    analytics=analytics,
                     outline=outline,
                     geometry=geometry,
                 )

@@ -11,8 +11,10 @@ type ParcelMapProps = {
   parcels: Parcel[];
   districtFilter: string;
   mandalFilter: string;
+  villageFilter: string;
   districtGeoJson: unknown;
   mandalGeoJson: unknown;
+  villageGeoJson: unknown;
   selectedParcelId: string | null;
   onSelectParcel: (parcelId: string) => void;
 };
@@ -21,6 +23,77 @@ const RISK_STYLES: Record<string, { stroke: string; fill: string; opacity: numbe
   healthy: { stroke: "oklch(0.78 0.19 145)", fill: "oklch(0.78 0.19 145)", opacity: 0.25 },
   moderate: { stroke: "oklch(0.82 0.17 80)", fill: "oklch(0.82 0.17 80)", opacity: 0.28 },
   warning: { stroke: "oklch(0.68 0.22 25)", fill: "oklch(0.68 0.22 25)", opacity: 0.3 },
+};
+
+const LAYER_PALETTES: Record<
+  string,
+  { low: string; mid: string; high: string; glow: string; label: string; unit: string }
+> = {
+  NDVI: {
+    low: "oklch(0.58 0.08 145)",
+    mid: "oklch(0.72 0.16 145)",
+    high: "oklch(0.84 0.20 145)",
+    glow: "oklch(0.78 0.19 145)",
+    label: "Vegetation vigor",
+    unit: "index",
+  },
+  EVI: {
+    low: "oklch(0.54 0.08 205)",
+    mid: "oklch(0.69 0.15 205)",
+    high: "oklch(0.83 0.18 205)",
+    glow: "oklch(0.78 0.17 200)",
+    label: "Canopy enhancement",
+    unit: "index",
+  },
+  NDRE: {
+    low: "oklch(0.56 0.10 290)",
+    mid: "oklch(0.68 0.17 290)",
+    high: "oklch(0.82 0.20 290)",
+    glow: "oklch(0.70 0.20 290)",
+    label: "Chlorophyll stress",
+    unit: "index",
+  },
+  "Soil Moisture": {
+    low: "oklch(0.52 0.10 235)",
+    mid: "oklch(0.66 0.16 235)",
+    high: "oklch(0.82 0.20 235)",
+    glow: "oklch(0.78 0.17 220)",
+    label: "Moisture balance",
+    unit: "index",
+  },
+  "Vegetation Stress": {
+    low: "oklch(0.60 0.10 85)",
+    mid: "oklch(0.76 0.17 55)",
+    high: "oklch(0.70 0.22 28)",
+    glow: "oklch(0.82 0.17 80)",
+    label: "Stress pressure",
+    unit: "ratio",
+  },
+  "Anomaly Hotspots": {
+    low: "oklch(0.60 0.10 35)",
+    mid: "oklch(0.74 0.18 35)",
+    high: "oklch(0.68 0.22 25)",
+    glow: "oklch(0.68 0.22 25)",
+    label: "Outlier detection",
+    unit: "score",
+  },
+  "Disease Probability": {
+    low: "oklch(0.56 0.10 15)",
+    mid: "oklch(0.68 0.18 15)",
+    high: "oklch(0.60 0.24 20)",
+    glow: "oklch(0.68 0.22 25)",
+    label: "Disease risk",
+    unit: "probability",
+  },
+};
+
+const DISTRICT_ALIASES: Record<string, string> = {
+  "Sri Potti Sriramulu Nellore": "Nellore",
+  "Sri Potti Sriramulu Nellore District": "Nellore",
+  "Y.S.R.": "YSR Kadapa",
+  "Y.S.R": "YSR Kadapa",
+  "Y.S.R. Kadapa": "YSR Kadapa",
+  "Y.S.R Kadapa": "YSR Kadapa",
 };
 
 function geometryToLeafletPositions(parcel: Parcel): [number, number][] {
@@ -34,10 +107,48 @@ function geometryToLeafletPositions(parcel: Parcel): [number, number][] {
   return parcel.outline;
 }
 
+function normalizeDistrictName(name: string | undefined | null) {
+  if (!name) return "";
+  const trimmed = name.trim();
+  return DISTRICT_ALIASES[trimmed] ?? trimmed;
+}
+
+function scoreForLayer(parcel: Parcel, activeLayer: string) {
+  switch (activeLayer) {
+    case "EVI":
+      return parcel.analytics.evi;
+    case "NDRE":
+      return parcel.analytics.ndre;
+    case "Soil Moisture":
+      return parcel.analytics.soil_moisture;
+    case "Vegetation Stress":
+      return parcel.analytics.vegetation_stress;
+    case "Anomaly Hotspots":
+      return parcel.analytics.anomaly_hotspots;
+    case "Disease Probability":
+      return parcel.analytics.disease_probability;
+    default:
+      return parcel.analytics.ndvi;
+  }
+}
+
+function paletteForLayer(activeLayer: string) {
+  return LAYER_PALETTES[activeLayer] ?? LAYER_PALETTES.NDVI;
+}
+
+function colorForScore(activeLayer: string, score: number) {
+  const palette = paletteForLayer(activeLayer);
+  if (score < 0.33) return palette.low;
+  if (score < 0.66) return palette.mid;
+  return palette.high;
+}
+
 function labelForFeature(feature: GeoJSON.Feature | undefined, fallback: string) {
   const properties = (feature?.properties ?? {}) as Record<string, unknown>;
   return (
     (typeof properties.sdtname === "string" && properties.sdtname) ||
+    (typeof properties.vilname11 === "string" && properties.vilname11) ||
+    (typeof properties.vilnam_soi === "string" && properties.vilnam_soi) ||
     (typeof properties.NAME === "string" && properties.NAME) ||
     (typeof properties.dtname === "string" && properties.dtname) ||
     fallback
@@ -65,8 +176,10 @@ export function SatelliteMap({
   parcels,
   districtFilter,
   mandalFilter,
+  villageFilter,
   districtGeoJson,
   mandalGeoJson,
+  villageGeoJson,
   selectedParcelId,
   onSelectParcel,
 }: ParcelMapProps) {
@@ -75,42 +188,28 @@ export function SatelliteMap({
 
   const parcelsWithBand = useMemo(() => {
     return parcels.map((parcel, index) => {
-      const drift = Math.sin((historic + parcel.lat) * 0.6 + index * 0.17) * 0.08;
-      const ndvi = Math.max(0, Math.min(1, parcel.ndvi + drift));
       const healthBand = parcel.health >= 75 ? "healthy" : parcel.health >= 60 ? "moderate" : "warning";
-      return { ...parcel, ndvi, healthBand };
+      const motion = Math.sin((historic + parcel.lat) * 0.45 + index * 0.17) * 0.015;
+      return { ...parcel, healthBand, displayMotion: motion };
     });
   }, [historic, parcels]);
 
   const layerScale = (parcel: (typeof parcelsWithBand)[number]) => {
-    if (activeLayer === "Disease Probability" || activeLayer === "Anomaly Hotspots") {
-      return 1 - parcel.health / 100;
-    }
-    if (activeLayer === "Vegetation Stress") {
-      return 1 - parcel.ndvi;
-    }
-    if (activeLayer === "Soil Moisture") {
-      return Math.min(1, 0.35 + parcel.ndvi * 0.45);
-    }
-    if (activeLayer === "EVI") {
-      return Math.min(1, parcel.evi);
-    }
-    if (activeLayer === "NDRE") {
-      return Math.min(1, parcel.ndre);
-    }
-    return parcel.ndvi;
+    return scoreForLayer(parcel, activeLayer);
   };
 
   const styleFor = (parcel: (typeof parcelsWithBand)[number]) => {
     const scale = layerScale(parcel);
-    const base = RISK_STYLES[parcel.healthBand];
+    const palette = paletteForLayer(activeLayer);
     const selected = selectedParcelId === parcel.id;
+    const layerColor = colorForScore(activeLayer, scale);
+    const historyBias = parcel.displayMotion ?? 0;
 
     return {
-      color: selected ? "oklch(0.72 0.18 260)" : base.stroke,
-      fillColor: selected ? "oklch(0.72 0.18 260)" : base.fill,
-      fillOpacity: selected ? 0.42 : base.opacity + scale * 0.18,
-      weight: selected ? 2.5 : 1.3,
+      color: selected ? palette.glow : layerColor,
+      fillColor: selected ? palette.glow : layerColor,
+      fillOpacity: selected ? 0.48 : 0.18 + scale * 0.28 + historyBias,
+      weight: selected ? 2.7 : 1.25,
     };
   };
 
@@ -121,7 +220,9 @@ export function SatelliteMap({
     const geojson = districtGeoJson as { features?: Array<{ properties?: { NAME?: string } }> };
     return {
       ...(districtGeoJson as Record<string, unknown>),
-      features: (geojson.features ?? []).filter((feature) => feature?.properties?.NAME === districtFilter),
+      features: (geojson.features ?? []).filter(
+        (feature) => normalizeDistrictName(feature?.properties?.NAME) === districtFilter,
+      ),
     };
   }, [districtFilter, districtGeoJson]);
 
@@ -131,11 +232,31 @@ export function SatelliteMap({
     return {
       ...(mandalGeoJson as Record<string, unknown>),
       features: (geojson.features ?? []).filter((feature) => {
-        if (districtFilter !== "all" && feature?.properties?.dtname !== districtFilter) return false;
+        if (districtFilter !== "all" && normalizeDistrictName(feature?.properties?.dtname) !== districtFilter) return false;
         return mandalFilter === "all" || feature?.properties?.sdtname === mandalFilter;
       }),
     };
   }, [districtFilter, mandalFilter, mandalGeoJson]);
+  const selectedVillageGeoJson = useMemo(() => {
+    if (!villageGeoJson) return villageGeoJson;
+    const geojson = villageGeoJson as {
+      features?: Array<{ properties?: { dtname?: string; sdtname?: string; vilname11?: string; vilnam_soi?: string } }>;
+    };
+    return {
+      ...(villageGeoJson as Record<string, unknown>),
+      features: (geojson.features ?? []).filter((feature) => {
+        if (
+          districtFilter !== "all" &&
+          feature?.properties?.dtname &&
+          normalizeDistrictName(feature.properties.dtname) !== districtFilter
+        ) {
+          return false;
+        }
+        if (mandalFilter !== "all" && feature?.properties?.sdtname !== mandalFilter) return false;
+        return villageFilter === "all" || feature?.properties?.vilname11 === villageFilter || feature?.properties?.vilnam_soi === villageFilter;
+      }),
+    };
+  }, [districtFilter, mandalFilter, villageFilter, villageGeoJson]);
 
   useEffect(() => {
     const timer = setTimeout(() => mapRef.current?.invalidateSize(), 200);
@@ -153,6 +274,14 @@ export function SatelliteMap({
       mapRef.current?.fitBounds(bounds.pad(0.18), { animate: true, duration: 0.8 });
     }
   }, [selectedParcel]);
+
+  useEffect(() => {
+    if (!villageGeoJson || villageFilter === "all") return;
+    const bounds = L.geoJSON(selectedVillageGeoJson as GeoJsonObject).getBounds();
+    if (bounds.isValid()) {
+      mapRef.current?.fitBounds(bounds.pad(0.08), { animate: true, duration: 0.8 });
+    }
+  }, [selectedVillageGeoJson, villageFilter, villageGeoJson]);
 
   return (
     <MapContainer
@@ -239,8 +368,8 @@ export function SatelliteMap({
         <GeoJSON
           data={districtGeoJson as GeoJsonObject}
           style={(feature) => ({
-            color: feature?.properties?.NAME === districtFilter ? "oklch(0.72 0.18 260)" : "oklch(0.7 0.04 250)",
-            weight: feature?.properties?.NAME === districtFilter ? 2.2 : 1,
+            color: normalizeDistrictName(feature?.properties?.NAME) === districtFilter ? "oklch(0.72 0.18 260)" : "oklch(0.7 0.04 250)",
+            weight: normalizeDistrictName(feature?.properties?.NAME) === districtFilter ? 2.2 : 1,
             fillOpacity: 0.02,
             opacity: 0.55,
           })}
@@ -259,7 +388,7 @@ export function SatelliteMap({
           data={mandalGeoJson as GeoJsonObject}
           style={(feature) => ({
             color:
-              districtFilter === "all" || feature?.properties?.dtname === districtFilter
+              districtFilter === "all" || normalizeDistrictName(feature?.properties?.dtname) === districtFilter
                 ? feature?.properties?.sdtname === mandalFilter
                   ? "oklch(0.72 0.18 260)"
                   : "oklch(0.72 0.08 230)"
@@ -270,6 +399,35 @@ export function SatelliteMap({
           })}
           onEachFeature={(feature, layer) => {
             layer.bindTooltip(labelForFeature(feature, "Mandal"), {
+              sticky: true,
+              direction: "center",
+              opacity: 0.95,
+            });
+          }}
+        />
+      ) : null}
+
+      {villageGeoJson ? (
+        <GeoJSON
+          data={selectedVillageGeoJson as GeoJsonObject}
+          style={(feature) => ({
+            color:
+              villageFilter === "all" ||
+              feature?.properties?.vilname11 === villageFilter ||
+              feature?.properties?.vilnam_soi === villageFilter
+                ? "oklch(0.78 0.17 200)"
+                : "oklch(0.7 0.04 250)",
+            weight:
+              villageFilter === "all" ||
+              feature?.properties?.vilname11 === villageFilter ||
+              feature?.properties?.vilnam_soi === villageFilter
+                ? 1.3
+                : 0.8,
+            fillOpacity: 0,
+            opacity: 0.22,
+          })}
+          onEachFeature={(feature, layer) => {
+            layer.bindTooltip(labelForFeature(feature, "Village"), {
               sticky: true,
               direction: "center",
               opacity: 0.95,
@@ -292,12 +450,8 @@ export function SatelliteMap({
               <div className="font-semibold">
                 {parcel.id} · {parcel.crop}
               </div>
-              <div>Farmer: {parcel.farmer}</div>
               <div>
-                {parcel.district} · {parcel.mandal} · {parcel.acreage} ac
-              </div>
-              <div>
-                Health {parcel.health}% · NDVI {parcel.ndvi.toFixed(2)} · {parcel.risk}
+                {parcel.risk} risk · Health {parcel.health}%
               </div>
             </div>
           </Tooltip>
@@ -305,16 +459,16 @@ export function SatelliteMap({
       ))}
 
       {selectedParcel ? (
-        <CircleMarker
-          center={[selectedParcel.lat, selectedParcel.lng]}
-          radius={5}
-          pathOptions={{
-            color: "oklch(0.72 0.18 260)",
-            fillColor: "oklch(0.72 0.18 260)",
-            fillOpacity: 1,
-            weight: 1,
-          }}
-        />
+          <CircleMarker
+            center={[selectedParcel.lat, selectedParcel.lng]}
+            radius={5}
+            pathOptions={{
+              color: paletteForLayer(activeLayer).glow,
+              fillColor: paletteForLayer(activeLayer).glow,
+              fillOpacity: 1,
+              weight: 1,
+            }}
+          />
       ) : null}
     </MapContainer>
   );

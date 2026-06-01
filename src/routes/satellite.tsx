@@ -55,6 +55,7 @@ const LAYERS = [
 ];
 const DISTRICT_GEOJSON_URL = "/data/ANDHRA_PRADESH_NEW_DISTRICTS.geojson";
 const MANDAL_GEOJSON_URL = "/data/ANDHRA_PRADESH_SUBDISTRICTS.geojson";
+const VILLAGE_GEOJSON_URL = "/data/ANDHRA_PRADESH_VILLAGES.geojson";
 
 const DISTRICT_ALIASES: Record<string, string> = {
   "Sri Potti Sriramulu Nellore": "Nellore",
@@ -63,6 +64,67 @@ const DISTRICT_ALIASES: Record<string, string> = {
   "Y.S.R": "YSR Kadapa",
   "Y.S.R. Kadapa": "YSR Kadapa",
   "Y.S.R Kadapa": "YSR Kadapa",
+};
+
+const LAYER_GUIDES: Record<
+  string,
+  {
+    title: string;
+    summary: string;
+    how_to_read: string;
+    backend_signal: string;
+    action: string;
+  }
+> = {
+  NDVI: {
+    title: "NDVI",
+    summary: "Measures crop greenness and canopy vigor.",
+    how_to_read: "Higher values usually mean stronger biomass and healthier cover.",
+    backend_signal: "Backend uses parcel NDVI plus health context to color parcels from low to high vigor.",
+    action: "Use this to spot weak patches and compare fields at a glance.",
+  },
+  EVI: {
+    title: "EVI",
+    summary: "Highlights vegetation strength in denser crop cover.",
+    how_to_read: "Useful when NDVI saturates and you still want canopy detail.",
+    backend_signal: "Backend blends parcel EVI with health score to emphasize dense crop areas.",
+    action: "Compare EVI with NDVI to detect hidden canopy stress.",
+  },
+  NDRE: {
+    title: "NDRE",
+    summary: "Tracks chlorophyll and early stress signals.",
+    how_to_read: "Drops often appear before obvious visible symptoms.",
+    backend_signal: "Backend prioritizes parcel chlorophyll proxy to surface early nutrient or disease stress.",
+    action: "Use this for early intervention and scouting.",
+  },
+  "Soil Moisture": {
+    title: "Soil Moisture",
+    summary: "Shows moisture balance across parcels.",
+    how_to_read: "Lower values often indicate irrigation gaps or drying soil.",
+    backend_signal: "Backend estimates moisture from vegetation response plus health context.",
+    action: "Check irrigation timing, drainage, and recent rainfall impact.",
+  },
+  "Vegetation Stress": {
+    title: "Vegetation Stress",
+    summary: "Highlights where crop condition is moving away from healthy growth.",
+    how_to_read: "Higher values mean more stress pressure across the parcel.",
+    backend_signal: "Backend combines spectral movement and health to flag stressed parcels.",
+    action: "Prioritise these fields for field inspection.",
+  },
+  "Anomaly Hotspots": {
+    title: "Anomaly Hotspots",
+    summary: "Flags parcels that differ sharply from nearby patterns.",
+    how_to_read: "Strong colors mean the parcel is behaving unlike its expected norm.",
+    backend_signal: "Backend compares parcel spectral spread and health for unusual patterns.",
+    action: "Review anomalies before disease spreads.",
+  },
+  "Disease Probability": {
+    title: "Disease Probability",
+    summary: "Estimates the chance of disease pressure in the parcel.",
+    how_to_read: "Higher values point to stronger disease likelihood.",
+    backend_signal: "Backend model combines NDVI, EVI, NDRE, stress, anomaly, and health into one risk score.",
+    action: "Use this for triage and immediate extension support.",
+  },
 };
 
 function normalizeDistrictName(name: string | undefined | null) {
@@ -80,21 +142,27 @@ function riskTone(parcel: Parcel) {
 }
 
 function metricForLayer(parcel: Parcel, activeLayer: string) {
-  switch (activeLayer) {
-    case "EVI":
-      return (parcel.ndvi * 0.88 + 0.07).toFixed(2);
-    case "NDRE":
-      return (parcel.ndvi * 0.8 + 0.1).toFixed(2);
-    case "Soil Moisture":
-      return Math.min(1, 0.35 + parcel.ndvi * 0.45).toFixed(2);
-    case "Vegetation Stress":
-      return (1 - parcel.ndvi).toFixed(2);
-    case "Anomaly Hotspots":
-    case "Disease Probability":
-      return ((100 - parcel.health) / 100).toFixed(2);
-    default:
-      return parcel.ndvi.toFixed(2);
-  }
+  type NumericAnalyticsKey =
+    | "ndvi"
+    | "evi"
+    | "ndre"
+    | "soil_moisture"
+    | "vegetation_stress"
+    | "anomaly_hotspots"
+    | "disease_probability";
+
+  const keyMap: Record<string, NumericAnalyticsKey> = {
+    NDVI: "ndvi",
+    EVI: "evi",
+    NDRE: "ndre",
+    "Soil Moisture": "soil_moisture",
+    "Vegetation Stress": "vegetation_stress",
+    "Anomaly Hotspots": "anomaly_hotspots",
+    "Disease Probability": "disease_probability",
+  };
+
+  const key = keyMap[activeLayer] ?? "ndvi";
+  return parcel.analytics[key].toFixed(2);
 }
 
 function SatellitePage() {
@@ -105,8 +173,10 @@ function SatellitePage() {
     parcels: Parcel[];
     districtFilter: string;
     mandalFilter: string;
+    villageFilter: string;
     districtGeoJson: unknown;
     mandalGeoJson: unknown;
+    villageGeoJson: unknown;
     selectedParcelId: string | null;
     onSelectParcel: (parcelId: string) => void;
   }>>(null);
@@ -118,8 +188,10 @@ function SatellitePage() {
   const { selectedDistrict: districtFilter, setSelectedDistrict: setDistrictFilter } =
     useAppShell();
   const [mandalFilter, setMandalFilter] = useState("all");
+  const [villageFilter, setVillageFilter] = useState("all");
   const [districtGeoJson, setDistrictGeoJson] = useState<unknown>(null);
   const [mandalGeoJson, setMandalGeoJson] = useState<unknown>(null);
+  const [villageGeoJson, setVillageGeoJson] = useState<unknown>(null);
 
   useEffect(() => {
     import("@/components/satellite-map").then((m) => setMapView(() => m.SatelliteMap));
@@ -137,6 +209,13 @@ function SatellitePage() {
       .then((response) => response.json())
       .then((data) => setMandalGeoJson(data))
       .catch(() => setMandalGeoJson(null));
+  }, []);
+
+  useEffect(() => {
+    fetch(VILLAGE_GEOJSON_URL)
+      .then((response) => response.json())
+      .then((data) => setVillageGeoJson(data))
+      .catch(() => setVillageGeoJson(null));
   }, []);
 
   const districtOptions = useMemo(
@@ -163,6 +242,32 @@ function SatellitePage() {
       ),
     ).sort((a, b) => a.localeCompare(b));
   }, [districtFilter, mandalGeoJson]);
+  const villageOptions = useMemo(() => {
+    const geojson = villageGeoJson as {
+      features?: Array<{
+        properties?: {
+          dtname?: string;
+          sdtname?: string;
+          vilname11?: string;
+          vilnam_soi?: string;
+        };
+      }>;
+    } | null;
+    const features = geojson?.features ?? [];
+    return Array.from(
+      new Set(
+        features
+          .filter((feature) => {
+            if (districtFilter !== "all" && normalizeDistrictName(feature.properties?.dtname) !== districtFilter) {
+              return false;
+            }
+            return mandalFilter === "all" || feature.properties?.sdtname === mandalFilter;
+          })
+          .map((feature) => feature.properties?.vilname11 ?? feature.properties?.vilnam_soi)
+          .filter((name): name is string => Boolean(name)),
+      ),
+    ).sort((a, b) => a.localeCompare(b));
+  }, [districtFilter, mandalFilter, villageGeoJson]);
   const filteredParcels = useMemo(
     () =>
       parcels.filter((parcel) => {
@@ -189,6 +294,12 @@ function SatellitePage() {
       setMandalFilter("all");
     }
   }, [mandalFilter, mandalOptions]);
+
+  useEffect(() => {
+    if (villageFilter !== "all" && !villageOptions.includes(villageFilter)) {
+      setVillageFilter("all");
+    }
+  }, [villageFilter, villageOptions]);
 
   return (
     <div>
@@ -222,8 +333,10 @@ function SatellitePage() {
               parcels={filteredParcels}
               districtFilter={districtFilter}
               mandalFilter={mandalFilter}
+              villageFilter={villageFilter}
               districtGeoJson={districtGeoJson}
               mandalGeoJson={mandalGeoJson}
+              villageGeoJson={villageGeoJson}
               selectedParcelId={selectedParcelId}
               onSelectParcel={setSelectedParcelId}
             />
@@ -239,7 +352,7 @@ function SatellitePage() {
               <span className="font-semibold text-primary">{activeLayer}</span>
             </div>
             <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-              <MapPin className="h-3 w-3" /> Click a parcel to inspect crop health
+              <MapPin className="h-3 w-3" /> Hover for a quick preview, click for full details
             </div>
           </div>
 
@@ -250,6 +363,7 @@ function SatellitePage() {
             <div className="space-y-1.5">
               <LegendRow color="bg-slate-400/80" label="District boundaries" />
               <LegendRow color="bg-cyan-400/80" label="Mandal boundaries" />
+              <LegendRow color="bg-info/80" label="Village boundaries" />
               <LegendRow color="bg-success/80" label="Healthy parcels" />
               <LegendRow color="bg-warning/80" label="Moderate stress" />
               <LegendRow color="bg-destructive/80" label="High disease risk" />
@@ -295,6 +409,22 @@ function SatellitePage() {
             </div>
           </div>
 
+          <div className="glass rounded-lg p-3 text-xs space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="font-semibold text-sm">Layer Guide</h3>
+              <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary">
+                Backend model
+              </Badge>
+            </div>
+            <p className="font-medium text-sm text-foreground">{LAYER_GUIDES[activeLayer]?.title}</p>
+            <p className="text-muted-foreground">{LAYER_GUIDES[activeLayer]?.summary}</p>
+            <div className="rounded-lg border border-border/60 bg-background/40 p-2.5 space-y-1.5">
+              <p><span className="text-muted-foreground">Read it as:</span> {LAYER_GUIDES[activeLayer]?.how_to_read}</p>
+              <p><span className="text-muted-foreground">Backend signal:</span> {LAYER_GUIDES[activeLayer]?.backend_signal}</p>
+              <p><span className="text-muted-foreground">Action:</span> {LAYER_GUIDES[activeLayer]?.action}</p>
+            </div>
+          </div>
+
           <div>
             <h3 className="font-semibold text-sm mb-2">District Filter</h3>
             <Select value={districtFilter} onValueChange={setDistrictFilter}>
@@ -332,6 +462,26 @@ function SatellitePage() {
             </Select>
             <p className="mt-2 text-[11px] text-muted-foreground">
               {mandalOptions.length} mandals available in the selected district
+            </p>
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-sm mb-2">Village Focus</h3>
+            <Select value={villageFilter} onValueChange={setVillageFilter}>
+              <SelectTrigger className="bg-muted/20 border-border/60">
+                <SelectValue placeholder="All villages" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All villages</SelectItem>
+                {villageOptions.map((village) => (
+                  <SelectItem key={village} value={village}>
+                    {village}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              {villageOptions.length} villages available in the selected mandal
             </p>
           </div>
 
@@ -433,7 +583,7 @@ function SatellitePage() {
                   <InfoCard
                     icon={<Droplets className="h-3.5 w-3.5" />}
                     label="NDVI"
-                    value={filteredSelectedParcel.ndvi.toFixed(2)}
+                    value={filteredSelectedParcel.analytics.ndvi.toFixed(2)}
                   />
                   <InfoCard
                     icon={<AlertTriangle className="h-3.5 w-3.5" />}
@@ -460,6 +610,18 @@ function SatellitePage() {
                     <span className="text-muted-foreground">Layer value:</span>{" "}
                     {metricForLayer(filteredSelectedParcel, activeLayer)}
                   </p>
+                  <p>
+                    <span className="text-muted-foreground">Insight:</span>{" "}
+                    {filteredSelectedParcel.analytics.insight}
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Model:</span>{" "}
+                    {filteredSelectedParcel.analytics.model}
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Recommendation:</span>{" "}
+                    {filteredSelectedParcel.analytics.recommendation}
+                  </p>
                 </div>
 
                 <Button
@@ -473,8 +635,8 @@ function SatellitePage() {
               </>
             ) : (
               <p className="text-muted-foreground leading-relaxed">
-                Click any crop parcel on the map to inspect field health, risk level, and
-                layer-specific values.
+                Click any crop parcel on the map to open the full field details, including
+                health, risk level, and layer-specific values.
               </p>
             )}
           </div>
