@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Bell, CloudSun, Languages, Search, Sparkles, User } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -37,12 +37,14 @@ export function TopBar() {
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [assistantPrompt, setAssistantPrompt] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const filteredAlerts = useMemo(
-    () =>
-      selectedDistrict === "all"
-        ? alerts
-        : alerts.filter((alert) => alert.district === selectedDistrict),
+    () => (selectedDistrict === "all" ? alerts : alerts.filter((alert) => alert.district === selectedDistrict)),
     [alerts, selectedDistrict],
   );
 
@@ -73,21 +75,13 @@ export function TopBar() {
   function handleNotificationAction(alertType: string) {
     setAlertsOpen(false);
     const normalized = alertType.toLowerCase();
-    if (
-      normalized.includes("weather") ||
-      normalized.includes("rain") ||
-      normalized.includes("drought")
-    ) {
+    if (normalized.includes("weather") || normalized.includes("rain") || normalized.includes("drought")) {
       navigate({ to: "/weather" });
       toast("Opened weather intelligence.");
       return;
     }
 
-    if (
-      normalized.includes("scheme") ||
-      normalized.includes("benefit") ||
-      normalized.includes("subsidy")
-    ) {
+    if (normalized.includes("scheme") || normalized.includes("benefit") || normalized.includes("subsidy")) {
       navigate({ to: "/government" });
       toast("Opened government dashboard.");
       return;
@@ -117,9 +111,9 @@ export function TopBar() {
               }
             }}
             placeholder={
-              locale === "te"
-                ? "పార్సెల్లు, రైతులు, మండలాలు, పథకాలు…"
-                : "Search parcels, farmers, mandals, schemes…"
+              isMounted && locale === "te"
+                ? "పార్సెల్లు, రైతులు, మండలాలు, పథకాలు..."
+                : "Search parcels, farmers, mandals, schemes..."
             }
             className="h-9 w-[340px] pl-8 bg-muted/40 border-border/60"
           />
@@ -130,9 +124,7 @@ export function TopBar() {
             value={selectedDistrict}
             onValueChange={(district) => {
               setSelectedDistrict(district);
-              toast.success(
-                district === "all" ? "Showing all districts." : `Focused on ${district}.`,
-              );
+              toast.success(district === "all" ? "Showing all districts." : `Focused on ${district}.`);
             }}
           >
             <SelectTrigger className="h-9 w-[140px] bg-muted/40 border-border/60 hidden sm:flex">
@@ -151,7 +143,7 @@ export function TopBar() {
           <Button asChild variant="ghost" size="sm" className="h-9 gap-1.5 hidden lg:flex">
             <Link to="/weather">
               <CloudSun className="h-4 w-4 text-accent" />
-              <span className="text-xs">31°C · Vijayawada</span>
+              <span className="text-xs">31 C · Vijayawada</span>
             </Link>
           </Button>
 
@@ -209,7 +201,7 @@ export function TopBar() {
           <DialogHeader>
             <DialogTitle>AI Assistant</DialogTitle>
             <DialogDescription>
-              Ask for a crop, district, weather, scheme, or alert view and I’ll jump straight there.
+              Ask for a crop, district, weather, scheme, or alert view and I&apos;ll jump straight there.
             </DialogDescription>
           </DialogHeader>
 
@@ -255,8 +247,8 @@ export function TopBar() {
           <DialogHeader>
             <DialogTitle>Live Alerts</DialogTitle>
             <DialogDescription>
-              {selectedDistrict === "all" ? "All districts" : selectedDistrict} ·{" "}
-              {filteredAlerts.length} active alert{filteredAlerts.length === 1 ? "" : "s"}
+              {selectedDistrict === "all" ? "All districts" : selectedDistrict} · {filteredAlerts.length} active alert
+              {filteredAlerts.length === 1 ? "" : "s"}
             </DialogDescription>
           </DialogHeader>
 

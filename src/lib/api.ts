@@ -128,6 +128,17 @@ export type DiseaseDetectionResponse = {
   confidence: number;
   model: string;
   top_k: Array<{ label: string; score: number }>;
+  crop_gate?: {
+    crop: string;
+    confidence: number;
+    source: "filename" | "prediction" | "filename+prediction";
+    selected_label: string | null;
+    selected_score: number | null;
+    matched: Array<{ label: string; score: number }>;
+  } | null;
+  mismatch_detected?: boolean;
+  mismatch_reason?: string | null;
+  crop_hint?: string | null;
 };
 
 // ---- Schemes/Districts/Alerts ----

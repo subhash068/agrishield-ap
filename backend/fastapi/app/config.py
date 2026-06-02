@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     weather_latitude: float = 15.9129
     weather_longitude: float = 79.7400
     weather_timezone: str = "Asia/Kolkata"
+    hf_disease_model_id: str = "Arko007/nfnet-f1-plant-disease"
+    hf_api_token: str | None = None
+    hf_disease_top_k: int = 5
 
     class Config:
         env_file = ".env"

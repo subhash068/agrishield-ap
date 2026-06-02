@@ -170,6 +170,7 @@ function SatellitePage() {
   const [MapView, setMapView] = useState<null | ComponentType<{
     historic: number;
     activeLayer: string;
+    basemap: "Satellite" | "Hybrid" | "Terrain";
     parcels: Parcel[];
     districtFilter: string;
     mandalFilter: string;

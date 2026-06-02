@@ -1,5 +1,5 @@
 from typing import List, Literal
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class AlertOut(BaseModel):
@@ -137,10 +137,23 @@ class DiseaseTopKOut(BaseModel):
     score: float
 
 
+class DiseaseCropGateOut(BaseModel):
+    crop: str
+    confidence: int
+    source: Literal["filename", "prediction", "filename+prediction"]
+    selected_label: str | None = None
+    selected_score: float | None = None
+    matched: List[DiseaseTopKOut] = Field(default_factory=list)
+
+
 class DiseaseDetectionResponseOut(BaseModel):
     label: str
     severity: Literal["Low", "Medium", "High", "Critical"]
     confidence: int
     model: str
     top_k: List[DiseaseTopKOut]
+    crop_gate: DiseaseCropGateOut | None = None
+    mismatch_detected: bool = False
+    mismatch_reason: str | None = None
+    crop_hint: str | None = None
 

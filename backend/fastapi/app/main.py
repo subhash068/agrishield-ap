@@ -3,6 +3,7 @@ import random
 import hashlib
 import io
 import math
+from functools import lru_cache
 from datetime import datetime, date
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -24,6 +25,7 @@ from .schemas import (
     WeatherSummaryOut,
     ParcelOut,
     PredictionOut,
+    DiseaseCropGateOut,
     DiseaseDetectionResponseOut,
     SpectralPointOut,
 )
@@ -33,6 +35,14 @@ try:
     from PIL import Image
 except ImportError:  # pragma: no cover - optional runtime dependency
     Image = None
+
+try:
+    import torch
+    from transformers import AutoImageProcessor, AutoModelForImageClassification
+except ImportError:  # pragma: no cover - optional runtime dependency
+    torch = None
+    AutoImageProcessor = None
+    AutoModelForImageClassification = None
 
 from .seed import seed_from_mock
 
@@ -542,6 +552,207 @@ def _severity_from_stress(stress: float) -> str:
     return "Critical"
 
 
+def _severity_from_probability(probability: float, label: str | None = None) -> str:
+    if label and "healthy" in label.lower():
+        return "Low"
+    if probability < 0.35:
+        return "Low"
+    if probability < 0.6:
+        return "Medium"
+    if probability < 0.8:
+        return "High"
+    return "Critical"
+
+
+def _extract_crop_from_label(label: str) -> str | None:
+    normalized = label.lower()
+    if "___" in normalized:
+        normalized = normalized.split("___", 1)[0]
+    normalized = normalized.replace("(", " ").replace(")", " ").replace(",", " ").replace("-", " ")
+    normalized = normalized.replace("_", " ")
+
+    crop_aliases = {
+        "maize": "Maize",
+        "corn": "Maize",
+        "tomato": "Tomato",
+        "banana": "Banana",
+        "paddy": "Paddy",
+        "rice": "Paddy",
+        "chilli": "Chilli",
+        "chili": "Chilli",
+        "mustard": "Mustard",
+        "grape": "Grape",
+        "potato": "Potato",
+        "apple": "Apple",
+        "cotton": "Cotton",
+        "wheat": "Wheat",
+        "pepper": "Pepper",
+        "brinjal": "Brinjal",
+        "pea": "Pea",
+        "guava": "Guava",
+        "pumpkin": "Pumpkin",
+        "mango": "Mango",
+        "sugarcane": "Sugarcane",
+        "soybean": "Soybean",
+        "sunflower": "Sunflower",
+    }
+
+    for needle, crop in crop_aliases.items():
+        if needle in normalized:
+            return crop
+    return None
+
+
+def _extract_crop_hint(file_name: str) -> str | None:
+    normalized = file_name.lower()
+    normalized = normalized.replace("-", " ").replace("_", " ")
+
+    crop_aliases = [
+        ("banana", "Banana"),
+        ("maize", "Maize"),
+        ("corn", "Maize"),
+        ("paddy", "Paddy"),
+        ("rice", "Paddy"),
+        ("chilli", "Chilli"),
+        ("chili", "Chilli"),
+        ("mustard", "Mustard"),
+        ("grape", "Grape"),
+        ("potato", "Potato"),
+        ("apple", "Apple"),
+        ("cotton", "Cotton"),
+        ("wheat", "Wheat"),
+        ("pepper", "Pepper"),
+        ("brinjal", "Brinjal"),
+        ("pea", "Pea"),
+        ("guava", "Guava"),
+        ("pumpkin", "Pumpkin"),
+        ("mango", "Mango"),
+        ("sugarcane", "Sugarcane"),
+        ("soybean", "Soybean"),
+        ("sunflower", "Sunflower"),
+    ]
+
+    for needle, crop in crop_aliases:
+        if needle in normalized:
+            return crop
+    return None
+
+
+def _build_crop_gate(file_name: str, top_k: list[dict[str, float | str]]) -> tuple[DiseaseCropGateOut | None, bool, str | None]:
+    crop_hint = _extract_crop_hint(file_name)
+    crop_scores: dict[str, float] = {}
+    matched_by_crop: dict[str, list[dict[str, float | str]]] = {}
+
+    for item in top_k:
+        label = str(item.get("label", ""))
+        crop = _extract_crop_from_label(label)
+        if not crop:
+            continue
+        score = float(item.get("score", 0.0))
+        crop_scores[crop] = crop_scores.get(crop, 0.0) + score
+        matched_by_crop.setdefault(crop, []).append(item)
+
+    predicted_crop = max(crop_scores, key=crop_scores.get) if crop_scores else None
+    crop = crop_hint or predicted_crop
+    if not crop:
+        return None, False, None
+
+    if crop_hint and predicted_crop and crop_hint == predicted_crop:
+        source = "filename+prediction"
+    elif crop_hint:
+        source = "filename"
+    else:
+        source = "prediction"
+
+    matched = matched_by_crop.get(crop, [])
+    matched_sorted = sorted(matched, key=lambda item: float(item.get("score", 0.0)), reverse=True)
+    selected = matched_sorted[0] if matched_sorted else (top_k[0] if top_k else None)
+    selected_label = str(selected.get("label")) if selected else None
+    selected_score = float(selected.get("score", 0.0)) if selected else None
+
+    confidence_base = crop_scores.get(crop, 0.0) if crop_scores else (selected_score or 0.0)
+    confidence = int(round(_clamp(58 + confidence_base * 40, 35, 96)))
+
+    gate = DiseaseCropGateOut(
+        crop=crop,
+        confidence=confidence,
+        source=source,
+        selected_label=selected_label,
+        selected_score=round(selected_score, 4) if selected_score is not None else None,
+        matched=[{"label": str(item["label"]), "score": round(float(item["score"]), 4)} for item in matched_sorted],
+    )
+
+    mismatch = bool(crop_hint and predicted_crop and crop_hint != predicted_crop)
+    reason = None
+    if mismatch:
+        reason = f"Filename suggests {crop_hint}, but model predictions lean toward {predicted_crop}."
+    elif crop_hint and not predicted_crop:
+        reason = f"Filename suggests {crop_hint}, but the model label does not map cleanly to a crop family."
+    elif crop_hint and crop_hint != crop:
+        reason = f"Filename suggests {crop_hint}, but the crop gate selected {crop}."
+
+    return gate, mismatch, reason
+
+
+@lru_cache(maxsize=1)
+def _hf_disease_model():
+    if AutoModelForImageClassification is None:
+        raise RuntimeError("transformers is not installed")
+
+    kwargs: dict[str, object] = {}
+    if settings.hf_api_token:
+        kwargs["token"] = settings.hf_api_token
+    model = AutoModelForImageClassification.from_pretrained(settings.hf_disease_model_id, **kwargs)
+    model.eval()
+    return model
+
+
+@lru_cache(maxsize=1)
+def _hf_disease_processor():
+    if AutoImageProcessor is None:
+        raise RuntimeError("transformers is not installed")
+
+    kwargs: dict[str, object] = {}
+    if settings.hf_api_token:
+        kwargs["token"] = settings.hf_api_token
+    # Keep the saved slow processor behavior stable until we intentionally switch.
+    kwargs["use_fast"] = False
+    return AutoImageProcessor.from_pretrained(settings.hf_disease_model_id, **kwargs)
+
+
+def _hf_analyze_disease_image(file_bytes: bytes):
+    if torch is None or Image is None:
+        raise RuntimeError("transformers/torch/pillow are required for disease inference")
+
+    image = Image.open(io.BytesIO(file_bytes)).convert("RGB")
+    processor = _hf_disease_processor()
+    model = _hf_disease_model()
+    inputs = processor(images=image, return_tensors="pt")
+
+    with torch.no_grad():
+        outputs = model(**inputs)
+        probs = torch.nn.functional.softmax(outputs.logits, dim=-1)
+        predicted_idx = probs.argmax(-1).item()
+        confidence = probs[0][predicted_idx].item()
+
+    top_k = min(settings.hf_disease_top_k, probs.shape[-1])
+    values, indices = torch.topk(probs[0], k=top_k)
+    id2label = getattr(model.config, "id2label", {}) or {}
+
+    ranked = []
+    for index, value in zip(indices.tolist(), values.tolist()):
+        ranked.append(
+            {
+                "label": str(id2label.get(index, f"class_{index}")),
+                "score": round(float(value), 4),
+            }
+        )
+
+    label = str(id2label.get(predicted_idx, f"class_{predicted_idx}"))
+    severity = _severity_from_probability(float(confidence), label)
+    return label, severity, int(round(confidence * 100.0)), ranked, settings.hf_disease_model_id
+
+
 def _hash_fallback_prediction(file_name: str, file_bytes: bytes):
     digest = hashlib.sha256(file_bytes + file_name.encode("utf-8", errors="ignore")).digest()
     labels = [
@@ -563,10 +774,15 @@ def _hash_fallback_prediction(file_name: str, file_bytes: bytes):
     top_k = [{"label": label, "score": round(score / total, 4)} for label, _, score in scores]
     pick_label, pick_severity, pick_score = scores[0]
     confidence = int(round(60 + pick_score * 35))
-    return pick_label, pick_severity, confidence, top_k
+    return pick_label, pick_severity, confidence, top_k, "Heuristic Crop Image Analyzer v1"
 
 
 def _analyze_disease_image(file_name: str, file_bytes: bytes):
+    try:
+        return _hf_analyze_disease_image(file_bytes)
+    except Exception:
+        pass
+
     if Image is None:
         return _hash_fallback_prediction(file_name, file_bytes)
 
@@ -638,7 +854,7 @@ def _analyze_disease_image(file_name: str, file_bytes: bytes):
     severity = _severity_from_stress(stress)
     confidence = int(round(_clamp(58 + score * 34 + (1.0 - abs(stress - 0.5)) * 8, 52, 97)))
 
-    return label, severity, confidence, top_k
+    return label, severity, confidence, top_k, "Heuristic Crop Image Analyzer v1"
 
 
 def _fallback_weather():
@@ -971,8 +1187,16 @@ async def disease_detect(file: UploadFile = File(...), db: Session = Depends(get
         return JSONResponse(status_code=400, content={"detail": "Please upload a valid image file."})
 
     file_bytes = await file.read()
-    pick_label, pick_sev, confidence, top_k = _analyze_disease_image(file.filename or "upload", file_bytes)
-    model = "Heuristic Crop Image Analyzer v1"
+    file_name = file.filename or "upload"
+    pick_label, pick_sev, confidence, top_k, model = _analyze_disease_image(file_name, file_bytes)
+    crop_gate, mismatch_detected, mismatch_reason = _build_crop_gate(file_name, top_k)
+
+    if crop_gate and crop_gate.matched and crop_gate.selected_label:
+        pick_label = crop_gate.selected_label
+        if crop_gate.selected_score is not None:
+            confidence = int(round(_clamp(crop_gate.selected_score * 100.0, 1.0, 99.0)))
+            pick_sev = _severity_from_probability(crop_gate.selected_score, pick_label)
+    crop_hint = crop_gate.crop if crop_gate else _extract_crop_hint(file_name)
 
     det = models.DiseaseDetection(
         filename=file.filename,
@@ -994,4 +1218,8 @@ async def disease_detect(file: UploadFile = File(...), db: Session = Depends(get
         confidence=confidence,
         model=model,
         top_k=top_k,
+        crop_gate=crop_gate,
+        mismatch_detected=mismatch_detected,
+        mismatch_reason=mismatch_reason,
+        crop_hint=crop_hint,
     )
