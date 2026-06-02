@@ -12,6 +12,15 @@ class AlertOut(BaseModel):
     action: str
 
 
+class AlertCreateOut(BaseModel):
+    type: str
+    crop: str
+    district: str
+    severity: Literal["Low", "Medium", "High", "Critical"]
+    time: str
+    action: str
+
+
 class SchemeOut(BaseModel):
     title: str
     desc: str

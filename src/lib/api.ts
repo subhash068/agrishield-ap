@@ -25,6 +25,15 @@ export type Alert = {
   action: string;
 };
 
+export type AlertCreateInput = {
+  type: string;
+  crop: string;
+  district: string;
+  severity: "Low" | "Medium" | "High" | "Critical";
+  time: string;
+  action: string;
+};
+
 export type Scheme = { title: string; desc: string; tag: string };
 
 export type SpectralTrendPoint = { day: string; ndvi: number; evi: number; ndre: number };
@@ -149,6 +158,16 @@ export function getDistricts(): Promise<string[]> {
 
 export function getAlerts(): Promise<Alert[]> {
   return apiFetch<Alert[]>("/alerts");
+}
+
+export function createAlert(payload: AlertCreateInput): Promise<Alert> {
+  return apiFetch<Alert>("/alerts", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
 }
 
 export function getSchemes(): Promise<Scheme[]> {

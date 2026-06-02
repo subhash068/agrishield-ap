@@ -1,31 +1,33 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Activity,
   BadgeCheck,
   Camera,
   Clock,
-  FileText,
   Leaf,
+  Loader2,
   MapPin,
   Phone,
   ScanLine,
-  Share2,
+  Send,
   ShieldAlert,
-  Sparkles,
-  ThermometerSun,
   Upload,
-  WifiOff,
-  Zap,
 } from "lucide-react";
 
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { detectDisease, type DiseaseDetectionResponse } from "@/lib/api";
+import {
+  createAlert,
+  detectDisease,
+  getAlerts,
+  type Alert,
+  type AlertCreateInput,
+  type DiseaseDetectionResponse,
+} from "@/lib/api";
 
 type CaptureMode = "gallery" | "camera";
 
@@ -49,6 +51,28 @@ type ScanResult = {
   crop_hint?: string | null;
 };
 
+type AlertForm = {
+  village: string;
+  district: string;
+  crop: string;
+  issue: string;
+  severity: "Low" | "Medium" | "High" | "Critical";
+  action: string;
+  channels: string[];
+};
+
+const channelOptions = ["SMS", "Mobile Notification", "WhatsApp", "IVR"] as const;
+
+const initialAlertForm: AlertForm = {
+  village: "Kankipadu",
+  district: "Krishna",
+  crop: "Paddy",
+  issue: "Early Leaf Blast",
+  severity: "Medium",
+  action: "Apply Fungicide",
+  channels: [...channelOptions],
+};
+
 const sampleResult: ScanResult = {
   label: "Leaf Blast",
   severity: "Medium",
@@ -61,43 +85,6 @@ const sampleResult: ScanResult = {
   ],
   crop_hint: "Paddy",
 };
-
-const recentReports = [
-  { crop: "Paddy", result: "Leaf Blast", severity: "Medium", time: "12 min ago" },
-  { crop: "Chilli", result: "Thrips Stress", severity: "High", time: "Yesterday" },
-  { crop: "Cotton", result: "Healthy", severity: "Low", time: "2 days ago" },
-];
-
-const farmerAlert = {
-  village: "Kankipadu",
-  crop: "Paddy",
-  issue: "Early Leaf Blast",
-  action: "Apply Fungicide",
-  channels: ["SMS", "Mobile Notification", "WhatsApp", "IVR"],
-};
-
-const featureCards = [
-  {
-    icon: Zap,
-    title: "One-tap scan",
-    text: "Capture a field image, get a diagnosis, and save a report instantly.",
-  },
-  {
-    icon: MapPin,
-    title: "Auto GPS tagging",
-    text: "Every report includes location so the field officer sees the exact plot.",
-  },
-  {
-    icon: Clock,
-    title: "Trusted timestamp",
-    text: "The scan time is recorded automatically for audit and follow-up.",
-  },
-  {
-    icon: Share2,
-    title: "Shareable report",
-    text: "Share a clean summary with the farmer, officer, or support center.",
-  },
-];
 
 function formatCoordinate(value: number | null, positive: string, negative: string) {
   if (value === null) return "--";
@@ -138,7 +125,7 @@ export const Route = createFileRoute("/farmers")({
       {
         name: "description",
         content:
-          "Mobile-first farmer app demo with photo upload, camera capture, GPS tagging, timestamping, and AI crop disease detection.",
+          "Mobile-first farmer app with crop photo capture, GPS tagging, disease detection, and real alert creation.",
       },
     ],
   }),
@@ -146,6 +133,7 @@ export const Route = createFileRoute("/farmers")({
 });
 
 function FarmerMobileApp() {
+  const queryClient = useQueryClient();
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const previewUrlRef = useRef<string | null>(null);
@@ -160,8 +148,26 @@ function FarmerMobileApp() {
     accuracy: null,
     source: "pending",
   });
-  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [scanMode, setScanMode] = useState<CaptureMode>("gallery");
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const [alertStatus, setAlertStatus] = useState<string | null>(null);
+  const [alertForm, setAlertForm] = useState<AlertForm>(initialAlertForm);
+
+  const alertsQuery = useQuery({
+    queryKey: ["alerts"],
+    queryFn: getAlerts,
+  });
+
+  const createAlertMutation = useMutation<Alert, Error, AlertCreateInput>({
+    mutationFn: createAlert,
+    onSuccess: (created) => {
+      setAlertStatus(`Alert saved at ${created.time}`);
+      queryClient.invalidateQueries({ queryKey: ["alerts"] });
+    },
+    onError: (error) => {
+      setAlertStatus(error.message || "Failed to save alert");
+    },
+  });
 
   const detectMutation = useMutation<DiseaseDetectionResponse, Error, File>({
     mutationFn: detectDisease,
@@ -186,10 +192,14 @@ function FarmerMobileApp() {
   });
 
   const scanning = detectMutation.isPending;
+  const latestAlerts = alertsQuery.data ?? [];
   const result = scanResult;
-
   const previewLabel = scanMode === "camera" ? "Camera capture ready" : "Gallery image ready";
-  const confidenceProgress = result?.confidence ?? 0;
+  const locationText = useMemo(
+    () =>
+      `${formatCoordinate(geoState.lat, "N", "S")} · ${formatCoordinate(geoState.lng, "E", "W")}`,
+    [geoState.lat, geoState.lng],
+  );
 
   useEffect(() => {
     if (!selectedFile) {
@@ -202,26 +212,21 @@ function FarmerMobileApp() {
     }
 
     const nextUrl = URL.createObjectURL(selectedFile);
-    if (previewUrlRef.current) {
-      URL.revokeObjectURL(previewUrlRef.current);
-    }
+    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
     previewUrlRef.current = nextUrl;
     setPreviewUrl(nextUrl);
 
-    return () => {
-      URL.revokeObjectURL(nextUrl);
-    };
+    return () => URL.revokeObjectURL(nextUrl);
   }, [selectedFile]);
 
   useEffect(() => {
     if (!selectedFile) return;
 
-    const timestamp = new Date();
-    setCapturedAt(timestamp.toLocaleString());
+    setCapturedAt(new Date().toLocaleString());
 
     if (!("geolocation" in navigator)) {
       setGeoState({
-        label: "GPS unavailable, using demo location",
+        label: "GPS unavailable, using fallback",
         lat: 16.5062,
         lng: 80.648,
         accuracy: 120,
@@ -244,18 +249,14 @@ function FarmerMobileApp() {
       },
       () => {
         setGeoState({
-          label: "GPS unavailable, using demo location",
+          label: "GPS unavailable, using fallback",
           lat: 16.5062,
           lng: 80.648,
           accuracy: 120,
           source: "fallback",
         });
       },
-      {
-        enableHighAccuracy: true,
-        timeout: 4000,
-        maximumAge: 0,
-      },
+      { enableHighAccuracy: true, timeout: 4000, maximumAge: 0 },
     );
   }, [selectedFile]);
 
@@ -273,13 +274,10 @@ function FarmerMobileApp() {
     setSelectedFile(file);
     setScanResult(null);
     detectMutation.reset();
-
-    if (file) {
-      detectMutation.mutate(file);
-    }
+    if (file) detectMutation.mutate(file);
   };
 
-  const resetFlow = () => {
+  const resetCapture = () => {
     setSelectedFile(null);
     setScanResult(null);
     setCapturedAt("--");
@@ -293,19 +291,27 @@ function FarmerMobileApp() {
     detectMutation.reset();
   };
 
-  const canShare = Boolean(scanResult && selectedFile);
+  const sendAlert = () => {
+    createAlertMutation.mutate({
+      type: `${alertForm.issue} alert`,
+      crop: alertForm.crop,
+      district: alertForm.district,
+      severity: alertForm.severity,
+      time: new Date().toLocaleString(),
+      action: alertForm.action,
+    });
+  };
 
-  const locationText = useMemo(() => {
-    return `${formatCoordinate(geoState.lat, "N", "S")} · ${formatCoordinate(geoState.lng, "E", "W")}`;
-  }, [geoState.lat, geoState.lng]);
+  const currentConfidence = result?.confidence ?? 0;
+  const selectedChannels = alertForm.channels.length;
 
   return (
     <div>
       <PageHeader
         icon={<Leaf className="h-6 w-6 text-primary" />}
         eyebrow="Farmer Mobile App"
-        title="Field scan demo"
-        description="Upload or capture a leaf image, tag it with GPS and timestamp, and show a clean AI diagnosis for the demo."
+        title="Field scan and alert center"
+        description="Capture a crop image, detect disease, and create a real alert that is stored in the backend and shown in the live feed."
       />
 
       <div className="px-6 lg:px-10 py-6">
@@ -323,7 +329,7 @@ function FarmerMobileApp() {
                     AgriShield AP
                   </div>
                   <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary">
-                    Demo mode
+                    Live capture
                   </Badge>
                 </div>
 
@@ -344,33 +350,35 @@ function FarmerMobileApp() {
                     <div className="mt-4 grid grid-cols-2 gap-3">
                       <div className="rounded-2xl bg-background/45 border border-border/60 p-3">
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <Clock className="h-3.5 w-3.5" />
+                          <Clock className="h-3 w-3" />
                           Timestamp
                         </div>
-                        <p className="mt-2 text-sm font-semibold">{capturedAt}</p>
+                        <p className="mt-1 text-sm font-medium">{capturedAt}</p>
                       </div>
                       <div className="rounded-2xl bg-background/45 border border-border/60 p-3">
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <MapPin className="h-3.5 w-3.5" />
+                          <MapPin className="h-3 w-3" />
                           GPS location
                         </div>
-                        <p className="mt-2 text-sm font-semibold leading-5">{locationText}</p>
+                        <p className="mt-1 text-sm font-medium leading-5">{locationText}</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-4 grid grid-cols-2 gap-3">
                     <Button
-                      onClick={() => openPicker("gallery")}
+                      size="sm"
                       className="gap-2 h-12 rounded-2xl"
+                      onClick={() => openPicker("gallery")}
                     >
                       <Upload className="h-4 w-4" />
                       Upload photo
                     </Button>
                     <Button
+                      size="sm"
                       variant="outline"
-                      onClick={() => openPicker("camera")}
                       className="gap-2 h-12 rounded-2xl border-accent/40 hover:bg-accent/10"
+                      onClick={() => openPicker("camera")}
                     >
                       <Camera className="h-4 w-4" />
                       Take photo
@@ -401,14 +409,12 @@ function FarmerMobileApp() {
                         </p>
                         <p className="text-sm font-medium">{previewLabel}</p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant="outline"
-                          className="border-success/40 text-success bg-success/10"
-                        >
-                          {scanMode === "camera" ? "Camera" : "Gallery"}
-                        </Badge>
-                      </div>
+                      <Badge
+                        variant="outline"
+                        className="border-success/40 text-success bg-success/10"
+                      >
+                        {scanMode === "camera" ? "Camera" : "Gallery"}
+                      </Badge>
                     </div>
 
                     <div className="mt-4 aspect-[4/3] rounded-2xl border border-border/60 overflow-hidden bg-background/40 grid place-items-center relative">
@@ -425,7 +431,7 @@ function FarmerMobileApp() {
                           </div>
                           <p className="text-sm font-semibold">No photo selected yet</p>
                           <p className="mt-1 text-xs text-muted-foreground">
-                            Upload a leaf image or use the camera for a live demo.
+                            Upload a leaf image or use the camera for a live capture.
                           </p>
                         </div>
                       )}
@@ -446,24 +452,21 @@ function FarmerMobileApp() {
                     <div className="mt-4 flex flex-wrap gap-2">
                       <Badge
                         variant="outline"
-                        className="border-accent/40 text-accent bg-accent/10 gap-1.5"
+                        className="border-accent/40 text-accent bg-accent/10"
                       >
-                        <WifiOff className="h-3 w-3" />
-                        Offline-safe demo
+                        Offline-safe
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="border-primary/40 text-primary bg-primary/10 gap-1.5"
+                        className="border-primary/40 text-primary bg-primary/10"
                       >
-                        <ShieldAlert className="h-3 w-3" />
-                        Officer ready
+                        GPS-tagged
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="border-warning/40 text-warning bg-warning/10 gap-1.5"
+                        className="border-warning/40 text-warning bg-warning/10"
                       >
-                        <ThermometerSun className="h-3 w-3" />
-                        Weather linked
+                        Alert-ready
                       </Badge>
                     </div>
                   </div>
@@ -482,38 +485,19 @@ function FarmerMobileApp() {
                     <div className="rounded-2xl border border-border/60 bg-muted/20 p-3">
                       <p className="text-muted-foreground">Source</p>
                       <p className="mt-1 font-semibold uppercase">
-                        {geoState.source === "fallback" ? "Demo" : geoState.source}
+                        {geoState.source === "fallback" ? "Fallback" : geoState.source}
                       </p>
                     </div>
-                  </div>
-
-                  <div className="mt-4 flex gap-2">
-                    <Button
-                      className="flex-1 gap-2 rounded-2xl glow-primary"
-                      onClick={() => selectedFile && detectMutation.mutate(selectedFile)}
-                      disabled={!selectedFile || scanning}
-                    >
-                      <Sparkles className="h-4 w-4" />
-                      {scanning ? "Scanning..." : "Run AI scan"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="rounded-2xl"
-                      onClick={resetFlow}
-                      disabled={scanning && !selectedFile}
-                    >
-                      Reset
-                    </Button>
                   </div>
                 </div>
 
                 <div className="border-t border-border/60 px-5 py-4 bg-background/30">
                   <div className="grid grid-cols-4 gap-2 text-center text-[11px]">
                     {[
-                      { icon: Activity, label: "Live scan" },
+                      { icon: ScanLine, label: "Live scan" },
                       { icon: MapPin, label: "Geo-tag" },
-                      { icon: Clock, label: "Time stamp" },
-                      { icon: Share2, label: "Share" },
+                      { icon: Clock, label: "Timestamp" },
+                      { icon: BadgeCheck, label: "Report" },
                     ].map((item) => (
                       <div
                         key={item.label}
@@ -529,206 +513,142 @@ function FarmerMobileApp() {
             </div>
           </motion.div>
 
-          <div className="space-y-6">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="glass rounded-2xl p-5"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                    After upload
-                  </p>
-                  <h3 className="mt-1 text-xl font-bold">Disease detected</h3>
-                </div>
-                <Badge
-                  className={
-                    result?.severity === "High"
-                      ? "bg-warning/20 text-warning border-warning/40"
-                      : result?.severity === "Critical"
-                        ? "bg-destructive/20 text-destructive border-destructive/40"
-                        : result?.severity === "Medium"
-                          ? "bg-info/20 text-info border-info/40"
-                          : "bg-success/20 text-success border-success/40"
-                  }
-                >
-                  {result?.severity ?? "Waiting"}
-                </Badge>
+          <div className="space-y-4">
+            {!result && !scanning && !detectMutation.error && (
+              <div className="glass rounded-2xl p-5 text-sm text-muted-foreground">
+                Upload an image and run scan to get a live disease result.
               </div>
+            )}
 
-              <div className="mt-4 rounded-2xl border border-border/60 bg-muted/20 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Primary diagnosis</p>
-                    <h4 className="mt-1 text-2xl font-bold">{result?.label ?? "Leaf Blast"}</h4>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {result?.model ?? sampleResult.model}
-                    </p>
-                  </div>
-                  <div className="h-14 w-14 rounded-2xl bg-primary/10 text-primary grid place-items-center">
-                    <Leaf className="h-7 w-7" />
-                  </div>
-                </div>
-
-                <div className="mt-4">
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-muted-foreground">Confidence</span>
-                    <span className="font-semibold">{result?.confidence ?? 94}%</span>
-                  </div>
-                  <Progress value={confidenceProgress} className="h-2.5" />
-                </div>
+            {detectMutation.error && !scanning ? (
+              <div className="glass rounded-2xl p-5 text-sm text-destructive">
+                {detectMutation.error.message}
               </div>
+            ) : null}
 
-              <div className="mt-4 grid sm:grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-border/60 bg-background/50 p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold">
-                    <MapPin className="h-4 w-4 text-accent" />
-                    GPS location
-                  </div>
-                  <p className="mt-2 text-sm text-muted-foreground">{locationText}</p>
-                </div>
-                <div className="rounded-2xl border border-border/60 bg-background/50 p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold">
-                    <Clock className="h-4 w-4 text-accent" />
-                    Timestamp
-                  </div>
-                  <p className="mt-2 text-sm text-muted-foreground">{capturedAt}</p>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.05 }}
-              className="grid sm:grid-cols-2 gap-4"
-            >
-              {featureCards.map((card) => (
-                <div key={card.title} className="glass rounded-2xl p-4">
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary grid place-items-center">
-                    <card.icon className="h-5 w-5" />
-                  </div>
-                  <h4 className="mt-3 font-semibold">{card.title}</h4>
-                  <p className="mt-1 text-sm text-muted-foreground leading-6">{card.text}</p>
-                </div>
-              ))}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.08 }}
-              className="glass rounded-2xl p-5"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                    Recommended action
-                  </p>
-                  <h3 className="mt-1 text-lg font-semibold">What the farmer should do next</h3>
-                </div>
-                <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary">
-                  24 hour plan
-                </Badge>
-              </div>
-
-              <div className="mt-4 space-y-3">
+            {scanning ? (
+              <div className="glass rounded-2xl p-5 space-y-3">
+                <p className="text-sm font-semibold">Neural inference in progress...</p>
                 {[
-                  "Isolate the affected plot and avoid overhead irrigation for 24 hours.",
-                  "Apply the advised fungicide only after field officer confirmation.",
-                  "Share the report with the nearest agri officer for follow-up.",
-                ].map((item, index) => (
-                  <div key={item} className="flex items-start gap-3 rounded-xl bg-muted/20 p-3">
-                    <div className="mt-0.5 h-6 w-6 rounded-full bg-success/15 text-success grid place-items-center text-xs font-bold">
-                      {index + 1}
-                    </div>
-                    <p className="text-sm text-foreground/90 leading-6">{item}</p>
-                  </div>
+                  "Pre-processing image",
+                  "Running model inference",
+                  "Generating confidence score",
+                  "Preparing advisory",
+                ].map((step, index) => (
+                  <motion.div
+                    key={step}
+                    initial={{ opacity: 0.3 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: index * 0.3 }}
+                    className="flex items-center gap-2 text-xs"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                    {step}
+                  </motion.div>
                 ))}
+                <Progress value={66} className="h-1.5 mt-2" />
               </div>
+            ) : null}
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Button size="sm" className="gap-2">
-                  <Phone className="h-4 w-4" />
-                  Call expert
-                </Button>
-                <Button size="sm" variant="outline" className="gap-2">
-                  <FileText className="h-4 w-4" />
-                  Save report
-                </Button>
-              </div>
-            </motion.div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.12 }}
-                className="glass rounded-2xl p-5"
-              >
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">Top predictions</h3>
-                  <Badge variant="outline" className="border-border/60 text-muted-foreground">
-                    AI rank
-                  </Badge>
-                </div>
-                <div className="mt-4 space-y-2">
-                  {(result?.top_k ?? sampleResult.top_k).map((item, index) => (
-                    <div
-                      key={item.label}
-                      className="rounded-xl border border-border/60 bg-background/50 px-3 py-2.5 flex items-center justify-between gap-3"
+            {result ? (
+              <>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="glass rounded-2xl p-5"
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Disease detected</p>
+                      <h3 className="text-xl font-bold mt-0.5">{result.label}</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">Model: {result.model}</p>
+                      {result.crop_hint ? (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Crop hint: {result.crop_hint}
+                        </p>
+                      ) : null}
+                    </div>
+                    <Badge
+                      className={
+                        result.severity === "High"
+                          ? "bg-warning/20 text-warning border-warning/40"
+                          : result.severity === "Critical"
+                            ? "bg-destructive/20 text-destructive border-destructive/40"
+                            : result.severity === "Medium"
+                              ? "bg-info/20 text-info border-info/40"
+                              : "bg-success/20 text-success border-success/40"
+                      }
                     >
-                      <div className="min-w-0">
-                        <p className="text-[11px] text-muted-foreground">Rank {index + 1}</p>
-                        <p className="text-sm font-medium truncate">{item.label}</p>
-                      </div>
-                      <Badge variant="outline" className="shrink-0">
-                        {(item.score * 100).toFixed(1)}%
+                      {result.severity}
+                    </Badge>
+                  </div>
+
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-muted-foreground">Confidence</span>
+                      <span className="font-semibold">{currentConfidence}%</span>
+                    </div>
+                    <Progress value={currentConfidence} className="h-2.5" />
+                  </div>
+                </motion.div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="glass rounded-2xl p-5">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold">Top predictions</h3>
+                      <Badge variant="outline" className="border-border/60 text-muted-foreground">
+                        AI rank
                       </Badge>
                     </div>
-                  ))}
-                </div>
-              </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.16 }}
-              className="glass rounded-2xl p-5"
-              >
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">Recent reports</h3>
-                  <Badge variant="outline" className="border-success/40 text-success bg-success/10">
-                    Synced
-                  </Badge>
-                </div>
-                <div className="mt-4 space-y-2">
-                  {recentReports.map((item) => (
-                    <div
-                      key={`${item.crop}-${item.time}`}
-                      className="rounded-xl border border-border/60 bg-background/50 p-3"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="font-medium text-sm">{item.result}</p>
-                        <Badge variant="outline" className="text-[10px]">
-                          {item.severity}
-                        </Badge>
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {item.crop} · {item.time}
-                      </p>
+                    <div className="mt-4 space-y-2">
+                      {(result.top_k ?? sampleResult.top_k).map((item, index) => (
+                        <div
+                          key={item.label}
+                          className="rounded-xl border border-border/60 bg-background/50 px-3 py-2.5 flex items-center justify-between gap-3"
+                        >
+                          <div className="min-w-0">
+                            <p className="text-[11px] text-muted-foreground">Rank {index + 1}</p>
+                            <p className="text-sm font-medium truncate">{item.label}</p>
+                          </div>
+                          <Badge variant="outline" className="shrink-0">
+                            {(item.score * 100).toFixed(1)}%
+                          </Badge>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+
+                  <div className="glass rounded-2xl p-5">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold">Quick next steps</h3>
+                      <Badge
+                        variant="outline"
+                        className="border-primary/30 bg-primary/10 text-primary"
+                      >
+                        Field ready
+                      </Badge>
+                    </div>
+                    <div className="mt-4 space-y-2 text-sm">
+                      <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
+                        Save this diagnosis to the farmer alert record.
+                      </div>
+                      <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
+                        Share the report with the village support center.
+                      </div>
+                      <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
+                        Match the delivery channels to the farmer’s preference.
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </motion.div>
-            </div>
+              </>
+            ) : null}
 
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.18 }}
-              className="glass rounded-2xl p-5 border border-primary/20"
+              className="glass rounded-2xl p-5 border border-border/60"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -737,55 +657,200 @@ function FarmerMobileApp() {
                   </p>
                   <h3 className="mt-1 text-lg font-semibold flex items-center gap-2">
                     <ShieldAlert className="h-4 w-4 text-warning" />
-                    Alert generated automatically
+                    Create and send alert
                   </h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Stored in the backend and surfaced in the live feed below.
+                  </p>
                 </div>
-                <Badge className="bg-warning/20 text-warning border-warning/40">Live dispatch</Badge>
+                <Badge
+                  className={
+                    createAlertMutation.isPending
+                      ? "bg-warning/20 text-warning border-warning/40"
+                      : "bg-success/20 text-success border-success/40"
+                  }
+                >
+                  {createAlertMutation.isPending ? "Sending" : "Ready"}
+                </Badge>
               </div>
 
-              <div className="mt-4 grid gap-3 md:grid-cols-[1fr_1.1fr]">
+              {alertStatus ? (
+                <div className="mt-4 rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm">
+                  {alertStatus}
+                </div>
+              ) : null}
+
+              <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_1fr]">
                 <div className="rounded-2xl border border-border/60 bg-background/50 p-4">
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-muted-foreground">Village</span>
-                      <span className="font-semibold">{farmerAlert.village}</span>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="grid gap-1.5 text-sm">
+                      <span className="text-xs text-muted-foreground">Village</span>
+                      <input
+                        className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                        value={alertForm.village}
+                        onChange={(e) =>
+                          setAlertForm((current) => ({ ...current, village: e.target.value }))
+                        }
+                      />
+                    </label>
+                    <label className="grid gap-1.5 text-sm">
+                      <span className="text-xs text-muted-foreground">District</span>
+                      <input
+                        className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                        value={alertForm.district}
+                        onChange={(e) =>
+                          setAlertForm((current) => ({ ...current, district: e.target.value }))
+                        }
+                      />
+                    </label>
+                    <label className="grid gap-1.5 text-sm">
+                      <span className="text-xs text-muted-foreground">Crop</span>
+                      <input
+                        className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                        value={alertForm.crop}
+                        onChange={(e) =>
+                          setAlertForm((current) => ({ ...current, crop: e.target.value }))
+                        }
+                      />
+                    </label>
+                    <label className="grid gap-1.5 text-sm">
+                      <span className="text-xs text-muted-foreground">Severity</span>
+                      <select
+                        className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                        value={alertForm.severity}
+                        onChange={(e) =>
+                          setAlertForm((current) => ({
+                            ...current,
+                            severity: e.target.value as AlertForm["severity"],
+                          }))
+                        }
+                      >
+                        {["Low", "Medium", "High", "Critical"].map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+
+                  <label className="mt-3 grid gap-1.5 text-sm">
+                    <span className="text-xs text-muted-foreground">Issue</span>
+                    <input
+                      className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                      value={alertForm.issue}
+                      onChange={(e) =>
+                        setAlertForm((current) => ({ ...current, issue: e.target.value }))
+                      }
+                    />
+                  </label>
+
+                  <label className="mt-3 grid gap-1.5 text-sm">
+                    <span className="text-xs text-muted-foreground">Action</span>
+                    <textarea
+                      rows={3}
+                      className="rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+                      value={alertForm.action}
+                      onChange={(e) =>
+                        setAlertForm((current) => ({ ...current, action: e.target.value }))
+                      }
+                    />
+                  </label>
+
+                  <div className="mt-4">
+                    <p className="text-xs text-muted-foreground mb-2">Delivery channels</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {channelOptions.map((channel) => {
+                        const selected = alertForm.channels.includes(channel);
+                        return (
+                          <button
+                            key={channel}
+                            type="button"
+                            className={`rounded-xl border px-3 py-2 text-sm transition ${
+                              selected
+                                ? "border-primary/40 bg-primary/10 text-primary"
+                                : "border-border/60 bg-muted/20 text-muted-foreground"
+                            }`}
+                            onClick={() =>
+                              setAlertForm((current) => ({
+                                ...current,
+                                channels: selected
+                                  ? current.channels.filter((item) => item !== channel)
+                                  : [...current.channels, channel],
+                              }))
+                            }
+                          >
+                            {channel}
+                          </button>
+                        );
+                      })}
                     </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-muted-foreground">Crop</span>
-                      <span className="font-semibold">{farmerAlert.crop}</span>
-                    </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-muted-foreground">Issue</span>
-                      <span className="font-semibold text-warning">{farmerAlert.issue}</span>
-                    </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-muted-foreground">Action</span>
-                      <span className="font-semibold text-primary">{farmerAlert.action}</span>
-                    </div>
+                  </div>
+
+                  <div className="mt-4 flex items-center gap-2">
+                    <Button
+                      className="gap-2"
+                      onClick={sendAlert}
+                      disabled={createAlertMutation.isPending || selectedChannels === 0}
+                    >
+                      {createAlertMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
+                      Send alert
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setAlertForm(initialAlertForm)}
+                      disabled={createAlertMutation.isPending}
+                    >
+                      Reset
+                    </Button>
                   </div>
                 </div>
 
                 <div className="rounded-2xl border border-border/60 bg-background/50 p-4">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-semibold">Delivery channels</p>
-                    <Badge variant="outline" className="border-success/40 text-success bg-success/10">
-                      4 paths
+                    <p className="text-sm font-semibold">Selected channels</p>
+                    <Badge
+                      variant="outline"
+                      className="border-success/40 text-success bg-success/10"
+                    >
+                      {selectedChannels} enabled
                     </Badge>
                   </div>
-                  <div className="mt-3 grid grid-cols-2 gap-2">
-                    {farmerAlert.channels.map((channel) => (
-                      <div
-                        key={channel}
-                        className="rounded-xl border border-border/60 bg-muted/20 px-3 py-2 text-sm font-medium"
-                      >
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {alertForm.channels.map((channel) => (
+                      <Badge key={channel} variant="outline" className="bg-muted/20">
                         {channel}
-                      </div>
+                      </Badge>
                     ))}
                   </div>
-                  <p className="mt-3 text-xs text-muted-foreground leading-6">
-                    Alert generated from the latest field diagnosis and pushed to the farmer and
-                    support team without manual intervention.
-                  </p>
+
+                  <div className="mt-5 rounded-2xl border border-border/60 bg-muted/20 p-4">
+                    <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                      Alert preview
+                    </p>
+                    <div className="mt-3 space-y-3 text-sm">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-muted-foreground">Village</span>
+                        <span className="font-semibold">{alertForm.village}</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-muted-foreground">Crop</span>
+                        <span className="font-semibold">{alertForm.crop}</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-muted-foreground">Issue</span>
+                        <span className="font-semibold text-warning">{alertForm.issue}</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-muted-foreground">Action</span>
+                        <span className="font-semibold text-primary">{alertForm.action}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -796,22 +861,86 @@ function FarmerMobileApp() {
               transition={{ delay: 0.2 }}
               className="glass rounded-2xl p-5"
             >
-              <div className="flex items-center gap-2">
-                <BadgeCheck className="h-4 w-4 text-primary" />
-                <h3 className="font-semibold">Demo extras</h3>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <BadgeCheck className="h-4 w-4 text-primary" />
+                    Live alerts feed
+                  </h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Pulling real alerts from the backend.
+                  </p>
+                </div>
+                <Badge variant="outline" className="border-success/40 text-success bg-success/10">
+                  {latestAlerts.length} alerts
+                </Badge>
               </div>
-              <div className="mt-3 grid sm:grid-cols-3 gap-3 text-sm">
-                <div className="rounded-xl bg-muted/20 border border-border/60 p-3">
-                  Multilingual farmer advisory
-                </div>
-                <div className="rounded-xl bg-muted/20 border border-border/60 p-3">
-                  Nearest officer and helpdesk
-                </div>
-                <div className="rounded-xl bg-muted/20 border border-border/60 p-3">
-                  Weather-aware recommendations
-                </div>
+
+              <div className="mt-4 space-y-2">
+                {alertsQuery.isLoading ? (
+                  <div className="rounded-xl border border-border/60 bg-muted/20 p-4 text-sm text-muted-foreground">
+                    Loading live alerts...
+                  </div>
+                ) : latestAlerts.length ? (
+                  latestAlerts.slice(0, 5).map((alert) => (
+                    <div
+                      key={alert.id}
+                      className="rounded-xl border border-border/60 bg-background/50 p-3"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="font-medium text-sm">{alert.type}</p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {alert.crop} · {alert.district} · {alert.time}
+                          </p>
+                        </div>
+                        <Badge
+                          variant="outline"
+                          className={
+                            alert.severity === "Critical"
+                              ? "border-destructive/40 text-destructive bg-destructive/10"
+                              : alert.severity === "High"
+                                ? "border-warning/40 text-warning bg-warning/10"
+                                : alert.severity === "Medium"
+                                  ? "border-info/40 text-info bg-info/10"
+                                  : "border-success/40 text-success bg-success/10"
+                          }
+                        >
+                          {alert.severity}
+                        </Badge>
+                      </div>
+                      <p className="mt-2 text-sm text-muted-foreground">{alert.action}</p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-xl border border-border/60 bg-muted/20 p-4 text-sm text-muted-foreground">
+                    No alerts found yet. Create one above to start the live feed.
+                  </div>
+                )}
               </div>
             </motion.div>
+
+            <div className="grid sm:grid-cols-3 gap-4">
+              {[
+                {
+                  title: "Real backend",
+                  text: "Alerts are written to the database and fetched from `/alerts`.",
+                },
+                {
+                  title: "GPS + timestamp",
+                  text: "Every capture shows location and time from the browser.",
+                },
+                {
+                  title: "Operational ready",
+                  text: "The UI mirrors a farmer app flow with live disease results.",
+                },
+              ].map((item) => (
+                <div key={item.title} className="glass rounded-2xl p-4">
+                  <h4 className="font-semibold text-sm">{item.title}</h4>
+                  <p className="mt-1.5 text-xs text-muted-foreground leading-6">{item.text}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

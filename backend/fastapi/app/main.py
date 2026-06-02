@@ -3,6 +3,7 @@ import random
 import hashlib
 import io
 import math
+import uuid
 from functools import lru_cache
 from datetime import datetime, date
 from urllib.parse import urlencode
@@ -19,6 +20,7 @@ from .db import SessionLocal, engine
 from . import models
 from .schemas import (
     AlertOut,
+    AlertCreateOut,
     SchemeOut,
     WeatherForecastPointOut,
     WeatherDatasetPointOut,
@@ -921,6 +923,38 @@ def alerts(db: Session = Depends(get_db)):
         )
         for a in rows
     ]
+
+
+@app.post("/alerts", response_model=AlertOut)
+def create_alert(payload: AlertCreateOut, db: Session = Depends(get_db)):
+    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+    alert = models.Alert(
+        alert_id_str=f"ALRT-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:8]}",
+        type=payload.type,
+        crop=payload.crop,
+        district=payload.district,
+        severity=payload.severity,
+        time=payload.time or timestamp,
+        action=payload.action,
+    )
+
+    try:
+        db.add(alert)
+        db.commit()
+        db.refresh(alert)
+    except SQLAlchemyError:
+        db.rollback()
+        raise
+
+    return AlertOut(
+        id=alert.alert_id_str,
+        type=alert.type,
+        crop=alert.crop,
+        district=alert.district,
+        severity=alert.severity,
+        time=alert.time,
+        action=alert.action,
+    )
 
 @app.get("/schemes", response_model=list[SchemeOut])
 def schemes(db: Session = Depends(get_db)):
