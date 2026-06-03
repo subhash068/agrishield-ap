@@ -116,6 +116,15 @@ function DiseasePage() {
   const topPredictions = result?.top_k.slice(0, 3) ?? [];
   const mismatchDetected = Boolean(result?.mismatch_detected);
   const cropGate = result?.crop_gate ?? null;
+
+  // Treat gate/model disagreements or low confidence as low-trust results
+  const lowTrustThreshold = 70;
+  const gateConfidence = cropGate?.confidence ?? null;
+  const lowGateTrust = gateConfidence !== null ? gateConfidence < lowTrustThreshold : false;
+  const lowOverallTrust = (result?.confidence ?? 0) < lowTrustThreshold;
+
+  const lowTrust = mismatchDetected || lowGateTrust || lowOverallTrust;
+
   const recommendation = result ? getRecommendation(result.label) : null;
 
   const previewUrl = useMemo(() => {
@@ -282,19 +291,56 @@ function DiseasePage() {
 
           {result && (
             <>
-              {mismatchDetected ? (
+              {lowTrust ? (
                 <div className="glass rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
                   <div className="flex items-start gap-2">
                     <TriangleAlert className="mt-0.5 h-4 w-4 text-warning shrink-0" />
-                    <div>
-                      <p className="font-semibold text-warning">Possible mismatch detected</p>
-                      <p className="mt-1 text-muted-foreground">
-                        {result.mismatch_reason ??
-                          "The uploaded image filename and the model prediction do not look consistent."}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Treat this as a low-trust result and verify with a clearer image or expert
-                        review.
+                    <div className="min-w-0">
+                      <p className="font-semibold text-warning">Low-trust result (verify recommended)</p>
+
+                      {mismatchDetected ? (
+                        <p className="mt-1 text-muted-foreground">
+                          {result?.mismatch_reason ??
+                            "The uploaded image filename and the model prediction do not look consistent."}
+                        </p>
+                      ) : null}
+
+                      {result?.crop_hint ? (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Filename hinted crop:{" "}
+                          <span className="text-foreground font-medium">{result.crop_hint}</span>
+                        </p>
+                      ) : null}
+
+                      {cropGate ? (
+                        <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                          <div>
+                            Gate crop family:{" "}
+                            <span className="text-foreground font-medium">{cropGate.crop}</span>
+                          </div>
+                          <div>
+                            Gate confidence:{" "}
+                            <span className="text-foreground font-medium">
+                              {cropGate.confidence}%
+                            </span>
+                          </div>
+                          <div className="col-span-2">
+                            Gate source:{" "}
+                            <span className="text-foreground font-medium">{cropGate.source}</span>
+                          </div>
+                          {cropGate.selected_label ? (
+                            <div className="col-span-2">
+                              Selected matched label:{" "}
+                              <span className="text-foreground font-medium">
+                                {cropGate.selected_label}
+                              </span>
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
+
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Treat this as low-trust and verify with a clearer image or expert review.
                       </p>
                     </div>
                   </div>

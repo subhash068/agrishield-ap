@@ -55,6 +55,19 @@ export type DashboardData = {
   kpi_cards: KpiCardOut[];
 };
 
+export type DashboardKpiOut = {
+  parcels_monitored: number;
+  healthy_crop_percent: number;
+  active_stress_alerts: number;
+  disease_accuracy_percent: number;
+  high_risk_mandal_count: number;
+  predicted_yield_loss_percent: number;
+  satellite_coverage_percent: number;
+  ai_confidence_score_percent: number;
+  updated_at: string;
+};
+
+
 export type DistrictRanking = {
   district: string;
   healthScore: number;
@@ -174,29 +187,67 @@ export function getSchemes(): Promise<Scheme[]> {
   return apiFetch<Scheme[]>("/schemes");
 }
 
-// ---- Dashboard: backend endpoints exist for alerts/weather/predictions; hero/spectral/kpi still mocked ----
+// ---- Dashboard ----
+
+function kpiToHeroAndCards(k: DashboardKpiOut): { hero_stats: HeroStatOut[]; kpi_cards: KpiCardOut[] } {
+
+  const parcelsMonitored = k.parcels_monitored;
+  const healthyPercent = k.healthy_crop_percent;
+  const activeStress = k.active_stress_alerts;
+  const diseaseAccuracy = k.disease_accuracy_percent;
+  const highRiskMandals = k.high_risk_mandal_count;
+  const predictedYieldLoss = k.predicted_yield_loss_percent;
+  const satelliteCoverage = k.satellite_coverage_percent;
+  const aiConfidence = k.ai_confidence_score_percent;
+
+  // trend/confidence are not yet computed from historical series in DB;
+  // set minimal explainable defaults.
+  const defaultTrend = 0;
+  const defaultConf = 90;
+
+  const hero_stats: HeroStatOut[] = [
+    { label: "Parcels Monitored", value: parcelsMonitored, suffix: "", delta: null },
+    { label: "Healthy Crop %", value: healthyPercent, suffix: "%", delta: null },
+    { label: "Active Stress Alerts", value: activeStress, suffix: "", delta: null },
+    { label: "Disease Accuracy", value: diseaseAccuracy, suffix: "%", delta: null },
+    { label: "High-Risk Mandals", value: highRiskMandals, suffix: "", delta: null },
+    { label: "AI Confidence Score", value: aiConfidence, suffix: "%", delta: null },
+  ];
+
+  const kpi_cards: KpiCardOut[] = [
+    { label: "Parcels Monitored", value: parcelsMonitored, unit: null, trend: defaultTrend, confidence: defaultConf },
+    { label: "Healthy Crop %", value: healthyPercent, unit: "%", trend: defaultTrend, confidence: defaultConf },
+    { label: "Active Stress Alerts", value: activeStress, unit: null, trend: defaultTrend, confidence: defaultConf },
+    { label: "Disease Accuracy", value: diseaseAccuracy, unit: "%", trend: defaultTrend, confidence: defaultConf },
+    { label: "High-Risk Mandals", value: highRiskMandals, unit: null, trend: defaultTrend, confidence: defaultConf },
+    { label: "Predicted Yield Loss", value: predictedYieldLoss, unit: "%", trend: defaultTrend, confidence: defaultConf },
+    { label: "Satellite Coverage", value: satelliteCoverage, unit: "%", trend: defaultTrend, confidence: defaultConf },
+    { label: "AI Confidence Score", value: aiConfidence, unit: "%", trend: defaultTrend, confidence: defaultConf },
+  ];
+
+  return { hero_stats, kpi_cards };
+}
 
 export async function getDashboardData(): Promise<DashboardData> {
-  const [alerts, weatherPoints, predictions] = await Promise.all([
-    getAlerts(),
-    apiFetch<WeatherForecastPoint[]>("/weather"),
-    apiFetch<Prediction[]>("/predictions"),
-  ]);
-
-  // Keep existing UI using mock constants for parts not provided by backend yet.
-  const mock = await import("./mock-data");
+  const [alerts, kpis] = await Promise.all([getAlerts(), apiFetch<DashboardKpiOut>("/dashboard/kpis")]);
 
   const ticker_items = alerts
     .slice(0, 6)
     .map((a) => `${a.type}: ${a.crop} stress in ${a.district} (${a.severity})`);
 
+  // spectral trend is still mocked/derived via separate endpoint in UI
+  const mock = await import("./mock-data");
+
+  const { hero_stats, kpi_cards } = kpiToHeroAndCards(kpis);
+
   return {
-    hero_stats: (mock.HERO_STATS as unknown) as HeroStatOut[],
+    hero_stats,
     spectral_trend: (mock.SPECTRAL_TREND as unknown) as SpectralTrendPoint[],
     ticker_items,
-    kpi_cards: (mock.KPI_CARDS as unknown) as KpiCardOut[],
+    kpi_cards,
   };
 }
+
 
 // ---- Remaining routes ----
 

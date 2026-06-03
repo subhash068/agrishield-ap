@@ -17,6 +17,7 @@ type ParcelMapProps = {
   villageGeoJson: unknown;
   selectedParcelId: string | null;
   onSelectParcel: (parcelId: string) => void;
+  onSelectVillage?: (villageName: string) => void;
 };
 
 const RISK_STYLES: Record<string, { stroke: string; fill: string; opacity: number }> = {
@@ -423,14 +424,24 @@ export function SatelliteMap({
               feature?.properties?.vilnam_soi === villageFilter
                 ? 1.3
                 : 0.8,
-            fillOpacity: 0,
+            // Keep fill opacity non-zero so Leaflet reliably registers pointer events
+            fillOpacity: 0.02,
             opacity: 0.22,
           })}
           onEachFeature={(feature, layer) => {
-            layer.bindTooltip(labelForFeature(feature, "Village"), {
+            const villageName = labelForFeature(feature, "Village");
+
+            layer.bindTooltip(villageName, {
               sticky: true,
               direction: "center",
               opacity: 0.95,
+            });
+
+            layer.on({
+              click: () => {
+                if (!onSelectVillage) return;
+                onSelectVillage(villageName);
+              },
             });
           }}
         />

@@ -52,7 +52,63 @@ const LAYERS = [
   "Vegetation Stress",
   "Anomaly Hotspots",
   "Disease Probability",
-];
+] as const;
+
+type LayerName = (typeof LAYERS)[number];
+type BasemapOption = "Satellite" | "Hybrid" | "Terrain";
+
+type LayerEnabledState = Partial<Record<LayerName, boolean>>;
+
+interface LayerGuide {
+  title: string;
+  summary: string;
+  how_to_read: string;
+  backend_signal: string;
+  action: string;
+}
+
+interface GeoJsonFeatureProperties {
+  dtname?: string;
+  sdtname?: string;
+  vilname11?: string;
+  vilnam_soi?: string;
+}
+
+interface GeoJsonFeature {
+  properties?: GeoJsonFeatureProperties;
+}
+
+interface GeoJson {
+  features?: GeoJsonFeature[];
+}
+
+interface SatelliteMapProps {
+  historic: number;
+  activeLayer: LayerName;
+  basemap: BasemapOption;
+  parcels: Parcel[];
+  districtFilter: string;
+  mandalFilter: string;
+  villageFilter: string;
+  districtGeoJson: GeoJson | null;
+  mandalGeoJson: GeoJson | null;
+  villageGeoJson: GeoJson | null;
+  selectedParcelId: string | null;
+  onSelectParcel: (parcelId: string) => void;
+  onSelectVillage: (villageName: string) => void;
+}
+
+interface RiskTone {
+  label: string;
+  chip: string;
+}
+
+interface SelectedVillageDetails {
+  name: string;
+  district: string;
+  mandal: string;
+}
+
 const DISTRICT_GEOJSON_URL = "/data/ANDHRA_PRADESH_NEW_DISTRICTS.geojson";
 const MANDAL_GEOJSON_URL = "/data/ANDHRA_PRADESH_SUBDISTRICTS.geojson";
 const VILLAGE_GEOJSON_URL = "/data/ANDHRA_PRADESH_VILLAGES.geojson";
@@ -66,16 +122,7 @@ const DISTRICT_ALIASES: Record<string, string> = {
   "Y.S.R Kadapa": "YSR Kadapa",
 };
 
-const LAYER_GUIDES: Record<
-  string,
-  {
-    title: string;
-    summary: string;
-    how_to_read: string;
-    backend_signal: string;
-    action: string;
-  }
-> = {
+const LAYER_GUIDES: Record<LayerName, LayerGuide> = {
   NDVI: {
     title: "NDVI",
     summary: "Measures crop greenness and canopy vigor.",
@@ -133,7 +180,7 @@ function normalizeDistrictName(name: string | undefined | null) {
   return DISTRICT_ALIASES[trimmed] ?? trimmed;
 }
 
-function riskTone(parcel: Parcel) {
+function riskTone(parcel: Parcel): RiskTone {
   if (parcel.health >= 75)
     return { label: "Healthy", chip: "bg-success/20 text-success border-success/40" };
   if (parcel.health >= 60)
@@ -141,17 +188,17 @@ function riskTone(parcel: Parcel) {
   return { label: "High Risk", chip: "bg-destructive/15 text-destructive border-destructive/30" };
 }
 
-function metricForLayer(parcel: Parcel, activeLayer: string) {
-  type NumericAnalyticsKey =
-    | "ndvi"
-    | "evi"
-    | "ndre"
-    | "soil_moisture"
-    | "vegetation_stress"
-    | "anomaly_hotspots"
-    | "disease_probability";
+type NumericAnalyticsKey =
+  | "ndvi"
+  | "evi"
+  | "ndre"
+  | "soil_moisture"
+  | "vegetation_stress"
+  | "anomaly_hotspots"
+  | "disease_probability";
 
-  const keyMap: Record<string, NumericAnalyticsKey> = {
+function metricForLayer(parcel: Parcel, activeLayer: LayerName) {
+  const keyMap: Record<LayerName, NumericAnalyticsKey> = {
     NDVI: "ndvi",
     EVI: "evi",
     NDRE: "ndre",
@@ -167,32 +214,20 @@ function metricForLayer(parcel: Parcel, activeLayer: string) {
 
 function SatellitePage() {
   const { data: parcels = [] } = useQuery({ queryKey: ["parcels"], queryFn: getParcels });
-  const [MapView, setMapView] = useState<null | ComponentType<{
-    historic: number;
-    activeLayer: string;
-    basemap: "Satellite" | "Hybrid" | "Terrain";
-    parcels: Parcel[];
-    districtFilter: string;
-    mandalFilter: string;
-    villageFilter: string;
-    districtGeoJson: unknown;
-    mandalGeoJson: unknown;
-    villageGeoJson: unknown;
-    selectedParcelId: string | null;
-    onSelectParcel: (parcelId: string) => void;
-  }>>(null);
+  const [MapView, setMapView] = useState<null | ComponentType<SatelliteMapProps>>(null);
   const [historic, setHistoric] = useState(11);
-  const [activeLayer, setActiveLayer] = useState("NDVI");
-  const [basemap, setBasemap] = useState<"Satellite" | "Hybrid" | "Terrain">("Satellite");
-  const [enabled, setEnabled] = useState<Record<string, boolean>>({ NDVI: true });
+  const [activeLayer, setActiveLayer] = useState<LayerName>("NDVI");
+  const [basemap, setBasemap] = useState<BasemapOption>("Satellite");
+  const [enabled, setEnabled] = useState<LayerEnabledState>({ NDVI: true });
   const [selectedParcelId, setSelectedParcelId] = useState<string | null>(null);
+  const [selectedVillage, setSelectedVillage] = useState<string | null>(null);
   const { selectedDistrict: districtFilter, setSelectedDistrict: setDistrictFilter } =
     useAppShell();
   const [mandalFilter, setMandalFilter] = useState("all");
   const [villageFilter, setVillageFilter] = useState("all");
-  const [districtGeoJson, setDistrictGeoJson] = useState<unknown>(null);
-  const [mandalGeoJson, setMandalGeoJson] = useState<unknown>(null);
-  const [villageGeoJson, setVillageGeoJson] = useState<unknown>(null);
+  const [districtGeoJson, setDistrictGeoJson] = useState<GeoJson | null>(null);
+  const [mandalGeoJson, setMandalGeoJson] = useState<GeoJson | null>(null);
+  const [villageGeoJson, setVillageGeoJson] = useState<GeoJson | null>(null);
 
   useEffect(() => {
     import("@/components/satellite-map").then((m) => setMapView(() => m.SatelliteMap));
@@ -282,6 +317,44 @@ function SatellitePage() {
     () => filteredParcels.find((parcel) => parcel.id === selectedParcelId) ?? null,
     [filteredParcels, selectedParcelId],
   );
+
+  const selectedVillageDetails = useMemo(() => {
+    if (!selectedVillage || !villageGeoJson) return null;
+
+    const geojson = villageGeoJson as {
+      features?: Array<{
+        properties?: {
+          dtname?: string;
+          sdtname?: string;
+          vilname11?: string;
+          vilnam_soi?: string;
+        };
+      }>;
+    };
+
+    const features = geojson.features ?? [];
+
+    // Match using the same label logic used in the map tooltip.
+    const match = features.find((f) => {
+      const p = f.properties;
+      const name = p?.vilname11 ?? p?.vilnam_soi;
+      return name === selectedVillage;
+    });
+
+    if (!match?.properties) {
+      return {
+        name: selectedVillage,
+        district: "",
+        mandal: "",
+      };
+    }
+
+    return {
+      name: selectedVillage,
+      district: match.properties.dtname ? normalizeDistrictName(match.properties.dtname) : "",
+      mandal: match.properties.sdtname ?? "",
+    };
+  }, [selectedVillage, villageGeoJson]);
   const selectedRisk = filteredSelectedParcel ? riskTone(filteredSelectedParcel) : null;
 
   useEffect(() => {
@@ -327,7 +400,7 @@ function SatellitePage() {
       <div className="grid lg:grid-cols-[1fr_320px] gap-0">
         <div className="relative h-[calc(100vh-13rem)] min-h-[520px] border-r border-border/60">
           {MapView ? (
-            <MapView
+              <MapView
               historic={historic}
               activeLayer={activeLayer}
               basemap={basemap}
@@ -340,6 +413,13 @@ function SatellitePage() {
               villageGeoJson={villageGeoJson}
               selectedParcelId={selectedParcelId}
               onSelectParcel={setSelectedParcelId}
+              onSelectVillage={(villageName) => {
+                setSelectedVillage(villageName);
+                // Selecting a village should focus the map and update the left-side filter
+                setVillageFilter(villageName);
+                // Optional: clear parcel selection so UI doesn't feel 'stuck'
+                setSelectedParcelId(null);
+              }}
             />
           ) : (
             <div className="absolute inset-0 grid place-items-center text-muted-foreground text-sm">
@@ -560,6 +640,52 @@ function SatellitePage() {
           </div>
 
           <div className="glass rounded-lg p-3 text-xs space-y-3">
+            <h4 className="font-semibold">Village detail</h4>
+            {selectedVillageDetails ? (
+              <>
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <p className="font-semibold text-sm">{selectedVillageDetails.name}</p>
+                    <p className="text-muted-foreground">Village</p>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-border/60 bg-background/40 p-3 text-xs space-y-1.5">
+                  <p>
+                    <span className="text-muted-foreground">District:</span>{" "}
+                    {selectedVillageDetails.district || "—"}
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Mandal:</span>{" "}
+                    {selectedVillageDetails.mandal || "—"}
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Focus:</span>{" "}
+                    Click a village again or change filters to explore others.
+                  </p>
+                </div>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    setSelectedVillage(null);
+                    setVillageFilter("all");
+                    setSelectedParcelId(null);
+                  }}
+                >
+                  Clear village
+                </Button>
+              </>
+            ) : (
+              <p className="text-muted-foreground leading-relaxed">
+                Click any village polygon on the map to open village details.
+              </p>
+            )}
+          </div>
+
+          <div className="glass rounded-lg p-3 text-xs space-y-3">
             <h4 className="font-semibold">Parcel detail</h4>
             {filteredSelectedParcel ? (
               <>
@@ -629,7 +755,10 @@ function SatellitePage() {
                   size="sm"
                   variant="outline"
                   className="w-full"
-                  onClick={() => setSelectedParcelId(null)}
+                  onClick={() => {
+                    setSelectedParcelId(null);
+                    setSelectedVillage(null);
+                  }}
                 >
                   Clear selection
                 </Button>

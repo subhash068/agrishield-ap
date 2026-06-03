@@ -56,6 +56,19 @@ class DashboardDataOut(BaseModel):
     kpi_cards: List[KpiCardOut]
 
 
+class DashboardKpiOut(BaseModel):
+    parcels_monitored: int
+    healthy_crop_percent: float
+    active_stress_alerts: int
+    disease_accuracy_percent: float
+    high_risk_mandal_count: int
+    predicted_yield_loss_percent: float
+    satellite_coverage_percent: float
+    ai_confidence_score_percent: float
+    updated_at: str
+
+
+
 class DistrictRankingOut(BaseModel):
     district: str
     healthScore: float

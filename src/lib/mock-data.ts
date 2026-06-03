@@ -72,6 +72,27 @@ export const PARCELS = Array.from({ length: 220 }, (_, i) => {
   const lng = AP_BBOX.lngMin + seeded(i + 7) * (AP_BBOX.lngMax - AP_BBOX.lngMin);
   const health = +(45 + seeded(i + 13) * 50).toFixed(1);
   const risk = health < 60 ? "High" : health < 75 ? "Medium" : "Low";
+
+  // Build a consistent mock shape to match backend /parcels.
+  const ndvi = +(0.3 + seeded(i + 37) * 0.5).toFixed(2);
+  const evi = +(0.2 + seeded(i + 41) * 0.6).toFixed(2);
+  const ndre = +(0.15 + seeded(i + 47) * 0.45).toFixed(2);
+
+  const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
+  const clamp = (x: number, a: number, b: number) => (x < a ? a : x > b ? b : x);
+
+  // Mirror backend’s intent: derive 0..1 scores and then expose under analytics.
+  const ndvi_score = clamp01((ndvi - 0.2) / 0.6);
+  const evi_score = clamp01((evi - 0.1) / 0.7);
+  const ndre_score = clamp01((ndre - 0.05) / 0.6);
+
+  const stress_score = clamp01(1.0 - ndvi_score * 0.72 + (100.0 - health) / 240.0);
+  const moisture_score = clamp01(0.2 + evi_score * 0.42 + ndvi_score * 0.28 - stress_score * 0.14);
+  const anomaly_score = clamp01(
+    Math.abs(ndvi_score - evi_score) * 0.52 + Math.abs(ndvi_score - ndre_score) * 0.56 + stress_score * 0.18,
+  );
+  const disease_score = clamp01((100.0 - health) / 100.0 * 0.58 + stress_score * 0.24 + anomaly_score * 0.18);
+
   return {
     id: `AP-${String(i + 1).padStart(5, "0")}`,
     farmer: ["Ramesh Reddy", "Lakshmi Devi", "Suresh Naidu", "Kavitha Rao", "Venkat Rao", "Padma Sri", "Krishna Murthy", "Anjali Kumari"][i % 8],
@@ -82,10 +103,44 @@ export const PARCELS = Array.from({ length: 220 }, (_, i) => {
     health,
     risk,
     confidence: Math.floor(78 + seeded(i + 29) * 21),
-    lat, lng,
-    ndvi: +(0.3 + seeded(i + 37) * 0.5).toFixed(2),
+    lat,
+    lng,
+    ndvi,
+    evi,
+    ndre,
+    analytics: {
+      // Match keys expected by UI satellite layer.
+      ndvi: +ndvi_score.toFixed(3),
+      evi: +evi_score.toFixed(3),
+      ndre: +ndre_score.toFixed(3),
+      soil_moisture: +moisture_score.toFixed(3),
+      vegetation_stress: +stress_score.toFixed(3),
+      anomaly_hotspots: +anomaly_score.toFixed(3),
+      disease_probability: +disease_score.toFixed(3),
+      insight:
+        disease_score >= 0.72
+          ? "High disease pressure cluster"
+          : stress_score >= 0.58
+            ? "Vegetation stress building"
+            : moisture_score < 0.42
+              ? "Moisture deficit detected"
+              : "Stable crop health pattern",
+      recommendation:
+        disease_score >= 0.72
+          ? "Schedule an urgent field visit and targeted scouting."
+          : stress_score >= 0.58
+            ? "Check irrigation, nutrient balance, and early disease signs."
+            : moisture_score < 0.42
+              ? "Prioritise irrigation and soil moisture validation."
+              : "Continue routine monitoring and weekly scouting.",
+      model: "AgriShield Parcel Analytics (mock) v2",
+    },
+    // Minimal geometry fields required by types/UI (satellite-map uses `geometry`/`outline`).
+    outline: [],
+    geometry: null,
   };
 });
+
 
 export const ALERTS = [
   { id: "ALT-9341", type: "Pest Outbreak", crop: "Cotton", district: "Guntur", severity: "Critical", time: "12 min ago", action: "Spray recommendation issued to 1,204 farmers" },

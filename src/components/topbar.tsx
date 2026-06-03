@@ -110,36 +110,13 @@ export function TopBar() {
                 runSearch(searchTerm);
               }
             }}
-            placeholder={
-              isMounted && locale === "te"
-                ? "పార్సెల్లు, రైతులు, మండలాలు, పథకాలు..."
-                : "Search parcels, farmers, mandals, schemes..."
-            }
+            placeholder="Search parcels, farmers, mandals, schemes..."
             className="h-9 w-[340px] pl-8 bg-muted/40 border-border/60"
           />
         </div>
 
         <div className="ml-auto flex items-center gap-1.5">
-          <Select
-            value={selectedDistrict}
-            onValueChange={(district) => {
-              setSelectedDistrict(district);
-              toast.success(district === "all" ? "Showing all districts." : `Focused on ${district}.`);
-            }}
-          >
-            <SelectTrigger className="h-9 w-[140px] bg-muted/40 border-border/60 hidden sm:flex">
-              <SelectValue placeholder="District" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Districts</SelectItem>
-              {districts.map((district) => (
-                <SelectItem key={district} value={district}>
-                  {district}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
+        
           <Button asChild variant="ghost" size="sm" className="h-9 gap-1.5 hidden lg:flex">
             <Link to="/weather">
               <CloudSun className="h-4 w-4 text-accent" />
