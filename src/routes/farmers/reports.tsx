@@ -19,7 +19,7 @@ export const Route = createFileRoute("/farmers/reports")({
   component: FarmerReportsPage,
 });
 
-export default function FarmerReportsPage() {
+function FarmerReportsPage() {
   const mobile = useIsMobile();
   const navigate = useNavigate();
   const session = getFarmerSession();
@@ -117,4 +117,7 @@ export default function FarmerReportsPage() {
     </div>
   );
 }
+
+export default FarmerReportsPage;
+
 

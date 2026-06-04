@@ -25,7 +25,7 @@ function severityClass(sev: string) {
   return "border-success/40 text-success bg-success/10";
 }
 
-export default function FarmerAlertsPage() {
+function FarmerAlertsPage() {
   const mobile = useIsMobile();
   const navigate = useNavigate();
   const session = getFarmerSession();
@@ -95,4 +95,7 @@ export default function FarmerAlertsPage() {
     </div>
   );
 }
+
+export default FarmerAlertsPage;
+
 

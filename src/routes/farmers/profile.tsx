@@ -18,7 +18,7 @@ export const Route = createFileRoute("/farmers/profile")({
   component: FarmerProfilePage,
 });
 
-export default function FarmerProfilePage() {
+function FarmerProfilePage() {
   const mobile = useIsMobile();
   const navigate = useNavigate();
 
@@ -121,4 +121,7 @@ export default function FarmerProfilePage() {
     </div>
   );
 }
+
+export default FarmerProfilePage;
+
 

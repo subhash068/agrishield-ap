@@ -105,7 +105,7 @@ export const Route = createFileRoute("/farmers/scan")({
   component: FarmerScanPage,
 });
 
-export default function FarmerScanPage() {
+function FarmerScanPage() {
   const mobile = useIsMobile();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -519,4 +519,7 @@ export default function FarmerScanPage() {
     </div>
   );
 }
+
+export default FarmerScanPage;
+
 
