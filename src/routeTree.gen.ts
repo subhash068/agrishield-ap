@@ -18,11 +18,11 @@ import { Route as PredictionsRouteImport } from './routes/predictions'
 import { Route as ParcelsRouteImport } from './routes/parcels'
 import { Route as MandalRouteImport } from './routes/mandal'
 import { Route as GovernmentRouteImport } from './routes/government'
-import { Route as FieldAdvisoryRouteImport } from './routes/field-advisory'
 import { Route as FarmersRouteImport } from './routes/farmers'
 import { Route as DiseaseRouteImport } from './routes/disease'
 import { Route as AdvisoryRouteImport } from './routes/advisory'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FieldAdvisoryFieldIdRouteImport } from './routes/field-advisory.$fieldId'
 import { Route as FarmersWeatherRouteImport } from './routes/farmers/weather'
 import { Route as FarmersVerifyOtpRouteImport } from './routes/farmers/verify-otp'
 import { Route as FarmersScanRouteImport } from './routes/farmers/scan'
@@ -79,11 +79,6 @@ const GovernmentRoute = GovernmentRouteImport.update({
   path: '/government',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FieldAdvisoryRoute = FieldAdvisoryRouteImport.update({
-  id: '/field-advisory',
-  path: '/field-advisory',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const FarmersRoute = FarmersRouteImport.update({
   id: '/farmers',
   path: '/farmers',
@@ -102,6 +97,11 @@ const AdvisoryRoute = AdvisoryRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FieldAdvisoryFieldIdRoute = FieldAdvisoryFieldIdRouteImport.update({
+  id: '/field-advisory/$fieldId',
+  path: '/field-advisory/$fieldId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FarmersWeatherRoute = FarmersWeatherRouteImport.update({
@@ -160,7 +160,6 @@ export interface FileRoutesByFullPath {
   '/advisory': typeof AdvisoryRoute
   '/disease': typeof DiseaseRoute
   '/farmers': typeof FarmersRouteWithChildren
-  '/field-advisory': typeof FieldAdvisoryRoute
   '/government': typeof GovernmentRoute
   '/mandal': typeof MandalRoute
   '/parcels': typeof ParcelsRoute
@@ -180,13 +179,13 @@ export interface FileRoutesByFullPath {
   '/farmers/scan': typeof FarmersScanRoute
   '/farmers/verify-otp': typeof FarmersVerifyOtpRoute
   '/farmers/weather': typeof FarmersWeatherRoute
+  '/field-advisory/$fieldId': typeof FieldAdvisoryFieldIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/advisory': typeof AdvisoryRoute
   '/disease': typeof DiseaseRoute
   '/farmers': typeof FarmersRouteWithChildren
-  '/field-advisory': typeof FieldAdvisoryRoute
   '/government': typeof GovernmentRoute
   '/mandal': typeof MandalRoute
   '/parcels': typeof ParcelsRoute
@@ -206,6 +205,7 @@ export interface FileRoutesByTo {
   '/farmers/scan': typeof FarmersScanRoute
   '/farmers/verify-otp': typeof FarmersVerifyOtpRoute
   '/farmers/weather': typeof FarmersWeatherRoute
+  '/field-advisory/$fieldId': typeof FieldAdvisoryFieldIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -213,7 +213,6 @@ export interface FileRoutesById {
   '/advisory': typeof AdvisoryRoute
   '/disease': typeof DiseaseRoute
   '/farmers': typeof FarmersRouteWithChildren
-  '/field-advisory': typeof FieldAdvisoryRoute
   '/government': typeof GovernmentRoute
   '/mandal': typeof MandalRoute
   '/parcels': typeof ParcelsRoute
@@ -233,6 +232,7 @@ export interface FileRoutesById {
   '/farmers/scan': typeof FarmersScanRoute
   '/farmers/verify-otp': typeof FarmersVerifyOtpRoute
   '/farmers/weather': typeof FarmersWeatherRoute
+  '/field-advisory/$fieldId': typeof FieldAdvisoryFieldIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -241,7 +241,6 @@ export interface FileRouteTypes {
     | '/advisory'
     | '/disease'
     | '/farmers'
-    | '/field-advisory'
     | '/government'
     | '/mandal'
     | '/parcels'
@@ -261,13 +260,13 @@ export interface FileRouteTypes {
     | '/farmers/scan'
     | '/farmers/verify-otp'
     | '/farmers/weather'
+    | '/field-advisory/$fieldId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/advisory'
     | '/disease'
     | '/farmers'
-    | '/field-advisory'
     | '/government'
     | '/mandal'
     | '/parcels'
@@ -287,13 +286,13 @@ export interface FileRouteTypes {
     | '/farmers/scan'
     | '/farmers/verify-otp'
     | '/farmers/weather'
+    | '/field-advisory/$fieldId'
   id:
     | '__root__'
     | '/'
     | '/advisory'
     | '/disease'
     | '/farmers'
-    | '/field-advisory'
     | '/government'
     | '/mandal'
     | '/parcels'
@@ -313,6 +312,7 @@ export interface FileRouteTypes {
     | '/farmers/scan'
     | '/farmers/verify-otp'
     | '/farmers/weather'
+    | '/field-advisory/$fieldId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -320,7 +320,6 @@ export interface RootRouteChildren {
   AdvisoryRoute: typeof AdvisoryRoute
   DiseaseRoute: typeof DiseaseRoute
   FarmersRoute: typeof FarmersRouteWithChildren
-  FieldAdvisoryRoute: typeof FieldAdvisoryRoute
   GovernmentRoute: typeof GovernmentRoute
   MandalRoute: typeof MandalRoute
   ParcelsRoute: typeof ParcelsRoute
@@ -330,6 +329,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SurveillanceRoute: typeof SurveillanceRoute
   WeatherRoute: typeof WeatherRoute
+  FieldAdvisoryFieldIdRoute: typeof FieldAdvisoryFieldIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -397,13 +397,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GovernmentRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/field-advisory': {
-      id: '/field-advisory'
-      path: '/field-advisory'
-      fullPath: '/field-advisory'
-      preLoaderRoute: typeof FieldAdvisoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/farmers': {
       id: '/farmers'
       path: '/farmers'
@@ -430,6 +423,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/field-advisory/$fieldId': {
+      id: '/field-advisory/$fieldId'
+      path: '/field-advisory/$fieldId'
+      fullPath: '/field-advisory/$fieldId'
+      preLoaderRoute: typeof FieldAdvisoryFieldIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/farmers/weather': {
@@ -539,7 +539,6 @@ const rootRouteChildren: RootRouteChildren = {
   AdvisoryRoute: AdvisoryRoute,
   DiseaseRoute: DiseaseRoute,
   FarmersRoute: FarmersRouteWithChildren,
-  FieldAdvisoryRoute: FieldAdvisoryRoute,
   GovernmentRoute: GovernmentRoute,
   MandalRoute: MandalRoute,
   ParcelsRoute: ParcelsRoute,
@@ -549,6 +548,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SurveillanceRoute: SurveillanceRoute,
   WeatherRoute: WeatherRoute,
+  FieldAdvisoryFieldIdRoute: FieldAdvisoryFieldIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

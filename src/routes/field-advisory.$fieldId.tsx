@@ -21,7 +21,7 @@ import {
   getFieldAdvisoryPayload,
 } from "@/lib/field-advisory";
 
-export const Route = createFileRoute("/field-advisory")({
+export const Route = createFileRoute("/field-advisory/$fieldId")({
   head: () => ({
     meta: [
       { title: "Field Advisory · AgriShield AP" },

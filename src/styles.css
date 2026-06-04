@@ -198,3 +198,21 @@
   color: oklch(0.97 0.01 180) !important;
   border-color: oklch(0.32 0.04 200) !important;
 }
+
+/* Satellite selectors: keep Radix Select dropdowns above Leaflet overlays */
+.leaflet-container .leaflet-pane {
+  z-index: 200 !important;
+}
+
+.leaflet-container .leaflet-tile-pane,
+.leaflet-container .leaflet-overlay-pane,
+.leaflet-container .leaflet-marker-pane,
+.leaflet-container .leaflet-popup-pane {
+  z-index: 200 !important;
+}
+
+/* Controls should remain visible but below Radix dropdown (z-50) */
+.leaflet-container .leaflet-control-container {
+  z-index: 210 !important;
+}
+

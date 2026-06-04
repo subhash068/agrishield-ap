@@ -450,40 +450,90 @@ export function SatelliteMap({
       ) : null}
 
 
-      {parcelsWithBand.map((parcel) => (
-        <Polygon
-          key={parcel.id}
-          positions={geometryToLeafletPositions(parcel)}
-          pathOptions={styleFor(parcel)}
-          eventHandlers={{
-            click: () => onSelectParcel(parcel.id),
-          }}
-        >
-          <Tooltip direction="top" offset={[0, -6]} opacity={1} sticky>
-            <div className="text-[11px] space-y-0.5">
-              <div className="font-semibold">
-                {parcel.id} · {parcel.crop}
+      {parcelsWithBand.map((parcel) => {
+        const positions = geometryToLeafletPositions(parcel);
+        const canRenderPolygon = positions.length > 2;
+
+        const clickHandler = () => onSelectParcel(parcel.id);
+
+        if (!canRenderPolygon) {
+          return (
+            <CircleMarker
+              key={`${parcel.id}-fallback`}
+              center={[parcel.lat, parcel.lng]}
+              radius={0.5}
+              pathOptions={{
+                color: paletteForLayer(activeLayer).glow,
+                fillColor: paletteForLayer(activeLayer).glow,
+                fillOpacity: 0,
+                weight: 0,
+              }}
+              eventHandlers={{
+                click: clickHandler,
+              }}
+            >
+              <Tooltip direction="top" offset={[0, -6]} opacity={1} sticky>
+                <div className="text-[11px] space-y-0.5">
+                  <div className="font-semibold">
+                    {parcel.id} · {parcel.crop}
+                  </div>
+                  <div>
+                    {parcel.risk} risk · Health {parcel.health}%
+                  </div>
+                </div>
+              </Tooltip>
+            </CircleMarker>
+          );
+        }
+
+        return (
+          <Polygon
+            key={parcel.id}
+            positions={positions as any}
+            pathOptions={styleFor(parcel)}
+            eventHandlers={{
+              click: clickHandler,
+            }}
+          >
+            <Tooltip direction="top" offset={[0, -6]} opacity={1} sticky>
+              <div className="text-[11px] space-y-0.5">
+                <div className="font-semibold">
+                  {parcel.id} · {parcel.crop}
+                </div>
+                <div>
+                  {parcel.risk} risk · Health {parcel.health}%
+                </div>
               </div>
-              <div>
-                {parcel.risk} risk · Health {parcel.health}%
-              </div>
-            </div>
-          </Tooltip>
-        </Polygon>
-      ))}
+            </Tooltip>
+          </Polygon>
+        );
+      })}
 
       {selectedParcel ? (
-          <CircleMarker
-            center={[selectedParcel.lat, selectedParcel.lng]}
-            radius={5}
-            pathOptions={{
-              color: paletteForLayer(activeLayer).glow,
-              fillColor: paletteForLayer(activeLayer).glow,
-              fillOpacity: 1,
-              weight: 1,
-            }}
-          />
+        <Polygon
+          positions={geometryToLeafletPositions(selectedParcel) as any}
+          pathOptions={{
+            color: paletteForLayer(activeLayer).glow,
+            fillColor: paletteForLayer(activeLayer).glow,
+            fillOpacity: 0.48,
+            weight: 2.7,
+          }}
+        />
+      ) : null}
+
+      {selectedParcel ? (
+        <Polygon
+          positions={geometryToLeafletPositions(selectedParcel) as any}
+          pathOptions={{
+            color: paletteForLayer(activeLayer).glow,
+            fillColor: "transparent",
+            fillOpacity: 0,
+            weight: 5,
+            dashArray: "6 4",
+          }}
+        />
       ) : null}
     </MapContainer>
   );
 }
+

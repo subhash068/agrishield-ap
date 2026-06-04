@@ -1,4 +1,4 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
 import {
@@ -315,10 +315,11 @@ function SatellitePage() {
       }),
     [districtFilter, mandalFilter, parcels],
   );
-  const filteredSelectedParcel = useMemo(
-    () => filteredParcels.find((parcel) => parcel.id === selectedParcelId) ?? null,
-    [filteredParcels, selectedParcelId],
+  const selectedParcelFromAll = useMemo(
+    () => parcels.find((parcel) => parcel.id === selectedParcelId) ?? null,
+    [parcels, selectedParcelId],
   );
+
 
   const selectedVillageDetails = useMemo(() => {
     if (!selectedVillage || !villageGeoJson) return null;
@@ -357,7 +358,8 @@ function SatellitePage() {
       mandal: match.properties.sdtname ?? "",
     };
   }, [selectedVillage, villageGeoJson]);
-  const selectedRisk = filteredSelectedParcel ? riskTone(filteredSelectedParcel) : null;
+  const selectedRisk = selectedParcelFromAll ? riskTone(selectedParcelFromAll) : null;
+
 
   useEffect(() => {
     if (selectedParcelId && !filteredParcels.some((parcel) => parcel.id === selectedParcelId)) {
@@ -386,13 +388,55 @@ function SatellitePage() {
         description="Parcel polygons, vegetation indices and AI hotspots over Sentinel-2 imagery."
         actions={
           <>
+            <Select value={districtFilter} onValueChange={setDistrictFilter}>
+              <SelectTrigger className="h-8 w-[140px] bg-muted/20 border-border/60 text-xs">
+                <SelectValue placeholder="All districts" />
+              </SelectTrigger>
+              <SelectContent className="z-[1000]" position="popper">
+                <SelectItem value="all">All districts</SelectItem>
+                {districtOptions.map((district) => (
+                  <SelectItem key={district} value={district}>
+                    {district}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={mandalFilter} onValueChange={setMandalFilter}>
+              <SelectTrigger className="h-8 w-[140px] bg-muted/20 border-border/60 text-xs">
+                <SelectValue placeholder="All mandals" />
+              </SelectTrigger>
+              <SelectContent className="z-[1000]" position="popper">
+                <SelectItem value="all">All mandals</SelectItem>
+                {mandalOptions.map((mandal) => (
+                  <SelectItem key={mandal} value={mandal}>
+                    {mandal}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={villageFilter} onValueChange={setVillageFilter}>
+              <SelectTrigger className="h-8 w-[140px] bg-muted/20 border-border/60 text-xs">
+                <SelectValue placeholder="All villages" />
+              </SelectTrigger>
+              <SelectContent className="z-[1000]" position="popper">
+                <SelectItem value="all">All villages</SelectItem>
+                {villageOptions.map((village) => (
+                  <SelectItem key={village} value={village}>
+                    {village}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             <Badge
               variant="outline"
-              className="border-primary/40 bg-primary/10 text-primary gap-1.5 self-center"
+              className="rounded-full border-success/40 bg-success/10 text-success gap-1.5 self-center ml-2 px-3 py-1"
             >
-              <Radio className="h-3 w-3 animate-pulse" /> LIVE
+              <Radio className="h-3.5 w-3.5 animate-pulse" /> LIVE
             </Badge>
-            <Button variant="outline" size="sm" className="gap-1.5">
+            <Button variant="outline" size="sm" className="rounded-full gap-1.5 h-8 px-4">
               <Maximize2 className="h-3.5 w-3.5" /> Full screen
             </Button>
           </>
@@ -421,7 +465,7 @@ function SatellitePage() {
                 setVillageFilter(villageName);
                 // Auto-select a parcel when a village is clicked.
                 // Rule: first matching parcel found in the filtered parcels list.
-                const normalize = (s: string) => s.trim().toLowerCase();
+                const normalize = (s?: string | null) => (s || "").trim().toLowerCase();
 
                 const firstParcelInVillage =
                   filteredParcels.find((p) => normalize(p.village) === normalize(villageName)) ??
@@ -515,66 +559,6 @@ function SatellitePage() {
               <p><span className="text-muted-foreground">Backend signal:</span> {LAYER_GUIDES[activeLayer]?.backend_signal}</p>
               <p><span className="text-muted-foreground">Action:</span> {LAYER_GUIDES[activeLayer]?.action}</p>
             </div>
-          </div>
-
-          <div>
-            <h3 className="font-semibold text-sm mb-2">District Filter</h3>
-            <Select value={districtFilter} onValueChange={setDistrictFilter}>
-              <SelectTrigger className="bg-muted/20 border-border/60">
-                <SelectValue placeholder="All districts" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All districts</SelectItem>
-                {districtOptions.map((district) => (
-                  <SelectItem key={district} value={district}>
-                    {district}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="mt-2 text-[11px] text-muted-foreground">
-              Showing {filteredParcels.length} of {parcels.length} parcels
-            </p>
-          </div>
-
-          <div>
-            <h3 className="font-semibold text-sm mb-2">Mandal Filter</h3>
-            <Select value={mandalFilter} onValueChange={setMandalFilter}>
-              <SelectTrigger className="bg-muted/20 border-border/60">
-                <SelectValue placeholder="All mandals" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All mandals</SelectItem>
-                {mandalOptions.map((mandal) => (
-                  <SelectItem key={mandal} value={mandal}>
-                    {mandal}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="mt-2 text-[11px] text-muted-foreground">
-              {mandalOptions.length} mandals available in the selected district
-            </p>
-          </div>
-
-          <div>
-            <h3 className="font-semibold text-sm mb-2">Village Focus</h3>
-            <Select value={villageFilter} onValueChange={setVillageFilter}>
-              <SelectTrigger className="bg-muted/20 border-border/60">
-                <SelectValue placeholder="All villages" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All villages</SelectItem>
-                {villageOptions.map((village) => (
-                  <SelectItem key={village} value={village}>
-                    {village}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="mt-2 text-[11px] text-muted-foreground">
-              {villageOptions.length} villages available in the selected mandal
-            </p>
           </div>
 
           <div>
@@ -698,13 +682,16 @@ function SatellitePage() {
 
           <div className="glass rounded-lg p-3 text-xs space-y-3">
             <h4 className="font-semibold">Parcel detail</h4>
-            {filteredSelectedParcel ? (
+            {selectedParcelFromAll ? (
+
               <>
                 <div className="flex items-center justify-between gap-2">
                   <div>
-                    <p className="font-semibold text-sm">{filteredSelectedParcel.id}</p>
+                    <p className="font-semibold text-sm">{selectedParcelFromAll.id}</p>
+
                     <p className="text-muted-foreground">
-                      {filteredSelectedParcel.crop} · {filteredSelectedParcel.farmer}
+                      {selectedParcelFromAll.crop} · {selectedParcelFromAll.farmer}
+
                     </p>
                   </div>
                   {selectedRisk ? (
@@ -716,50 +703,55 @@ function SatellitePage() {
                   <InfoCard
                     icon={<Sprout className="h-3.5 w-3.5" />}
                     label="Health"
-                    value={`${filteredSelectedParcel.health}%`}
+                    value={`${selectedParcelFromAll.health}%`}
+
                   />
                   <InfoCard
                     icon={<Droplets className="h-3.5 w-3.5" />}
                     label="NDVI"
-                    value={filteredSelectedParcel.analytics.ndvi.toFixed(2)}
+                    value={selectedParcelFromAll.analytics.ndvi.toFixed(2)}
+
                   />
                   <InfoCard
                     icon={<AlertTriangle className="h-3.5 w-3.5" />}
                     label="Risk"
-                    value={filteredSelectedParcel.risk}
+                    value={selectedParcelFromAll.risk}
+
                   />
                   <InfoCard
                     icon={<MapPin className="h-3.5 w-3.5" />}
                     label="Area"
-                    value={`${filteredSelectedParcel.acreage} ac`}
+                    value={`${selectedParcelFromAll.acreage} ac`}
+
                   />
                 </div>
 
                 <div className="rounded-lg border border-border/60 bg-background/40 p-3 text-xs space-y-1.5">
                   <p>
                     <span className="text-muted-foreground">District:</span>{" "}
-                    {filteredSelectedParcel.district}
+                    {selectedParcelFromAll.district}
                   </p>
                   <p>
                     <span className="text-muted-foreground">Mandal:</span>{" "}
-                    {filteredSelectedParcel.mandal}
+                    {selectedParcelFromAll.mandal}
                   </p>
                   <p>
                     <span className="text-muted-foreground">Layer value:</span>{" "}
-                    {metricForLayer(filteredSelectedParcel, activeLayer)}
+                    {metricForLayer(selectedParcelFromAll, activeLayer)}
                   </p>
                   <p>
                     <span className="text-muted-foreground">Insight:</span>{" "}
-                    {filteredSelectedParcel.analytics.insight}
+                    {selectedParcelFromAll.analytics.insight}
                   </p>
                   <p>
                     <span className="text-muted-foreground">Model:</span>{" "}
-                    {filteredSelectedParcel.analytics.model}
+                    {selectedParcelFromAll.analytics.model}
                   </p>
                   <p>
                     <span className="text-muted-foreground">Recommendation:</span>{" "}
-                    {filteredSelectedParcel.analytics.recommendation}
+                    {selectedParcelFromAll.analytics.recommendation}
                   </p>
+
                 </div>
 
                 <Button
@@ -770,7 +762,8 @@ function SatellitePage() {
                 >
                   <Link
                     to="/field-advisory/$fieldId"
-                    params={{ fieldId: filteredSelectedParcel.id }}
+                    params={{ fieldId: selectedParcelFromAll.id }}
+
                     onClick={() => {
                       // keep sidebar context stable
                     }}
