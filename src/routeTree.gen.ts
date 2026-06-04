@@ -23,6 +23,16 @@ import { Route as FarmersRouteImport } from './routes/farmers'
 import { Route as DiseaseRouteImport } from './routes/disease'
 import { Route as AdvisoryRouteImport } from './routes/advisory'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FarmersWeatherRouteImport } from './routes/farmers/weather'
+import { Route as FarmersVerifyOtpRouteImport } from './routes/farmers/verify-otp'
+import { Route as FarmersScanRouteImport } from './routes/farmers/scan'
+import { Route as FarmersReportsRouteImport } from './routes/farmers/reports'
+import { Route as FarmersRegisterRouteImport } from './routes/farmers/register'
+import { Route as FarmersProfileRouteImport } from './routes/farmers/profile'
+import { Route as FarmersLoginRouteImport } from './routes/farmers/login'
+import { Route as FarmersDashboardRouteImport } from './routes/farmers/dashboard'
+import { Route as FarmersAlertsRouteImport } from './routes/farmers/alerts'
+import { Route as FarmersAdvisoryRouteImport } from './routes/farmers/advisory'
 
 const WeatherRoute = WeatherRouteImport.update({
   id: '/weather',
@@ -94,12 +104,62 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FarmersWeatherRoute = FarmersWeatherRouteImport.update({
+  id: '/weather',
+  path: '/weather',
+  getParentRoute: () => FarmersRoute,
+} as any)
+const FarmersVerifyOtpRoute = FarmersVerifyOtpRouteImport.update({
+  id: '/verify-otp',
+  path: '/verify-otp',
+  getParentRoute: () => FarmersRoute,
+} as any)
+const FarmersScanRoute = FarmersScanRouteImport.update({
+  id: '/scan',
+  path: '/scan',
+  getParentRoute: () => FarmersRoute,
+} as any)
+const FarmersReportsRoute = FarmersReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => FarmersRoute,
+} as any)
+const FarmersRegisterRoute = FarmersRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => FarmersRoute,
+} as any)
+const FarmersProfileRoute = FarmersProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => FarmersRoute,
+} as any)
+const FarmersLoginRoute = FarmersLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => FarmersRoute,
+} as any)
+const FarmersDashboardRoute = FarmersDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => FarmersRoute,
+} as any)
+const FarmersAlertsRoute = FarmersAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => FarmersRoute,
+} as any)
+const FarmersAdvisoryRoute = FarmersAdvisoryRouteImport.update({
+  id: '/advisory',
+  path: '/advisory',
+  getParentRoute: () => FarmersRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/advisory': typeof AdvisoryRoute
   '/disease': typeof DiseaseRoute
-  '/farmers': typeof FarmersRoute
+  '/farmers': typeof FarmersRouteWithChildren
   '/field-advisory': typeof FieldAdvisoryRoute
   '/government': typeof GovernmentRoute
   '/mandal': typeof MandalRoute
@@ -110,12 +170,22 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/surveillance': typeof SurveillanceRoute
   '/weather': typeof WeatherRoute
+  '/farmers/advisory': typeof FarmersAdvisoryRoute
+  '/farmers/alerts': typeof FarmersAlertsRoute
+  '/farmers/dashboard': typeof FarmersDashboardRoute
+  '/farmers/login': typeof FarmersLoginRoute
+  '/farmers/profile': typeof FarmersProfileRoute
+  '/farmers/register': typeof FarmersRegisterRoute
+  '/farmers/reports': typeof FarmersReportsRoute
+  '/farmers/scan': typeof FarmersScanRoute
+  '/farmers/verify-otp': typeof FarmersVerifyOtpRoute
+  '/farmers/weather': typeof FarmersWeatherRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/advisory': typeof AdvisoryRoute
   '/disease': typeof DiseaseRoute
-  '/farmers': typeof FarmersRoute
+  '/farmers': typeof FarmersRouteWithChildren
   '/field-advisory': typeof FieldAdvisoryRoute
   '/government': typeof GovernmentRoute
   '/mandal': typeof MandalRoute
@@ -126,13 +196,23 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/surveillance': typeof SurveillanceRoute
   '/weather': typeof WeatherRoute
+  '/farmers/advisory': typeof FarmersAdvisoryRoute
+  '/farmers/alerts': typeof FarmersAlertsRoute
+  '/farmers/dashboard': typeof FarmersDashboardRoute
+  '/farmers/login': typeof FarmersLoginRoute
+  '/farmers/profile': typeof FarmersProfileRoute
+  '/farmers/register': typeof FarmersRegisterRoute
+  '/farmers/reports': typeof FarmersReportsRoute
+  '/farmers/scan': typeof FarmersScanRoute
+  '/farmers/verify-otp': typeof FarmersVerifyOtpRoute
+  '/farmers/weather': typeof FarmersWeatherRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/advisory': typeof AdvisoryRoute
   '/disease': typeof DiseaseRoute
-  '/farmers': typeof FarmersRoute
+  '/farmers': typeof FarmersRouteWithChildren
   '/field-advisory': typeof FieldAdvisoryRoute
   '/government': typeof GovernmentRoute
   '/mandal': typeof MandalRoute
@@ -143,6 +223,16 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/surveillance': typeof SurveillanceRoute
   '/weather': typeof WeatherRoute
+  '/farmers/advisory': typeof FarmersAdvisoryRoute
+  '/farmers/alerts': typeof FarmersAlertsRoute
+  '/farmers/dashboard': typeof FarmersDashboardRoute
+  '/farmers/login': typeof FarmersLoginRoute
+  '/farmers/profile': typeof FarmersProfileRoute
+  '/farmers/register': typeof FarmersRegisterRoute
+  '/farmers/reports': typeof FarmersReportsRoute
+  '/farmers/scan': typeof FarmersScanRoute
+  '/farmers/verify-otp': typeof FarmersVerifyOtpRoute
+  '/farmers/weather': typeof FarmersWeatherRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +251,16 @@ export interface FileRouteTypes {
     | '/settings'
     | '/surveillance'
     | '/weather'
+    | '/farmers/advisory'
+    | '/farmers/alerts'
+    | '/farmers/dashboard'
+    | '/farmers/login'
+    | '/farmers/profile'
+    | '/farmers/register'
+    | '/farmers/reports'
+    | '/farmers/scan'
+    | '/farmers/verify-otp'
+    | '/farmers/weather'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,6 +277,16 @@ export interface FileRouteTypes {
     | '/settings'
     | '/surveillance'
     | '/weather'
+    | '/farmers/advisory'
+    | '/farmers/alerts'
+    | '/farmers/dashboard'
+    | '/farmers/login'
+    | '/farmers/profile'
+    | '/farmers/register'
+    | '/farmers/reports'
+    | '/farmers/scan'
+    | '/farmers/verify-otp'
+    | '/farmers/weather'
   id:
     | '__root__'
     | '/'
@@ -193,13 +303,23 @@ export interface FileRouteTypes {
     | '/settings'
     | '/surveillance'
     | '/weather'
+    | '/farmers/advisory'
+    | '/farmers/alerts'
+    | '/farmers/dashboard'
+    | '/farmers/login'
+    | '/farmers/profile'
+    | '/farmers/register'
+    | '/farmers/reports'
+    | '/farmers/scan'
+    | '/farmers/verify-otp'
+    | '/farmers/weather'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdvisoryRoute: typeof AdvisoryRoute
   DiseaseRoute: typeof DiseaseRoute
-  FarmersRoute: typeof FarmersRoute
+  FarmersRoute: typeof FarmersRouteWithChildren
   FieldAdvisoryRoute: typeof FieldAdvisoryRoute
   GovernmentRoute: typeof GovernmentRoute
   MandalRoute: typeof MandalRoute
@@ -312,14 +432,113 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/farmers/weather': {
+      id: '/farmers/weather'
+      path: '/weather'
+      fullPath: '/farmers/weather'
+      preLoaderRoute: typeof FarmersWeatherRouteImport
+      parentRoute: typeof FarmersRoute
+    }
+    '/farmers/verify-otp': {
+      id: '/farmers/verify-otp'
+      path: '/verify-otp'
+      fullPath: '/farmers/verify-otp'
+      preLoaderRoute: typeof FarmersVerifyOtpRouteImport
+      parentRoute: typeof FarmersRoute
+    }
+    '/farmers/scan': {
+      id: '/farmers/scan'
+      path: '/scan'
+      fullPath: '/farmers/scan'
+      preLoaderRoute: typeof FarmersScanRouteImport
+      parentRoute: typeof FarmersRoute
+    }
+    '/farmers/reports': {
+      id: '/farmers/reports'
+      path: '/reports'
+      fullPath: '/farmers/reports'
+      preLoaderRoute: typeof FarmersReportsRouteImport
+      parentRoute: typeof FarmersRoute
+    }
+    '/farmers/register': {
+      id: '/farmers/register'
+      path: '/register'
+      fullPath: '/farmers/register'
+      preLoaderRoute: typeof FarmersRegisterRouteImport
+      parentRoute: typeof FarmersRoute
+    }
+    '/farmers/profile': {
+      id: '/farmers/profile'
+      path: '/profile'
+      fullPath: '/farmers/profile'
+      preLoaderRoute: typeof FarmersProfileRouteImport
+      parentRoute: typeof FarmersRoute
+    }
+    '/farmers/login': {
+      id: '/farmers/login'
+      path: '/login'
+      fullPath: '/farmers/login'
+      preLoaderRoute: typeof FarmersLoginRouteImport
+      parentRoute: typeof FarmersRoute
+    }
+    '/farmers/dashboard': {
+      id: '/farmers/dashboard'
+      path: '/dashboard'
+      fullPath: '/farmers/dashboard'
+      preLoaderRoute: typeof FarmersDashboardRouteImport
+      parentRoute: typeof FarmersRoute
+    }
+    '/farmers/alerts': {
+      id: '/farmers/alerts'
+      path: '/alerts'
+      fullPath: '/farmers/alerts'
+      preLoaderRoute: typeof FarmersAlertsRouteImport
+      parentRoute: typeof FarmersRoute
+    }
+    '/farmers/advisory': {
+      id: '/farmers/advisory'
+      path: '/advisory'
+      fullPath: '/farmers/advisory'
+      preLoaderRoute: typeof FarmersAdvisoryRouteImport
+      parentRoute: typeof FarmersRoute
+    }
   }
 }
+
+interface FarmersRouteChildren {
+  FarmersAdvisoryRoute: typeof FarmersAdvisoryRoute
+  FarmersAlertsRoute: typeof FarmersAlertsRoute
+  FarmersDashboardRoute: typeof FarmersDashboardRoute
+  FarmersLoginRoute: typeof FarmersLoginRoute
+  FarmersProfileRoute: typeof FarmersProfileRoute
+  FarmersRegisterRoute: typeof FarmersRegisterRoute
+  FarmersReportsRoute: typeof FarmersReportsRoute
+  FarmersScanRoute: typeof FarmersScanRoute
+  FarmersVerifyOtpRoute: typeof FarmersVerifyOtpRoute
+  FarmersWeatherRoute: typeof FarmersWeatherRoute
+}
+
+const FarmersRouteChildren: FarmersRouteChildren = {
+  FarmersAdvisoryRoute: FarmersAdvisoryRoute,
+  FarmersAlertsRoute: FarmersAlertsRoute,
+  FarmersDashboardRoute: FarmersDashboardRoute,
+  FarmersLoginRoute: FarmersLoginRoute,
+  FarmersProfileRoute: FarmersProfileRoute,
+  FarmersRegisterRoute: FarmersRegisterRoute,
+  FarmersReportsRoute: FarmersReportsRoute,
+  FarmersScanRoute: FarmersScanRoute,
+  FarmersVerifyOtpRoute: FarmersVerifyOtpRoute,
+  FarmersWeatherRoute: FarmersWeatherRoute,
+}
+
+const FarmersRouteWithChildren =
+  FarmersRoute._addFileChildren(FarmersRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdvisoryRoute: AdvisoryRoute,
   DiseaseRoute: DiseaseRoute,
-  FarmersRoute: FarmersRoute,
+  FarmersRoute: FarmersRouteWithChildren,
   FieldAdvisoryRoute: FieldAdvisoryRoute,
   GovernmentRoute: GovernmentRoute,
   MandalRoute: MandalRoute,
