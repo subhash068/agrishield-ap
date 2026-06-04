@@ -104,6 +104,7 @@ export type WeatherLiveSummary = {
 };
 
 export type Parcel = {
+  village: string;
   id: string;
   farmer: string;
   district: string;

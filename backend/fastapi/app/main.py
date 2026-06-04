@@ -12,7 +12,7 @@ from urllib.error import URLError, HTTPError
 from fastapi import Depends, FastAPI, UploadFile, File, Request as FastAPIRequest
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import inspect, select, text
+from sqlalchemy import inspect, select, text, func
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -41,7 +41,11 @@ except ImportError:  # pragma: no cover - optional runtime dependency
     Image = None
 
 try:
+    # pyrefly: ignore [missing-import]
     import torch
+    # pyrefly: ignore [missing-import]
+    import scipy
+    # pyrefly: ignore [missing-import]
     from transformers import AutoImageProcessor, AutoModelForImageClassification
 except (ImportError, MemoryError):  # pragma: no cover - optional runtime dependency
     # If SciPy/transformers can't be imported due to missing deps or low-memory environments,
@@ -271,6 +275,37 @@ def _ensure_parcel_geometry(db: Session) -> None:
             db.execute(text("CREATE INDEX IF NOT EXISTS parcels_geom_gist ON parcels USING GIST (geom)"))
             db.commit()
             parcel_columns.add("geom")
+        except Exception:
+            db.rollback()
+            raise
+
+    # If geom already exists but has a mismatching type (e.g. Point), migrate it to Polygon.
+    # We inspect the existing type and only alter when needed to avoid unnecessary locks.
+    if "geom" in parcel_columns:
+        try:
+            type_row = db.execute(
+                text(
+                    """
+                    SELECT udt_name
+                    FROM information_schema.columns
+                    WHERE table_name='parcels' AND column_name='geom'
+                    """
+                )
+            ).first()
+
+            # information_schema.udt_name for PostGIS geometry columns typically looks like:
+            # geometry, geography, or a specific subtype depending on DB/version.
+            # We'll instead use Find_SRID-ish approach by querying the geometry type of a non-null value.
+            # If all values are null we can't infer; in that case we still attempt a safe alter.
+            sample = db.execute(
+                text("SELECT ST_GeometryType(geom) AS gtype FROM parcels WHERE geom IS NOT NULL LIMIT 1")
+            ).first()
+
+            existing_gtype = sample[0] if sample and sample[0] else None
+            if existing_gtype and existing_gtype != 'ST_Polygon':
+                db.execute(text("ALTER TABLE parcels ALTER COLUMN geom TYPE geometry(Polygon,4326) USING geom::geometry(Polygon,4326)"))
+                db.execute(text("CREATE INDEX IF NOT EXISTS parcels_geom_gist ON parcels USING GIST (geom)"))
+                db.commit()
         except Exception:
             db.rollback()
             raise
@@ -918,7 +953,7 @@ def alerts(db: Session = Depends(get_db)):
     rows = db.execute(select(models.Alert).order_by(models.Alert.id.desc())).scalars().all()
     return [
         AlertOut(
-            id=a.alert_id,
+            id=a.alert_id_str,
             type=a.type,
             crop=a.crop,
             district=a.district,
@@ -1222,7 +1257,7 @@ def dashboard_kpis(db: Session = Depends(get_db)):
     """
 
     try:
-        total_parcels = db.execute(select(models.Parcel.id).count()).scalar_one()
+        total_parcels = db.execute(select(func.count(models.Parcel.id))).scalar_one()
 
         if total_parcels == 0:
             return DashboardKpiOut(
@@ -1239,15 +1274,14 @@ def dashboard_kpis(db: Session = Depends(get_db)):
 
         # Healthy crop: health >= 75 (tunable threshold)
         healthy_count = db.execute(
-            select(models.Parcel.id).where(models.Parcel.health >= 75).count()
+            select(func.count(models.Parcel.id)).where(models.Parcel.health >= 75)
         ).scalar_one()
         healthy_percent = round((healthy_count / total_parcels) * 100.0, 1)
 
         # Active stress alerts: parcels with risk High/Critical or health < 75
         stress_count = db.execute(
-            select(models.Parcel.id)
+            select(func.count(models.Parcel.id))
             .where((models.Parcel.risk.in_(["High", "Critical"])) | (models.Parcel.health < 75))
-            .count()
         ).scalar_one()
 
         # High risk mandals: mandal with >= threshold risky parcels
@@ -1266,11 +1300,11 @@ def dashboard_kpis(db: Session = Depends(get_db)):
         # Satellite coverage: parcels with non-null ndvi/evi/ndre
         # (If ndre/evi columns are absent, Postgres would error; we rely on startup schema ensure.)
         valid_veg = db.execute(
-            select(models.Parcel.id).where(
+            select(func.count(models.Parcel.id)).where(
                 (models.Parcel.ndvi.is_not(None))
                 & (models.Parcel.evi.is_not(None))
                 & (models.Parcel.ndre.is_not(None))
-            ).count()
+            )
         ).scalar_one()
         satellite_coverage_percent = round((valid_veg / total_parcels) * 100.0, 1)
 
@@ -1299,7 +1333,9 @@ def dashboard_kpis(db: Session = Depends(get_db)):
             ai_confidence_score_percent=float(ai_confidence_percent),
             updated_at=datetime.utcnow().isoformat(timespec="seconds") + "Z",
         )
-    except Exception:
+    except Exception as e:
+        import traceback
+        err_str = traceback.format_exc()
         # If something fails (missing columns, permissions, etc.), keep API responsive.
         return DashboardKpiOut(
             parcels_monitored=0,
@@ -1310,9 +1346,8 @@ def dashboard_kpis(db: Session = Depends(get_db)):
             predicted_yield_loss_percent=0.0,
             satellite_coverage_percent=0.0,
             ai_confidence_score_percent=0.0,
-            updated_at=datetime.utcnow().isoformat(timespec="seconds") + "Z",
+            updated_at=err_str[:500],
         )
-
 
 
 @app.post("/disease/detect", response_model=DiseaseDetectionResponseOut)

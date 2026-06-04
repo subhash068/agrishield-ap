@@ -29,6 +29,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getParcels, type Parcel } from "@/lib/api";
+import { Link } from "@tanstack/react-router";
+
 
 export const Route = createFileRoute("/satellite")({
   head: () => ({
@@ -417,8 +419,17 @@ function SatellitePage() {
                 setSelectedVillage(villageName);
                 // Selecting a village should focus the map and update the left-side filter
                 setVillageFilter(villageName);
-                // Optional: clear parcel selection so UI doesn't feel 'stuck'
-                setSelectedParcelId(null);
+                // Auto-select a parcel when a village is clicked.
+                // Rule: first matching parcel found in the filtered parcels list.
+                const normalize = (s: string) => s.trim().toLowerCase();
+
+                const firstParcelInVillage =
+                  filteredParcels.find((p) => normalize(p.village) === normalize(villageName)) ??
+                  parcels.find((p) => normalize(p.village) === normalize(villageName)) ??
+                  null;
+
+                setSelectedParcelId(firstParcelInVillage ? firstParcelInVillage.id : null);
+
               }}
             />
           ) : (
@@ -752,6 +763,23 @@ function SatellitePage() {
                 </div>
 
                 <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                  className="w-full mb-2"
+                >
+                  <Link
+                    to="/field-advisory/$fieldId"
+                    params={{ fieldId: filteredSelectedParcel.id }}
+                    onClick={() => {
+                      // keep sidebar context stable
+                    }}
+                  >
+                    Open Field Advisory
+                  </Link>
+                </Button>
+
+                <Button
                   size="sm"
                   variant="outline"
                   className="w-full"
@@ -762,6 +790,7 @@ function SatellitePage() {
                 >
                   Clear selection
                 </Button>
+
               </>
             ) : (
               <p className="text-muted-foreground leading-relaxed">

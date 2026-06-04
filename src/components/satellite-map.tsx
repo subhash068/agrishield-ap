@@ -183,8 +183,10 @@ export function SatelliteMap({
   villageGeoJson,
   selectedParcelId,
   onSelectParcel,
+  onSelectVillage,
 }: ParcelMapProps) {
   const mapRef = useRef<L.Map | null>(null);
+
   const [imageryFallback, setImageryFallback] = useState(false);
 
   const parcelsWithBand = useMemo(() => {
@@ -411,23 +413,23 @@ export function SatelliteMap({
       {villageGeoJson ? (
         <GeoJSON
           data={selectedVillageGeoJson as GeoJsonObject}
-          style={(feature) => ({
-            color:
+          // Explicitly make the vector interactive for reliable click hit-testing.
+          // (Leaflet uses pointer-event capable SVG paths; this helps in some zoom/browser cases.)
+          style={(feature) => {
+            const isSelectedVillage =
               villageFilter === "all" ||
               feature?.properties?.vilname11 === villageFilter ||
-              feature?.properties?.vilnam_soi === villageFilter
-                ? "oklch(0.78 0.17 200)"
-                : "oklch(0.7 0.04 250)",
-            weight:
-              villageFilter === "all" ||
-              feature?.properties?.vilname11 === villageFilter ||
-              feature?.properties?.vilnam_soi === villageFilter
-                ? 1.3
-                : 0.8,
-            // Keep fill opacity non-zero so Leaflet reliably registers pointer events
-            fillOpacity: 0.02,
-            opacity: 0.22,
-          })}
+              feature?.properties?.vilnam_soi === villageFilter;
+
+            return {
+              color: isSelectedVillage ? "oklch(0.78 0.17 200)" : "oklch(0.7 0.04 250)",
+              weight: isSelectedVillage ? 1.3 : 0.8,
+              // Non-zero fill so Leaflet can hit-test the polygon.
+              fillOpacity: 0.22,
+              opacity: 0.75,
+              pointerEvents: "auto" as const,
+            };
+          }}
           onEachFeature={(feature, layer) => {
             const villageName = labelForFeature(feature, "Village");
 
@@ -446,6 +448,7 @@ export function SatelliteMap({
           }}
         />
       ) : null}
+
 
       {parcelsWithBand.map((parcel) => (
         <Polygon

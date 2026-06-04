@@ -11,33 +11,7 @@ def seed_from_mock(db: Session):
     crops = ["Paddy", "Cotton", "Maize", "Chilli", "Red Gram"]
 
     # Users (so locations FK could work later; locations endpoint isn't implemented)
-    # DB column `users.role` is a Postgres enum type (roleenum), so always cast on insert.
-    from sqlalchemy import text
-
-    db.execute(
-        text(
-            """
-        INSERT INTO users (email, hashed_password, full_name, role, is_active, is_verified)
-        VALUES (:email, :hashed_password, :full_name, CAST(:role AS roleenum), :is_active, :is_verified)
-        ON CONFLICT (email) DO UPDATE SET
-            hashed_password = EXCLUDED.hashed_password,
-            full_name = EXCLUDED.full_name,
-            role = EXCLUDED.role,
-            is_active = EXCLUDED.is_active,
-            is_verified = EXCLUDED.is_verified
-        """
-        ),
-        {
-            "email": "demo@agrishield.local",
-            "hashed_password": "demo-hash",
-            "full_name": "Demo User",
-            "role": "admin",
-            "is_active": True,
-            "is_verified": True,
-        },
-    )
-
-
+    # Users seeding removed because locations FK isn't implemented and id is missing a default, causing transaction aborts.
 
     # Schemes
     schemes = [
