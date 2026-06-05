@@ -22,6 +22,7 @@ const navOps = [
   { title: "Farmer Services",     url: "/farmers",      icon: Users },
   { title: "Advisory System",     url: "/advisory",     icon: MessageSquareWarning },
   { title: "Mandal Surveillance", url: "/mandal",       icon: ShieldAlert },
+  { title: "AI Yield Dashboard",  url: "/yield-dashboard", icon: Sparkles },
   { title: "AI Predictions",      url: "/predictions",  icon: Sparkles },
   { title: "Reports & Analytics", url: "/reports",      icon: FileBarChart2 },
   { title: "Government Dashboard",url: "/government",   icon: Landmark },

@@ -28,13 +28,18 @@ export function getFarmerSession(): FarmerSession | null {
   }
 }
 
+const FARMER_SESSION_CHANGED_EVENT = "farmer.session.changed";
+
 export function setFarmerSession(session: FarmerSession) {
   localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(session));
+  window.dispatchEvent(new Event(FARMER_SESSION_CHANGED_EVENT));
 }
 
 export function clearFarmerSession() {
   localStorage.removeItem(STORAGE_KEY_SESSION);
+  window.dispatchEvent(new Event(FARMER_SESSION_CHANGED_EVENT));
 }
+
 
 export function isFarmerLoggedIn(): boolean {
   return !!getFarmerSession();

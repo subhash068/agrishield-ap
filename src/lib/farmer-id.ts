@@ -24,6 +24,12 @@ export function generateFarmerId(profile: {
   return `AP-FR-${year}-${short}`;
 }
 
+function getAbbr(s: string) {
+  if (!s) return "XXX";
+  const letters = s.replace(/[^a-zA-Z]/g, "");
+  return letters.substring(0, 3).toUpperCase().padEnd(3, "X");
+}
+
 export function generateParcelId(profile: {
   district: string;
   mandal: string;
@@ -39,6 +45,10 @@ export function generateParcelId(profile: {
     profile.cropType,
   ].map(sanitize).join("|");
   const short = hashShort(payload);
-  // demo format similar to example
-  return `AP-EG-KTP-PDY-${short}`;
+  
+  const distAbbr = getAbbr(profile.district);
+  const manAbbr = getAbbr(profile.mandal);
+  const cropAbbr = getAbbr(profile.cropType);
+
+  return `AP-${distAbbr}-${manAbbr}-${cropAbbr}-${short}`;
 }

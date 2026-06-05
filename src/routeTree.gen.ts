@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as YieldDashboardRouteImport } from './routes/yield-dashboard'
 import { Route as WeatherRouteImport } from './routes/weather'
 import { Route as SurveillanceRouteImport } from './routes/surveillance'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -22,6 +23,7 @@ import { Route as FarmersRouteImport } from './routes/farmers'
 import { Route as DiseaseRouteImport } from './routes/disease'
 import { Route as AdvisoryRouteImport } from './routes/advisory'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FarmersIndexRouteImport } from './routes/farmers/index'
 import { Route as FieldAdvisoryFieldIdRouteImport } from './routes/field-advisory.$fieldId'
 import { Route as FarmersWeatherRouteImport } from './routes/farmers/weather'
 import { Route as FarmersVerifyOtpRouteImport } from './routes/farmers/verify-otp'
@@ -34,6 +36,11 @@ import { Route as FarmersDashboardRouteImport } from './routes/farmers/dashboard
 import { Route as FarmersAlertsRouteImport } from './routes/farmers/alerts'
 import { Route as FarmersAdvisoryRouteImport } from './routes/farmers/advisory'
 
+const YieldDashboardRoute = YieldDashboardRouteImport.update({
+  id: '/yield-dashboard',
+  path: '/yield-dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WeatherRoute = WeatherRouteImport.update({
   id: '/weather',
   path: '/weather',
@@ -98,6 +105,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const FarmersIndexRoute = FarmersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FarmersRoute,
 } as any)
 const FieldAdvisoryFieldIdRoute = FieldAdvisoryFieldIdRouteImport.update({
   id: '/field-advisory/$fieldId',
@@ -169,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/surveillance': typeof SurveillanceRoute
   '/weather': typeof WeatherRoute
+  '/yield-dashboard': typeof YieldDashboardRoute
   '/farmers/advisory': typeof FarmersAdvisoryRoute
   '/farmers/alerts': typeof FarmersAlertsRoute
   '/farmers/dashboard': typeof FarmersDashboardRoute
@@ -180,12 +193,12 @@ export interface FileRoutesByFullPath {
   '/farmers/verify-otp': typeof FarmersVerifyOtpRoute
   '/farmers/weather': typeof FarmersWeatherRoute
   '/field-advisory/$fieldId': typeof FieldAdvisoryFieldIdRoute
+  '/farmers/': typeof FarmersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/advisory': typeof AdvisoryRoute
   '/disease': typeof DiseaseRoute
-  '/farmers': typeof FarmersRouteWithChildren
   '/government': typeof GovernmentRoute
   '/mandal': typeof MandalRoute
   '/parcels': typeof ParcelsRoute
@@ -195,6 +208,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/surveillance': typeof SurveillanceRoute
   '/weather': typeof WeatherRoute
+  '/yield-dashboard': typeof YieldDashboardRoute
   '/farmers/advisory': typeof FarmersAdvisoryRoute
   '/farmers/alerts': typeof FarmersAlertsRoute
   '/farmers/dashboard': typeof FarmersDashboardRoute
@@ -206,6 +220,7 @@ export interface FileRoutesByTo {
   '/farmers/verify-otp': typeof FarmersVerifyOtpRoute
   '/farmers/weather': typeof FarmersWeatherRoute
   '/field-advisory/$fieldId': typeof FieldAdvisoryFieldIdRoute
+  '/farmers': typeof FarmersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -222,6 +237,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/surveillance': typeof SurveillanceRoute
   '/weather': typeof WeatherRoute
+  '/yield-dashboard': typeof YieldDashboardRoute
   '/farmers/advisory': typeof FarmersAdvisoryRoute
   '/farmers/alerts': typeof FarmersAlertsRoute
   '/farmers/dashboard': typeof FarmersDashboardRoute
@@ -233,6 +249,7 @@ export interface FileRoutesById {
   '/farmers/verify-otp': typeof FarmersVerifyOtpRoute
   '/farmers/weather': typeof FarmersWeatherRoute
   '/field-advisory/$fieldId': typeof FieldAdvisoryFieldIdRoute
+  '/farmers/': typeof FarmersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -250,6 +267,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/surveillance'
     | '/weather'
+    | '/yield-dashboard'
     | '/farmers/advisory'
     | '/farmers/alerts'
     | '/farmers/dashboard'
@@ -261,12 +279,12 @@ export interface FileRouteTypes {
     | '/farmers/verify-otp'
     | '/farmers/weather'
     | '/field-advisory/$fieldId'
+    | '/farmers/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/advisory'
     | '/disease'
-    | '/farmers'
     | '/government'
     | '/mandal'
     | '/parcels'
@@ -276,6 +294,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/surveillance'
     | '/weather'
+    | '/yield-dashboard'
     | '/farmers/advisory'
     | '/farmers/alerts'
     | '/farmers/dashboard'
@@ -287,6 +306,7 @@ export interface FileRouteTypes {
     | '/farmers/verify-otp'
     | '/farmers/weather'
     | '/field-advisory/$fieldId'
+    | '/farmers'
   id:
     | '__root__'
     | '/'
@@ -302,6 +322,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/surveillance'
     | '/weather'
+    | '/yield-dashboard'
     | '/farmers/advisory'
     | '/farmers/alerts'
     | '/farmers/dashboard'
@@ -313,6 +334,7 @@ export interface FileRouteTypes {
     | '/farmers/verify-otp'
     | '/farmers/weather'
     | '/field-advisory/$fieldId'
+    | '/farmers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -329,11 +351,19 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SurveillanceRoute: typeof SurveillanceRoute
   WeatherRoute: typeof WeatherRoute
+  YieldDashboardRoute: typeof YieldDashboardRoute
   FieldAdvisoryFieldIdRoute: typeof FieldAdvisoryFieldIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/yield-dashboard': {
+      id: '/yield-dashboard'
+      path: '/yield-dashboard'
+      fullPath: '/yield-dashboard'
+      preLoaderRoute: typeof YieldDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/weather': {
       id: '/weather'
       path: '/weather'
@@ -424,6 +454,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/farmers/': {
+      id: '/farmers/'
+      path: '/'
+      fullPath: '/farmers/'
+      preLoaderRoute: typeof FarmersIndexRouteImport
+      parentRoute: typeof FarmersRoute
     }
     '/field-advisory/$fieldId': {
       id: '/field-advisory/$fieldId'
@@ -516,6 +553,7 @@ interface FarmersRouteChildren {
   FarmersScanRoute: typeof FarmersScanRoute
   FarmersVerifyOtpRoute: typeof FarmersVerifyOtpRoute
   FarmersWeatherRoute: typeof FarmersWeatherRoute
+  FarmersIndexRoute: typeof FarmersIndexRoute
 }
 
 const FarmersRouteChildren: FarmersRouteChildren = {
@@ -529,6 +567,7 @@ const FarmersRouteChildren: FarmersRouteChildren = {
   FarmersScanRoute: FarmersScanRoute,
   FarmersVerifyOtpRoute: FarmersVerifyOtpRoute,
   FarmersWeatherRoute: FarmersWeatherRoute,
+  FarmersIndexRoute: FarmersIndexRoute,
 }
 
 const FarmersRouteWithChildren =
@@ -548,6 +587,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SurveillanceRoute: SurveillanceRoute,
   WeatherRoute: WeatherRoute,
+  YieldDashboardRoute: YieldDashboardRoute,
   FieldAdvisoryFieldIdRoute: FieldAdvisoryFieldIdRoute,
 }
 export const routeTree = rootRouteImport

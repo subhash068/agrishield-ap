@@ -88,9 +88,15 @@ export function KpiCard({ label, value, unit = "", trend = 0, confidence, index 
         </defs>
         <path
           d={(() => {
-            const pts = Array.from({ length: 18 }, (_, i) =>
-              `${(i / 17) * 100},${12 + Math.sin(i * 0.7 + index) * 6 + Math.cos(i * 0.4) * 3}`
-            );
+            // Deterministic SSR/client path generation:
+            // - Use fixed rounding for x/y to avoid float/string precision differences.
+            // - Keep the same math and rounding rules on both server and client.
+            const round = (n: number) => Number(n.toFixed(3));
+            const pts = Array.from({ length: 18 }, (_, i) => {
+              const x = round(((i / 17) * 100));
+              const y = round(12 + Math.sin(i * 0.7 + index) * 6 + Math.cos(i * 0.4) * 3);
+              return `${x},${y}`;
+            });
             return `M${pts.join(" L")} L100,24 L0,24 Z`;
           })()}
           fill={`url(#spark-${index})`}

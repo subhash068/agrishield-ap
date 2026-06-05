@@ -20,6 +20,12 @@ import {
 import { PageHeader } from "@/components/page-header";
 import { KpiCard } from "@/components/kpi-card";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useQuery } from "@tanstack/react-query";
+import { getNearestSupportCenters } from "@/lib/api";
+import { DISTRICTS } from "@/lib/mock-data";
+import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/government")({
   head: () => ({
@@ -68,6 +74,8 @@ export const Route = createFileRoute("/government")({
           />
           <KpiCard label="Schemes Active" value={47} unit="" trend={1.0} confidence={100} index={3} />
         </div>
+
+        <NearestSupportCentersSection />
 
         <div className="glass rounded-xl p-5 border border-border/60">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -350,6 +358,104 @@ export const Route = createFileRoute("/government")({
     </div>
   ),
 });
+
+function NearestSupportCentersSection() {
+  const [district, setDistrict] = useState<string>("West Godavari");
+  const [mandal, setMandal] = useState<string>("");
+
+  const query = useQuery({
+    queryKey: ["nearest-support-centers", district, mandal],
+    queryFn: () => getNearestSupportCenters({ district, mandal: mandal.trim() ? mandal : undefined }),
+    enabled: Boolean(district),
+  });
+
+  return (
+    <div className="glass rounded-xl p-5 border border-border/60">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="font-semibold">Nearest Support Centers</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            View RSK/ATMA and Helpdesk contacts prioritized for your selected district/mandal.
+          </p>
+        </div>
+        <Badge variant="outline" className="border-border/60 bg-background/60">
+          Mock “nearest” ranking
+        </Badge>
+      </div>
+
+      <div className="mt-4 grid md:grid-cols-[1fr_0.9fr] gap-3">
+        <label className="grid gap-1.5 text-sm">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground">District</span>
+          <select
+            className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+            value={district}
+            onChange={(e) => setDistrict(e.target.value)}
+          >
+            {DISTRICTS.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="grid gap-1.5 text-sm">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground">Mandal (optional)</span>
+          <input
+            className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+            value={mandal}
+            placeholder="e.g., Eluru"
+            onChange={(e) => setMandal(e.target.value)}
+          />
+        </label>
+      </div>
+
+      <div className="mt-4">
+        {query.isLoading ? (
+          <div className="text-sm text-muted-foreground">Loading support centers...</div>
+        ) : query.error ? (
+          <div className="text-sm text-destructive font-medium">Failed to load support centers.</div>
+        ) : (
+          <div className="rounded-xl border border-border/60 bg-background/40 overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Center</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>District / Mandal</TableHead>
+                  <TableHead>Distance</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {query.data?.map((c) => (
+                  <TableRow key={c.id}>
+                    <TableCell>
+                      <div className="font-medium">{c.name}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{c.address}</div>
+                      {c.phone ? <div className="text-xs mt-1">{c.phone}</div> : null}
+                      {c.hours ? <div className="text-xs text-muted-foreground mt-1">{c.hours}</div> : null}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="border-border/60 bg-background/60">
+                        {c.type}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {c.district} / {c.mandal ?? "—"}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {c.distance_km !== null ? `${c.distance_km.toFixed(1)} km` : "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function PipelineCard({ title, steps }: { title: string; steps: string[] }) {
   return (

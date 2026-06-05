@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { generateFarmerId } from "@/lib/farmer-id";
 import { generateParcelId } from "@/lib/farmer-id";
+import { registerFarmer } from "@/lib/api";
 
 export const Route = createFileRoute("/farmers/register")({
   head: () => ({
@@ -157,8 +158,24 @@ function RegisterPage() {
           <Button
             className="w-full rounded-xl"
             disabled={!canGenerate}
-            onClick={() => {
-              // For now, go back to login and use mock OTP.
+            onClick={async () => {
+              if (previewIds) {
+                try {
+                  await registerFarmer({
+                    farmer_name: farmerName,
+                    phone_number: phoneNumber,
+                    district,
+                    mandal,
+                    village,
+                    survey_number: surveyNumber,
+                    crop_type: cropType,
+                    land_area_acres: landAreaAcres,
+                    parcel_id: previewIds.parcelId,
+                  });
+                } catch (e) {
+                  console.error("Failed to register farmer", e);
+                }
+              }
               navigate({ to: "/farmers" as any });
             }}
           >

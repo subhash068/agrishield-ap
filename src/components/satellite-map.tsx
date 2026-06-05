@@ -97,6 +97,30 @@ const DISTRICT_ALIASES: Record<string, string> = {
   "Y.S.R Kadapa": "YSR Kadapa",
 };
 
+function canonicalizeText(value: string | undefined | null) {
+  if (!value) return "";
+  return value
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/[\.,;:]+$/g, "")
+    .toLowerCase();
+}
+
+function canonicalDistrictName(name: string | undefined | null) {
+  const trimmed = (name ?? "").trim();
+  if (!trimmed) return "";
+  return canonicalizeText(DISTRICT_ALIASES[trimmed] ?? trimmed);
+}
+
+function canonicalMandalName(name: string | undefined | null) {
+  return canonicalizeText(name);
+}
+
+function canonicalVillageName(name: string | undefined | null) {
+  return canonicalizeText(name);
+}
+
+
 function geometryToLeafletPositions(parcel: Parcel): [number, number][] {
   if (parcel.geometry?.type === "Polygon") {
     const outerRing = parcel.geometry.coordinates[0] ?? [];
@@ -108,11 +132,11 @@ function geometryToLeafletPositions(parcel: Parcel): [number, number][] {
   return parcel.outline;
 }
 
+// Backwards compat alias
 function normalizeDistrictName(name: string | undefined | null) {
-  if (!name) return "";
-  const trimmed = name.trim();
-  return DISTRICT_ALIASES[trimmed] ?? trimmed;
+  return canonicalDistrictName(name);
 }
+
 
 function scoreForLayer(parcel: Parcel, activeLayer: string) {
   switch (activeLayer) {
@@ -223,9 +247,10 @@ export function SatelliteMap({
     const geojson = districtGeoJson as { features?: Array<{ properties?: { NAME?: string } }> };
     return {
       ...(districtGeoJson as Record<string, unknown>),
-      features: (geojson.features ?? []).filter(
-        (feature) => normalizeDistrictName(feature?.properties?.NAME) === districtFilter,
+features: (geojson.features ?? []).filter(
+        (feature) => canonicalDistrictName(feature?.properties?.NAME) === canonicalizeText(districtFilter),
       ),
+
     };
   }, [districtFilter, districtGeoJson]);
 
@@ -234,10 +259,16 @@ export function SatelliteMap({
     const geojson = mandalGeoJson as { features?: Array<{ properties?: { dtname?: string; sdtname?: string } }> };
     return {
       ...(mandalGeoJson as Record<string, unknown>),
-      features: (geojson.features ?? []).filter((feature) => {
-        if (districtFilter !== "all" && normalizeDistrictName(feature?.properties?.dtname) !== districtFilter) return false;
-        return mandalFilter === "all" || feature?.properties?.sdtname === mandalFilter;
+features: (geojson.features ?? []).filter((feature) => {
+        if (
+          districtFilter !== "all" &&
+          canonicalDistrictName(feature?.properties?.dtname) !== canonicalizeText(districtFilter)
+        )
+          return false;
+        if (mandalFilter === "all") return true;
+        return canonicalMandalName(feature?.properties?.sdtname) === canonicalizeText(mandalFilter);
       }),
+
     };
   }, [districtFilter, mandalFilter, mandalGeoJson]);
   const selectedVillageGeoJson = useMemo(() => {
@@ -247,17 +278,25 @@ export function SatelliteMap({
     };
     return {
       ...(villageGeoJson as Record<string, unknown>),
-      features: (geojson.features ?? []).filter((feature) => {
+features: (geojson.features ?? []).filter((feature) => {
         if (
           districtFilter !== "all" &&
           feature?.properties?.dtname &&
-          normalizeDistrictName(feature.properties.dtname) !== districtFilter
+          canonicalDistrictName(feature.properties.dtname) !== canonicalizeText(districtFilter)
         ) {
           return false;
         }
-        if (mandalFilter !== "all" && feature?.properties?.sdtname !== mandalFilter) return false;
-        return villageFilter === "all" || feature?.properties?.vilname11 === villageFilter || feature?.properties?.vilnam_soi === villageFilter;
+        if (mandalFilter !== "all") {
+          if (canonicalMandalName(feature?.properties?.sdtname) !== canonicalizeText(mandalFilter)) return false;
+        }
+        if (villageFilter === "all") return true;
+        const v = feature?.properties;
+        return (
+          canonicalVillageName(v?.vilname11) === canonicalizeText(villageFilter) ||
+          canonicalVillageName(v?.vilnam_soi) === canonicalizeText(villageFilter)
+        );
       }),
+
     };
   }, [districtFilter, mandalFilter, villageFilter, villageGeoJson]);
 
@@ -371,16 +410,24 @@ export function SatelliteMap({
         <GeoJSON
           data={districtGeoJson as GeoJsonObject}
           style={(feature) => ({
-            color: normalizeDistrictName(feature?.properties?.NAME) === districtFilter ? "oklch(0.72 0.18 260)" : "oklch(0.7 0.04 250)",
-            weight: normalizeDistrictName(feature?.properties?.NAME) === districtFilter ? 2.2 : 1,
+color:
+              canonicalDistrictName(feature?.properties?.NAME) === canonicalizeText(districtFilter)
+                ? "oklch(0.72 0.18 260)"
+                : "oklch(0.7 0.04 250)",
+            weight:
+              canonicalDistrictName(feature?.properties?.NAME) === canonicalizeText(districtFilter) ? 2.2 : 1,
+
             fillOpacity: 0.02,
             opacity: 0.55,
           })}
           onEachFeature={(feature, layer) => {
-            layer.bindTooltip(labelForFeature(feature, "District"), {
+            const props = feature?.properties as any;
+            const district = canonicalDistrictName(props?.NAME);
+            layer.bindTooltip(`District: ${district || "—"}<br/>Mandal: —<br/>Village: —`, {
               sticky: true,
               direction: "center",
               opacity: 0.95,
+              className: "text-xs",
             });
           }}
         />
@@ -390,21 +437,28 @@ export function SatelliteMap({
         <GeoJSON
           data={mandalGeoJson as GeoJsonObject}
           style={(feature) => ({
-            color:
-              districtFilter === "all" || normalizeDistrictName(feature?.properties?.dtname) === districtFilter
-                ? feature?.properties?.sdtname === mandalFilter
+color:
+              districtFilter === "all" || canonicalDistrictName(feature?.properties?.dtname) === canonicalizeText(districtFilter)
+                ? canonicalMandalName(feature?.properties?.sdtname) === canonicalizeText(mandalFilter)
                   ? "oklch(0.72 0.18 260)"
                   : "oklch(0.72 0.08 230)"
                 : "oklch(0.7 0.04 250)",
-            weight: mandalFilter === "all" ? 0.9 : feature?.properties?.sdtname === mandalFilter ? 1.6 : 0.9,
+            weight:
+              mandalFilter === "all" ? 0.9 : canonicalMandalName(feature?.properties?.sdtname) === canonicalizeText(mandalFilter) ? 1.6 : 0.9,
+
             fillOpacity: 0,
             opacity: 0.28,
           })}
           onEachFeature={(feature, layer) => {
-            layer.bindTooltip(labelForFeature(feature, "Mandal"), {
+            const props = feature?.properties as any;
+            const district = canonicalDistrictName(props?.dtname);
+            const mandal = canonicalMandalName(props?.sdtname);
+
+            layer.bindTooltip(`District: ${district || "—"}<br/>Mandal: ${mandal || "—"}<br/>Village: —`, {
               sticky: true,
               direction: "center",
               opacity: 0.95,
+              className: "text-xs",
             });
           }}
         />
@@ -416,10 +470,11 @@ export function SatelliteMap({
           // Explicitly make the vector interactive for reliable click hit-testing.
           // (Leaflet uses pointer-event capable SVG paths; this helps in some zoom/browser cases.)
           style={(feature) => {
-            const isSelectedVillage =
+const isSelectedVillage =
               villageFilter === "all" ||
-              feature?.properties?.vilname11 === villageFilter ||
-              feature?.properties?.vilnam_soi === villageFilter;
+              canonicalVillageName(feature?.properties?.vilname11) === canonicalizeText(villageFilter) ||
+              canonicalVillageName(feature?.properties?.vilnam_soi) === canonicalizeText(villageFilter);
+
 
             return {
               color: isSelectedVillage ? "oklch(0.78 0.17 200)" : "oklch(0.7 0.04 250)",
@@ -431,13 +486,22 @@ export function SatelliteMap({
             };
           }}
           onEachFeature={(feature, layer) => {
-            const villageName = labelForFeature(feature, "Village");
+            const props = feature?.properties as any;
 
-            layer.bindTooltip(villageName, {
-              sticky: true,
-              direction: "center",
-              opacity: 0.95,
-            });
+            const district = canonicalDistrictName(props?.dtname);
+            const mandal = canonicalMandalName(props?.sdtname);
+            const villageRaw = props?.vilname11 ?? props?.vilnam_soi;
+            const villageName = typeof villageRaw === "string" ? villageRaw : "—";
+
+            layer.bindTooltip(
+              `District: ${district || "—"}<br/>Mandal: ${mandal || "—"}<br/>Village: ${villageName}`,
+              {
+                sticky: true,
+                direction: "center",
+                opacity: 0.95,
+                className: "text-xs",
+              },
+            );
 
             layer.on({
               click: () => {
@@ -472,8 +536,8 @@ export function SatelliteMap({
                 click: clickHandler,
               }}
             >
-              <Tooltip direction="top" offset={[0, -6]} opacity={1} sticky>
-                <div className="text-[11px] space-y-0.5">
+              <Tooltip direction="top" offset={[0, -6]} opacity={1} sticky={false}>
+                <div className="text-[11px] space-y-0.5 pointer-events-none">
                   <div className="font-semibold">
                     {parcel.id} · {parcel.crop}
                   </div>
@@ -495,8 +559,8 @@ export function SatelliteMap({
               click: clickHandler,
             }}
           >
-            <Tooltip direction="top" offset={[0, -6]} opacity={1} sticky>
-              <div className="text-[11px] space-y-0.5">
+            <Tooltip direction="top" offset={[0, -6]} opacity={1} sticky={false}>
+              <div className="text-[11px] space-y-0.5 pointer-events-none">
                 <div className="font-semibold">
                   {parcel.id} · {parcel.crop}
                 </div>

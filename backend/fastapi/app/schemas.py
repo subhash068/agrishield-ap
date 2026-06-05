@@ -67,8 +67,6 @@ class DashboardKpiOut(BaseModel):
     ai_confidence_score_percent: float
     updated_at: str
 
-
-
 class DistrictRankingOut(BaseModel):
     district: str
     healthScore: float
@@ -146,6 +144,18 @@ class ParcelOut(BaseModel):
     geometry: dict | None = None
 
 
+class FarmerRegisterInput(BaseModel):
+    farmer_name: str
+    phone_number: str
+    district: str
+    mandal: str
+    village: str
+    survey_number: str
+    crop_type: str
+    land_area_acres: float
+    parcel_id: str
+
+
 
 class PredictionOut(BaseModel):
     label: str
@@ -178,4 +188,21 @@ class DiseaseDetectionResponseOut(BaseModel):
     mismatch_detected: bool = False
     mismatch_reason: str | None = None
     crop_hint: str | None = None
+
+
+class SupportCenterOut(BaseModel):
+    id: str
+    name: str
+    type: str
+    district: str
+    mandal: str | None = None
+    address: str
+    phone: str | None = None
+    hours: str | None = None
+    distance_km: float | None = None
+
+
+class NearestSupportCentersOut(BaseModel):
+    centers: List[SupportCenterOut]
+    query: dict
 

@@ -31,7 +31,23 @@ from .schemas import (
     DiseaseDetectionResponseOut,
     SpectralPointOut,
     DashboardKpiOut,
+    FarmerRegisterInput,
 )
+from .yield_schemas import (
+    YieldHistoryPoint,
+    YieldPredictRequest,
+    YieldPredictResponse,
+    YieldAlertRequest,
+    YieldAlertResponse,
+)
+from .icrisat_yield import (
+    get_yield_series,
+    list_districts_and_crops,
+    predict_yield,
+    yield_history,
+    _risk_from_reduction,
+)
+
 
 from .config import settings
 
@@ -948,6 +964,154 @@ def districts(db: Session = Depends(get_db)):
         "YSR Kadapa",
     ]
 
+
+def _mock_support_centers() -> list[dict]:
+    # Mock RSK/ATMA/Agri Dept support centers (can be replaced by DB-backed data later).
+    return [
+        {
+            "id": "SC-RSK-WG-001",
+            "name": "RSK Support Center - West Godavari",
+            "type": "RSK",
+            "district": "West Godavari",
+            "mandal": "Eluru",
+            "address": "Agriculture Resource Centre, Eluru Road, West Godavari",
+            "phone": "+91-90000-00011",
+            "hours": "10:00-17:30",
+        },
+        {
+            "id": "SC-ATMA-WG-002",
+            "name": "ATMA Extension Unit - West Godavari",
+            "type": "ATMA",
+            "district": "West Godavari",
+            "mandal": "Kovvur",
+            "address": "ATMA Extension Hub, Kovvur, West Godavari",
+            "phone": "+91-90000-00012",
+            "hours": "09:30-16:30",
+        },
+        {
+            "id": "SC-DEP-GNT-003",
+            "name": "Agri Dept Helpdesk - Guntur",
+            "type": "Department Helpdesk",
+            "district": "Guntur",
+            "mandal": "Guntur",
+            "address": "Department of Agriculture Office, Guntur",
+            "phone": "+91-90000-00021",
+            "hours": "10:30-18:00",
+        },
+        {
+            "id": "SC-RSK-KNL-004",
+            "name": "RSK Support Center - Kurnool",
+            "type": "RSK",
+            "district": "Kurnool",
+            "mandal": "Adoni",
+            "address": "Crop Advisory Center, Adoni, Kurnool",
+            "phone": "+91-90000-00031",
+            "hours": "10:00-17:30",
+        },
+        {
+            "id": "SC-ATMA-KNL-005",
+            "name": "ATMA Extension Unit - Kurnool",
+            "type": "ATMA",
+            "district": "Kurnool",
+            "mandal": "Kowthalam",
+            "address": "ATMA Extension Hub, Kowthalam, Kurnool",
+            "phone": "+91-90000-00032",
+            "hours": "09:30-16:30",
+        },
+        {
+            "id": "SC-RSK-ANP-006",
+            "name": "RSK Support Center - Anantapur",
+            "type": "RSK",
+            "district": "Anantapur",
+            "mandal": "Tadipatri",
+            "address": "Agriculture Support Centre, Tadipatri, Anantapur",
+            "phone": "+91-90000-00041",
+            "hours": "10:00-17:30",
+        },
+        {
+            "id": "SC-DEP-SKL-007",
+            "name": "Agri Dept Helpdesk - Srikakulam",
+            "type": "Department Helpdesk",
+            "district": "Srikakulam",
+            "mandal": "Palasa",
+            "address": "Department Helpdesk Office, Palasa, Srikakulam",
+            "phone": "+91-90000-00051",
+            "hours": "10:30-18:00",
+        },
+        {
+            "id": "SC-RSK-KRI-008",
+            "name": "RSK Support Center - Krishna",
+            "type": "RSK",
+            "district": "Krishna",
+            "mandal": "Gudivada",
+            "address": "Crop Advisory Center, Gudivada, Krishna",
+            "phone": "+91-90000-00061",
+            "hours": "10:00-17:30",
+        },
+        {
+            "id": "SC-ATMA-EGD-009",
+            "name": "ATMA Extension Unit - East Godavari",
+            "type": "ATMA",
+            "district": "East Godavari",
+            "mandal": "Madanapalle",
+            "address": "ATMA Extension Hub, Madanapalle, East Godavari",
+            "phone": "+91-90000-00071",
+            "hours": "09:30-16:30",
+        },
+    ]
+
+
+def _pseudo_distance_km(center_id: str, district: str | None, mandal: str | None, center: dict) -> float:
+    """
+    Stable “distance” based on string hashes (so UI is deterministic).
+    Also nudges distance lower when district/mandal match the query.
+    """
+    import hashlib
+
+    seed = f"{center_id}|{district or ''}|{mandal or ''}".encode("utf-8")
+    digest = hashlib.sha256(seed).digest()
+    base = digest[0] / 255.0  # 0..1
+
+    nudge = 0.0
+    if district and str(district).strip() and str(district) == str(center.get("district")):
+        nudge -= 6.0
+    if mandal and str(mandal).strip() and str(mandal) == str(center.get("mandal")):
+        nudge -= 4.0
+
+    # Clamp to [1.0..50.0]
+    return round(max(1.0, min(50.0, 4.0 + base * 38.0 + nudge)), 1)
+
+
+@app.get("/support-centers/nearest", response_model=NearestSupportCentersOut)
+def nearest_support_centers(district: str | None = None, mandal: str | None = None):
+    """
+    Mock nearest support centers for the Government Dashboard.
+
+    - If district is provided, prioritize centers matching that district.
+    - If mandal is provided, further prioritize exact mandal matches.
+    - Returns a stable pseudo-distance so the UI can display “nearest” without DB.
+    """
+    all_centers = _mock_support_centers()
+
+    district_norm = district.strip() if district else None
+    mandal_norm = mandal.strip() if mandal else None
+
+    if district_norm:
+        filtered = [c for c in all_centers if str(c.get("district")).lower() == district_norm.lower()]
+        if filtered:
+            all_centers = filtered
+
+    # Score every center and sort by pseudo distance.
+    scored: list[dict] = []
+    for c in all_centers:
+        dist = _pseudo_distance_km(c["id"], district_norm, mandal_norm, c)
+        scored.append({**c, "distance_km": dist})
+
+    scored_sorted = sorted(scored, key=lambda x: (x.get("distance_km") is None, x.get("distance_km", 9999)))
+    centers_out = scored_sorted[:10]
+
+    return NearestSupportCentersOut(centers=centers_out, query={"district": district_norm, "mandal": mandal_norm})
+
 @app.get("/alerts", response_model=list[AlertOut])
 def alerts(db: Session = Depends(get_db)):
     rows = db.execute(select(models.Alert).order_by(models.Alert.id.desc())).scalars().all()
@@ -1204,7 +1368,98 @@ def weather_live():
         summary, _ = _fallback_weather()
         return summary
 
+
+
+@app.get("/yield/districts-and-crops")
+def yield_districts_and_crops():
+    districts, crops = list_districts_and_crops()
+    return {"districts": districts, "crops": crops}
+
+
+@app.get("/yield/history", response_model=list[YieldHistoryPoint])
+def yield_history_endpoint(district: str, crop: str):
+    # Returns full series for plotting.
+    rows = yield_history(district, crop)
+    return [
+        YieldHistoryPoint(
+            year=r["year"],
+            yieldKgPerHa=r["yieldKgPerHa"],
+            production1000Tons=r["production1000Tons"],
+            area1000Ha=r["area1000Ha"],
+        )
+        for r in rows
+    ]
+
+
+@app.post("/yield/predict", response_model=YieldPredictResponse)
+def yield_predict_endpoint(payload: YieldPredictRequest):
+    return predict_yield(payload.district, payload.crop, payload.year, payload.rainfall_mm)
+
+
+@app.post("/yield/alerts", response_model=YieldAlertResponse)
+def yield_alerts_endpoint(payload: YieldAlertRequest):
+    # Simple demo alert logic:
+    # - Use predicted yield
+    # - Compare against baseline yield = moving average over last 5 available years.
+    series = get_yield_series(payload.district, payload.crop)
+    if not series:
+        predicted = predict_yield(payload.district, payload.crop, payload.year, payload.rainfall_mm)
+        return YieldAlertResponse(
+            district=predicted.district,
+            crop=predicted.crop,
+            year=predicted.input_year,
+            rainfall_mm=predicted.rainfall_mm,
+            yield_reduction_percent=0.0,
+            risk_level=predicted.risk_level,
+            explanation=predicted.explanation,
+            recommended_actions=["No ICRISAT history found for this district/crop in CSV."],
+        )
+
+    prior = [(y, yd) for y, yd in zip(series.years, series.yields_kg_per_ha) if y < payload.year]
+    if not prior:
+        prior = list(zip(series.years, series.yields_kg_per_ha))[-5:]
+
+    prior = prior[-5:]
+    baseline = sum(yd for _, yd in prior) / len(prior)
+    predicted = predict_yield(payload.district, payload.crop, payload.year, payload.rainfall_mm)
+
+    reduction = ((baseline - predicted.predicted_yield_kg_per_ha) / baseline) * 100.0 if baseline else 0.0
+    reduction = max(0.0, reduction)
+
+    risk = _risk_from_reduction(reduction)
+
+    if risk in ["High", "Critical"]:
+        actions = [
+            "Implement deficit irrigation scheduling (priority to critical parcels).",
+            "Recommend nutrient management and avoid late spraying that can stress plants.",
+            "Dispatch field officers to verify crop moisture stress and early pest signals.",
+        ]
+    elif risk == "Medium":
+        actions = [
+            "Monitor irrigation balance and soil moisture for at-risk mandals.",
+            "Conduct weekly scouting for early stress and disease signs.",
+        ]
+    else:
+        actions = ["Maintain routine irrigation and continue monitoring (baseline risk)."]
+
+    return YieldAlertResponse(
+        district=predicted.district,
+        crop=predicted.crop,
+        year=predicted.input_year,
+        rainfall_mm=predicted.rainfall_mm,
+        yield_reduction_percent=round(reduction, 1),
+        risk_level=risk, 
+        explanation=(
+            f"Baseline moving-average yield for {predicted.district}/{predicted.crop} "
+            f"is ~{baseline:.0f} kg/ha. Predicted yield is {predicted.predicted_yield_kg_per_ha:.0f} kg/ha "
+            f"for {predicted.input_year} with rainfall {predicted.rainfall_mm:.1f}mm."
+        ),
+        recommended_actions=actions,
+    )
+
+
 @app.get("/predictions", response_model=list[PredictionOut])
+
 def predictions(db: Session = Depends(get_db)):
     rows = db.execute(select(models.Prediction).order_by(models.Prediction.id)).scalars().all()
     return [{"label": r.label, "probability": r.probability, "severity": r.severity, "crop": r.crop} for r in rows]
@@ -1348,6 +1603,70 @@ def dashboard_kpis(db: Session = Depends(get_db)):
             ai_confidence_score_percent=0.0,
             updated_at=err_str[:500],
         )
+
+
+import os
+import csv
+import random
+
+@app.post("/farmers/register")
+def register_farmer(data: FarmerRegisterInput, db: Session = Depends(get_db)):
+    lat = round(16.5 + (random.random() * 0.4), 6)
+    lng = round(81.3 + (random.random() * 0.5), 6)
+    health = round(75.0 + (random.random() * 20.0), 1)
+    risk = "Low" if health > 80 else "Medium"
+    confidence = int(80 + random.random() * 15)
+    ndvi = round(0.7 + random.random() * 0.2, 2)
+    evi = round(ndvi - 0.05, 2)
+    ndre = round(ndvi - 0.2, 2)
+    
+    csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "data", "west_godavari_parcels_1200.csv")
+    
+    if os.path.exists(csv_path):
+        with open(csv_path, mode="a", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow([
+                data.parcel_id,
+                data.farmer_name,
+                data.district,
+                data.mandal,
+                data.crop_type,
+                data.land_area_acres,
+                health,
+                risk,
+                confidence,
+                lat,
+                lng,
+                ndvi,
+                evi,
+                ndre
+            ])
+
+    # Insert into the database so it's immediately available without a restart
+    new_parcel = models.Parcel(
+        parcel_id_str=data.parcel_id,
+        farmer=data.farmer_name,
+        district=data.district,
+        mandal=data.mandal,
+        crop=data.crop_type,
+        acreage=data.land_area_acres,
+        health=health,
+        risk=risk,
+        confidence=confidence,
+        lat=lat,
+        lng=lng,
+        ndvi=ndvi,
+        evi=evi,
+        ndre=ndre,
+    )
+    
+    try:
+        db.add(new_parcel)
+        db.commit()
+    except SQLAlchemyError:
+        db.rollback()
+
+    return {"status": "success", "parcel_id": data.parcel_id}
 
 
 @app.post("/disease/detect", response_model=DiseaseDetectionResponseOut)

@@ -67,6 +67,23 @@ export type DashboardKpiOut = {
   updated_at: string;
 };
 
+export type SupportCenter = {
+  id: string;
+  name: string;
+  type: string;
+  district: string;
+  mandal: string | null;
+  address: string;
+  phone: string | null;
+  hours: string | null;
+  distance_km: number | null;
+};
+
+export type NearestSupportCentersOut = {
+  centers: SupportCenter[];
+  query: { district: string | null; mandal: string | null };
+};
+
 
 export type DistrictRanking = {
   district: string;
@@ -188,6 +205,28 @@ export function getSchemes(): Promise<Scheme[]> {
   return apiFetch<Scheme[]>("/schemes");
 }
 
+export type FarmerRegisterInput = {
+  farmer_name: string;
+  phone_number: string;
+  district: string;
+  mandal: string;
+  village: string;
+  survey_number: string;
+  crop_type: string;
+  land_area_acres: number;
+  parcel_id: string;
+};
+
+export function registerFarmer(payload: FarmerRegisterInput): Promise<{ status: string; parcel_id: string }> {
+  return apiFetch<{ status: string; parcel_id: string }>("/farmers/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
 // ---- Dashboard ----
 
 function kpiToHeroAndCards(k: DashboardKpiOut): { hero_stats: HeroStatOut[]; kpi_cards: KpiCardOut[] } {
@@ -305,5 +344,120 @@ export async function detectDisease(file: File): Promise<DiseaseDetectionRespons
     method: "POST",
     body: form,
   });
+}
+
+const MOCK_SUPPORT_CENTERS_FALLBACK: SupportCenter[] = [
+  {
+    id: "SC-RSK-WG-001",
+    name: "RSK Support Center - West Godavari",
+    type: "RSK",
+    district: "West Godavari",
+    mandal: "Eluru",
+    address: "Agriculture Resource Centre, Eluru Road, West Godavari",
+    phone: "+91-90000-00011",
+    hours: "10:00-17:30",
+    distance_km: 3.2,
+  },
+  {
+    id: "SC-ATMA-WG-002",
+    name: "ATMA Extension Unit - West Godavari",
+    type: "ATMA",
+    district: "West Godavari",
+    mandal: "Kovvur",
+    address: "ATMA Extension Hub, Kovvur, West Godavari",
+    phone: "+91-90000-00012",
+    hours: "09:30-16:30",
+    distance_km: 7.8,
+  },
+  {
+    id: "SC-DEP-GNT-003",
+    name: "Agri Dept Helpdesk - Guntur",
+    type: "Department Helpdesk",
+    district: "Guntur",
+    mandal: "Guntur",
+    address: "Department of Agriculture Office, Guntur",
+    phone: "+91-90000-00021",
+    hours: "10:30-18:00",
+    distance_km: 12.5,
+  },
+  {
+    id: "SC-RSK-KNL-004",
+    name: "RSK Support Center - Kurnool",
+    type: "RSK",
+    district: "Kurnool",
+    mandal: "Adoni",
+    address: "Crop Advisory Center, Adoni, Kurnool",
+    phone: "+91-90000-00031",
+    hours: "10:00-17:30",
+    distance_km: 9.4,
+  },
+  {
+    id: "SC-ATMA-KNL-005",
+    name: "ATMA Extension Unit - Kurnool",
+    type: "ATMA",
+    district: "Kurnool",
+    mandal: "Kowthalam",
+    address: "ATMA Extension Hub, Kowthalam, Kurnool",
+    phone: "+91-90000-00032",
+    hours: "09:30-16:30",
+    distance_km: 15.1,
+  },
+  {
+    id: "SC-RSK-ANP-006",
+    name: "RSK Support Center - Anantapur",
+    type: "RSK",
+    district: "Anantapur",
+    mandal: "Tadipatri",
+    address: "Agriculture Support Centre, Tadipatri, Anantapur",
+    phone: "+91-90000-00041",
+    hours: "10:00-17:30",
+    distance_km: 10.7,
+  },
+  {
+    id: "SC-DEP-SKL-007",
+    name: "Agri Dept Helpdesk - Srikakulam",
+    type: "Department Helpdesk",
+    district: "Srikakulam",
+    mandal: "Palasa",
+    address: "Department Helpdesk Office, Palasa, Srikakulam",
+    phone: "+91-90000-00051",
+    hours: "10:30-18:00",
+    distance_km: 18.6,
+  },
+];
+
+function scoreFallbackDistance(center: SupportCenter, district?: string, mandal?: string): number {
+  const d = district?.trim()?.toLowerCase() ?? null;
+  const m = mandal?.trim()?.toLowerCase() ?? null;
+
+  const base = center.distance_km ?? 25;
+  let score = base;
+
+  if (d && center.district.toLowerCase() === d) score = Math.min(score, 6);
+  if (m && center.mandal && center.mandal.toLowerCase() === m) score = Math.min(score, 2);
+
+  return Math.round(score * 10) / 10;
+}
+
+export async function getNearestSupportCenters(params: {
+  district?: string;
+  mandal?: string;
+}): Promise<SupportCenter[]> {
+  const url = new URL("/support-centers/nearest", API_BASE_URL);
+  if (params.district) url.searchParams.set("district", params.district);
+  if (params.mandal) url.searchParams.set("mandal", params.mandal);
+
+  try {
+    const data = await apiFetch<NearestSupportCentersOut>(url.pathname + url.search);
+    if (!data?.centers?.length) throw new Error("Empty response");
+    return data.centers;
+  } catch {
+    // Backend may be temporarily down/not restarted; show deterministic mock data so UI doesn't show empty.
+    const scored = MOCK_SUPPORT_CENTERS_FALLBACK.map((c) => ({
+      ...c,
+      distance_km: scoreFallbackDistance(c, params.district, params.mandal),
+    }));
+    return scored.sort((a, b) => (a.distance_km ?? 999) - (b.distance_km ?? 999)).slice(0, 10);
+  }
 }
 

@@ -15,6 +15,20 @@ export const Route = createFileRoute("/reports")({
       { title: "Pest Outbreak Bulletin", period: "Weekly", size: "1.1 MB", type: "PDF" },
       { title: "Scheme Disbursement Tracker", period: "FY 2026-27", size: "6.7 MB", type: "XLSX" },
     ];
+
+    const handleDownload = (title: string, type: string) => {
+      const content = `Report Data for ${title}`;
+      const blob = new Blob([content], { type: type === "PDF" ? "application/pdf" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${title.replace(/\s+/g, "_")}.${type.toLowerCase()}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    };
+
     return (
       <div>
         <PageHeader icon={<FileBarChart2 className="h-6 w-6 text-accent" />} eyebrow="Analytics" title="Reports & Analytics"
@@ -30,7 +44,9 @@ export const Route = createFileRoute("/reports")({
               <h3 className="mt-3 font-semibold">{r.title}</h3>
               <p className="text-xs text-muted-foreground mt-0.5">{r.period} · {r.size}</p>
               <div className="mt-4 flex gap-2">
-                <Button size="sm" className="gap-1.5 flex-1"><Download className="h-3.5 w-3.5" /> Download</Button>
+                <Button size="sm" className="gap-1.5 flex-1" onClick={() => handleDownload(r.title, r.type)}>
+                  <Download className="h-3.5 w-3.5" /> Download
+                </Button>
                 <Button size="sm" variant="outline">Preview</Button>
               </div>
             </div>

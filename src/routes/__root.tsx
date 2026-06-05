@@ -3,6 +3,7 @@ import {
   Outlet,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   Link,
@@ -105,19 +106,27 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const isFarmerApp = useRouterState({ select: (s) => s.location.pathname.startsWith("/farmers") });
+
   return (
     <QueryClientProvider client={queryClient}>
       <AppShellProvider>
-        <SidebarProvider>
-          <AppSidebar />
-          <SidebarInset className="min-w-0">
-            <TopBar />
-            <main className="min-h-[calc(100vh-3.5rem)]">
-              <Outlet />
-            </main>
-          </SidebarInset>
-          <Toaster />
-        </SidebarProvider>
+        {isFarmerApp ? (
+          <main className="min-h-screen bg-background pb-16">
+            <Outlet />
+          </main>
+        ) : (
+          <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset className="min-w-0">
+              <TopBar />
+              <main className="min-h-[calc(100vh-3.5rem)]">
+                <Outlet />
+              </main>
+            </SidebarInset>
+          </SidebarProvider>
+        )}
+        <Toaster />
       </AppShellProvider>
     </QueryClientProvider>
   );

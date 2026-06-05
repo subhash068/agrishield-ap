@@ -32,6 +32,7 @@ import { getParcels, type Parcel } from "@/lib/api";
 import { Link } from "@tanstack/react-router";
 
 
+
 export const Route = createFileRoute("/satellite")({
   head: () => ({
     meta: [
@@ -124,6 +125,32 @@ const DISTRICT_ALIASES: Record<string, string> = {
   "Y.S.R Kadapa": "YSR Kadapa",
 };
 
+function canonicalizeText(value: string | undefined | null) {
+  if (!value) return "";
+  return value
+    .trim()
+    // collapse repeated spaces
+    .replace(/\s+/g, " ")
+    // remove trailing punctuation commonly present in geodata labels
+    .replace(/[\.,;:]+$/g, "")
+    .toLowerCase();
+}
+
+function canonicalDistrictName(name: string | undefined | null) {
+  const trimmed = (name ?? "").trim();
+  if (!trimmed) return "";
+  return canonicalizeText(DISTRICT_ALIASES[trimmed] ?? trimmed);
+}
+
+function canonicalMandalName(name: string | undefined | null) {
+  return canonicalizeText(name);
+}
+
+function canonicalVillageName(name: string | undefined | null) {
+  return canonicalizeText(name);
+}
+
+
 const LAYER_GUIDES: Record<LayerName, LayerGuide> = {
   NDVI: {
     title: "NDVI",
@@ -176,11 +203,11 @@ const LAYER_GUIDES: Record<LayerName, LayerGuide> = {
   },
 };
 
+// Backwards compat alias (kept to avoid touching unrelated code blocks)
 function normalizeDistrictName(name: string | undefined | null) {
-  if (!name) return "";
-  const trimmed = name.trim();
-  return DISTRICT_ALIASES[trimmed] ?? trimmed;
+  return canonicalDistrictName(name);
 }
+
 
 function riskTone(parcel: Parcel): RiskTone {
   if (parcel.health >= 75)
@@ -263,24 +290,23 @@ function SatellitePage() {
       ),
     [parcels],
   );
-  const mandalOptions = useMemo(() => {
+const mandalOptions = useMemo(() => {
     const geojson = mandalGeoJson as {
       features?: Array<{ properties?: { dtname?: string; sdtname?: string } }>;
     } | null;
     const features = geojson?.features ?? [];
+
+    const filtered = features.filter((feature) => {
+      if (districtFilter === "all") return true;
+      return canonicalDistrictName(feature.properties?.dtname) === canonicalizeText(districtFilter);
+    });
+
     return Array.from(
-      new Set(
-        features
-          .filter((feature) => {
-            if (districtFilter === "all") return true;
-            return normalizeDistrictName(feature.properties?.dtname) === districtFilter;
-          })
-          .map((feature) => feature.properties?.sdtname)
-          .filter((name): name is string => Boolean(name)),
-      ),
+      new Set(filtered.map((feature) => feature.properties?.sdtname).filter((name): name is string => Boolean(name))),
     ).sort((a, b) => a.localeCompare(b));
   }, [districtFilter, mandalGeoJson]);
-  const villageOptions = useMemo(() => {
+
+const villageOptions = useMemo(() => {
     const geojson = villageGeoJson as {
       features?: Array<{
         properties?: {
@@ -292,20 +318,26 @@ function SatellitePage() {
       }>;
     } | null;
     const features = geojson?.features ?? [];
+
+    const filtered = features.filter((feature) => {
+      if (districtFilter !== "all") {
+        if (canonicalDistrictName(feature.properties?.dtname) !== canonicalizeText(districtFilter)) return false;
+      }
+      if (mandalFilter !== "all") {
+        if (canonicalMandalName(feature.properties?.sdtname) !== canonicalizeText(mandalFilter)) return false;
+      }
+      return true;
+    });
+
     return Array.from(
       new Set(
-        features
-          .filter((feature) => {
-            if (districtFilter !== "all" && normalizeDistrictName(feature.properties?.dtname) !== districtFilter) {
-              return false;
-            }
-            return mandalFilter === "all" || feature.properties?.sdtname === mandalFilter;
-          })
+        filtered
           .map((feature) => feature.properties?.vilname11 ?? feature.properties?.vilnam_soi)
           .filter((name): name is string => Boolean(name)),
       ),
     ).sort((a, b) => a.localeCompare(b));
   }, [districtFilter, mandalFilter, villageGeoJson]);
+
   const filteredParcels = useMemo(
     () =>
       parcels.filter((parcel) => {
@@ -321,7 +353,7 @@ function SatellitePage() {
   );
 
 
-  const selectedVillageDetails = useMemo(() => {
+const selectedVillageDetails = useMemo(() => {
     if (!selectedVillage || !villageGeoJson) return null;
 
     const geojson = villageGeoJson as {
@@ -337,11 +369,12 @@ function SatellitePage() {
 
     const features = geojson.features ?? [];
 
-    // Match using the same label logic used in the map tooltip.
+    const wantedVillageCanon = canonicalVillageName(selectedVillage);
+
     const match = features.find((f) => {
       const p = f.properties;
       const name = p?.vilname11 ?? p?.vilnam_soi;
-      return name === selectedVillage;
+      return canonicalVillageName(name) === wantedVillageCanon;
     });
 
     if (!match?.properties) {
@@ -354,10 +387,11 @@ function SatellitePage() {
 
     return {
       name: selectedVillage,
-      district: match.properties.dtname ? normalizeDistrictName(match.properties.dtname) : "",
-      mandal: match.properties.sdtname ?? "",
+      district: match.properties.dtname ? canonicalDistrictName(match.properties.dtname) : "",
+      mandal: match.properties.sdtname ? match.properties.sdtname : "",
     };
   }, [selectedVillage, villageGeoJson]);
+
   const selectedRisk = selectedParcelFromAll ? riskTone(selectedParcelFromAll) : null;
 
 
@@ -463,16 +497,32 @@ function SatellitePage() {
                 setSelectedVillage(villageName);
                 // Selecting a village should focus the map and update the left-side filter
                 setVillageFilter(villageName);
+
                 // Auto-select a parcel when a village is clicked.
                 // Rule: first matching parcel found in the filtered parcels list.
-                const normalize = (s?: string | null) => (s || "").trim().toLowerCase();
+                // Use the same canonicalization rules as geojson filtering to avoid label mismatches.
+                const clickedVillageCanon = canonicalVillageName(villageName);
+
+                const matchingCount = parcels.filter(
+                  (p) => canonicalVillageName(p.village) === clickedVillageCanon,
+                ).length;
+
+                if (matchingCount === 0) {
+                  // Dev-only: helps verify villages exist consistently between parcel data and geojson layer.
+                  // eslint-disable-next-line no-console
+                  console.warn("[Satellite] Village label mismatch:", {
+                    clickedVillageRaw: villageName,
+                    clickedVillageCanonical: clickedVillageCanon,
+                  });
+                }
 
                 const firstParcelInVillage =
-                  filteredParcels.find((p) => normalize(p.village) === normalize(villageName)) ??
-                  parcels.find((p) => normalize(p.village) === normalize(villageName)) ??
+                  filteredParcels.find((p) => canonicalVillageName(p.village) === clickedVillageCanon) ??
+                  parcels.find((p) => canonicalVillageName(p.village) === clickedVillageCanon) ??
                   null;
 
                 setSelectedParcelId(firstParcelInVillage ? firstParcelInVillage.id : null);
+
 
               }}
             />

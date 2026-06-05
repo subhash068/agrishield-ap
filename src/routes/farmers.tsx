@@ -20,9 +20,3 @@ export const Route = createFileRoute("/farmers")({
 function FarmerRoute() {
   return <FarmerAppShell />;
 }
-
-
-
-
-
-
