@@ -6,10 +6,11 @@ import math
 import uuid
 from functools import lru_cache
 from datetime import datetime, date
+from typing import Literal
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
-from fastapi import Depends, FastAPI, UploadFile, File, Request as FastAPIRequest
+from fastapi import Depends, FastAPI, UploadFile, File, Request as FastAPIRequest, Body, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import inspect, select, text, func
@@ -18,6 +19,26 @@ from sqlalchemy.orm import Session
 
 from .db import SessionLocal, engine
 from . import models
+from .yield_schemas import (
+    YieldHistoryPoint,
+    YieldPredictRequest,
+    YieldPredictResponse,
+    YieldAlertRequest,
+    YieldAlertResponse,
+)
+from .icrisat_yield import (
+    get_yield_series,
+    list_districts_and_crops,
+    predict_yield,
+    yield_history,
+    _risk_from_reduction,
+)
+from ._crop_fert_reco_heuristics import (
+    CropRecoHeuristicInput,
+    FertilizerRecoHeuristicInput,
+    recommend_crop_poc,
+    recommend_fertilizer_poc,
+)
 from .schemas import (
     AlertOut,
     AlertCreateOut,
@@ -33,20 +54,19 @@ from .schemas import (
     DashboardKpiOut,
     FarmerRegisterInput,
     NearestSupportCentersOut,
-)
-from .yield_schemas import (
-    YieldHistoryPoint,
-    YieldPredictRequest,
-    YieldPredictResponse,
-    YieldAlertRequest,
-    YieldAlertResponse,
-)
-from .icrisat_yield import (
-    get_yield_series,
-    list_districts_and_crops,
-    predict_yield,
-    yield_history,
-    _risk_from_reduction,
+    FusionFuseInput,
+    FusionResponseOut,
+    FusionRisk7DaysOut,
+    FusionRecommendationOut,
+    FieldAdvisoryResponseOut,
+    FieldAdvisoryAiRecommendationOut,
+    FieldAdvisoryDiseaseDetectedOut,
+    FieldAdvisoryPredictedRisk7DaysOut,
+    FieldAdvisoryWeatherAlertOut,
+    CropRecoInput,
+    CropRecoOut,
+    FertilizerRecoInput,
+    FertilizerRecoOut,
 )
 
 
@@ -80,7 +100,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
 
 def _parcel_outline(parcel_id: str, district: str, mandal: str, crop: str, lat: float, lng: float, acreage: float) -> list[list[float]]:
     seed_bytes = hashlib.sha256(f"{parcel_id}|{district}|{mandal}|{crop}".encode("utf-8")).digest()
@@ -223,6 +242,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:8080",
         "http://127.0.0.1:8080",
+        "http://localhost:8081",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:5173",
@@ -239,7 +259,11 @@ def unhandled_exception_handler(request: FastAPIRequest, exc: Exception):
     import logging
 
     logging.exception("Unhandled API error", exc_info=exc)
-    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+    resp = JSONResponse(status_code=500, content={"detail": "Internal server error"})
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    resp.headers["Access-Control-Allow-Methods"] = "*"
+    resp.headers["Access-Control-Allow-Headers"] = "*"
+    return resp
 
 
 
@@ -561,19 +585,42 @@ def _parcel_layer_analytics(health: float, ndvi: float, evi: float, ndre: float)
     ndvi_score = _clamp(ndvi, 0.0, 1.0)
     evi_score = _clamp(evi, 0.0, 1.0)
     ndre_score = _clamp(ndre, 0.0, 1.0)
-    stress_score = _clamp(1.0 - ndvi_score * 0.72 + (100.0 - health) / 240.0, 0.0, 1.0)
-    moisture_score = _clamp(0.2 + evi_score * 0.42 + ndvi_score * 0.28 - stress_score * 0.14, 0.0, 1.0)
+
+    # Abiotic proxies
+    stress_score = _clamp(1.0 - ndvi_score * 0.72 + (100.0 - health) / 240.0, 0.0, 1.0)  # 0..1
+    moisture_score = _clamp(0.2 + evi_score * 0.42 + ndvi_score * 0.28 - stress_score * 0.14, 0.0, 1.0)  # 0..1
+    abiotic_stress = _clamp(stress_score * 0.68 + (1.0 - moisture_score) * 0.32, 0.0, 1.0)
+
+    # Anomaly proxy (spectral deviation)
     anomaly_score = _clamp(
         abs(ndvi_score - evi_score) * 0.52 + abs(ndvi_score - ndre_score) * 0.56 + stress_score * 0.18,
         0.0,
         1.0,
     )
+
+    # Biotic proxy (disease likelihood)
     disease_score = _clamp(
         (100.0 - health) / 100.0 * 0.58 + stress_score * 0.24 + anomaly_score * 0.18,
         0.0,
         1.0,
     )
+    biotic_stress = disease_score
 
+    # Unified health: higher = healthier
+    # Components are stress-like (higher = worse), so invert and weight.
+    # Also include anomaly deviation to capture "unusual" patterns.
+    unified = _clamp(1.0 - (abiotic_stress * 0.45 + biotic_stress * 0.35 + anomaly_score * 0.20), 0.0, 1.0)
+    unified_health_index = round(unified * 100.0, 1)
+
+    # PoC deviation score: use anomaly_score + inverse health.
+    anomaly_deviation_score = round(_clamp(anomaly_score * 0.55 + (1.0 - unified) * 0.45, 0.0, 1.0) * 100.0, 1)
+
+    # Satellite confidence: higher when vegetation signal looks internally consistent.
+    # If indices disagree heavily (anomaly) and stress is extreme, confidence drops.
+    satellite_conf = _clamp(1.0 - anomaly_score * 0.55 - abs(stress_score - 0.5) * 0.25, 0.0, 1.0)
+    satellite_confidence = round(satellite_conf * 100.0, 1)
+
+    # Legacy normalized layer scores keep old UI keys working.
     if disease_score >= 0.72:
         insight = "High disease pressure cluster"
         recommendation = "Schedule an urgent field visit and targeted scouting."
@@ -588,13 +635,27 @@ def _parcel_layer_analytics(health: float, ndvi: float, evi: float, ndre: float)
         recommendation = "Continue routine monitoring and weekly scouting."
 
     return {
+        # Raw layer scores (0..1)
         "ndvi": round(ndvi_score, 3),
         "evi": round(evi_score, 3),
         "ndre": round(ndre_score, 3),
+
+        # Abiotic / biotic proxies (0..1)
         "soil_moisture": round(moisture_score, 3),
         "vegetation_stress": round(stress_score, 3),
         "anomaly_hotspots": round(anomaly_score, 3),
         "disease_probability": round(disease_score, 3),
+
+        # CHSS unified index fields (0..100)
+        "unified_health_index": unified_health_index,
+        "abiotic_stress_score": round(abiotic_stress * 100.0, 1),
+        "biotic_stress_score": round(biotic_stress * 100.0, 1),
+        "anomaly_deviation_score": anomaly_deviation_score,
+        "satellite_confidence": satellite_confidence,
+
+        # Placeholder for future fusion endpoint
+        "unified_confidence": None,
+
         "insight": insight,
         "recommendation": recommendation,
         "model": "AgriShield Parcel Analytics v2",
@@ -1168,6 +1229,8 @@ def schemes(db: Session = Depends(get_db)):
 
 @app.get("/parcels", response_model=list[ParcelOut])
 def parcels(db: Session = Depends(get_db)):
+
+
     """Return parcel analytics.
 
     Robust to older DB/model schemas where `evi` and/or `ndre` may not exist.
@@ -1701,6 +1764,40 @@ async def disease_detect(file: UploadFile = File(...), db: Session = Depends(get
     except SQLAlchemyError:
         db.rollback()
 
+    # Derive crop for fertilizer recommendation
+    crop_for_fert = crop_gate.crop if crop_gate else crop_hint
+
+    # Map severity to risk bands for fertilizer heuristic
+    def _sev_to_risk(sev: str) -> Literal["Low", "Medium", "High"]:
+        if sev in ("High", "Critical"):
+            return "High"
+        if sev == "Medium":
+            return "Medium"
+        return "Low"
+
+    fert_result: FertilizerRecoOut | None = None
+    if crop_for_fert:
+        try:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"[FERT DEBUG] crop_for_fert={crop_for_fert!r} pick_sev={pick_sev!r}")
+            fert_inp = FertilizerRecoHeuristicInput(
+                crop=crop_for_fert,
+                weather_rainfall_mm=None,
+                disease_risk=_sev_to_risk(pick_sev),
+                pest_risk="Medium",
+                satellite_unified_health_index_pct=None,
+                satellite_abiotic_stress_score_pct=None,
+                satellite_soil_moisture_score_pct=None,
+            )
+            fert_result = FertilizerRecoOut(**recommend_fertilizer_poc(fert_inp))
+            logger.warning(f"[FERT DEBUG] fert_result={fert_result}")
+        except Exception as e:
+            import traceback
+            import sys
+            sys.stderr.write(f"[FERT DEBUG] exception={e} trace={traceback.format_exc()}\n")
+            sys.stderr.flush()
+
     return DiseaseDetectionResponseOut(
         label=pick_label,
         severity=pick_sev,
@@ -1711,4 +1808,399 @@ async def disease_detect(file: UploadFile = File(...), db: Session = Depends(get
         mismatch_detected=mismatch_detected,
         mismatch_reason=mismatch_reason,
         crop_hint=crop_hint,
+        fertilizer_recommendation=fert_result,
     )
+
+
+@app.post("/fusion/fuse", response_model=FusionResponseOut)
+async def fuse_satellite_ground(
+    input: FusionFuseInput = Body(...),
+    file: UploadFile | None = File(default=None),
+    db: Session = Depends(get_db),
+):
+    """
+    PoC fusion endpoint:
+    - Select parcel using parcel_id or nearest by lat/lng.
+    - Use satellite CHSS analytics from parcel (unified_health_index + confidence + stress/anomaly scores).
+    - Use smartphone disease detection confidence from either provided disease_detection_response or uploaded image.
+    - Fuse into unified_confidence and compute 7-day risk bands + agronomic recommendation steps.
+    """
+    # 1) Select parcel
+    parcel: models.Parcel | None = None
+    chosen_parcel_id: str | None = None
+
+    if input.parcel_id:
+        chosen_parcel_id = input.parcel_id
+        parcel = (
+            db.execute(select(models.Parcel).where(models.Parcel.parcel_id_str == input.parcel_id)).scalars().first()
+        )
+    elif input.lat is not None and input.lng is not None:
+        # Nearest parcel by simple lat/lng distance (DB-friendly PoC).
+        # Note: if geom/postgis is available, this should be replaced with geospatial distance.
+        lat = float(input.lat)
+        lng = float(input.lng)
+        chosen = db.execute(
+            select(models.Parcel).order_by(
+                (models.Parcel.lat - lat) * (models.Parcel.lat - lat) + (models.Parcel.lng - lng) * (models.Parcel.lng - lng)
+            )
+        ).scalars().first()
+        parcel = chosen
+        chosen_parcel_id = getattr(parcel, "parcel_id_str", None) if parcel else None
+
+    if parcel is None:
+        raise HTTPException(status_code=400, detail="Provide either parcel_id or both lat & lng to locate a parcel.")
+
+    # 2) Satellite analytics (computed on GET /parcels; we re-compute here from indices + health)
+    lat_val = float(parcel.lat) if parcel.lat is not None else 0.0
+    lng_val = float(parcel.lng) if parcel.lng is not None else 0.0
+    ndvi_val = float(parcel.ndvi) if parcel.ndvi is not None else 0.5
+    evi_val = float(getattr(parcel, "evi", ndvi_val - 0.05)) if hasattr(parcel, "evi") else ndvi_val - 0.05
+    ndre_val = float(getattr(parcel, "ndre", ndvi_val - 0.2)) if hasattr(parcel, "ndre") else ndvi_val - 0.2
+    health_val = float(parcel.health) if parcel.health is not None else 65.0
+
+    satellite_layer = _parcel_layer_analytics(health_val, ndvi_val, evi_val, ndre_val)
+
+    satellite_confidence = float(satellite_layer.get("satellite_confidence", 60.0))
+    unified_health_index = float(satellite_layer.get("unified_health_index", 60.0))
+    abiotic_stress_score = float(satellite_layer.get("abiotic_stress_score", 50.0))
+    biotic_stress_score = float(satellite_layer.get("biotic_stress_score", 50.0))
+    anomaly_deviation_score = float(satellite_layer.get("anomaly_deviation_score", 50.0))
+
+    # 3) Photo analytics (disease detection response)
+    photo_confidence: float | None = None
+    disease_detected: DiseaseDetectionResponseOut | None = None
+
+    if input.disease_detection_response is not None:
+        disease_detected = input.disease_detection_response
+        photo_confidence = float(disease_detected.confidence)
+    elif file is not None:
+        if file.content_type and not file.content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="Invalid file type. Upload an image.")
+        file_bytes = await file.read()
+        file_name = file.filename or "upload"
+        pick_label, pick_sev, confidence, top_k, model = _analyze_disease_image(file_name, file_bytes)
+        crop_gate, mismatch_detected, mismatch_reason = _build_crop_gate(file_name, top_k)
+
+        if crop_gate and crop_gate.matched and crop_gate.selected_label:
+            pick_label = crop_gate.selected_label
+            if crop_gate.selected_score is not None:
+                confidence = int(round(_clamp(crop_gate.selected_score * 100.0, 1.0, 99.0)))
+                pick_sev = _severity_from_probability(crop_gate.selected_score, pick_label)
+        crop_hint = crop_gate.crop if crop_gate else _extract_crop_hint(file_name)
+
+        disease_detected = DiseaseDetectionResponseOut(
+            label=pick_label,
+            severity=pick_sev,
+            confidence=confidence,
+            model=model,
+            top_k=top_k,
+            crop_gate=crop_gate,
+            mismatch_detected=mismatch_detected,
+            mismatch_reason=mismatch_reason,
+            crop_hint=crop_hint,
+        )
+        photo_confidence = float(disease_detected.confidence)
+
+    if disease_detected is None or photo_confidence is None:
+        # Fusion still works without photo, but spec expects photo confidence when possible.
+        photo_confidence = 0.0
+
+    # 4) Fuse confidence
+    sat_w = 0.55
+    photo_w = 0.45
+    unified_confidence = sat_w * satellite_confidence + photo_w * float(photo_confidence or 0.0)
+    unified_confidence = float(round(unified_confidence, 1))
+
+    # 5) Risk bands (PoC mapping)
+    # disease risk: use photo confidence + satellite disease_probability proxy inside anomaly/satellite layer
+    disease_probability_proxy = float(satellite_layer.get("disease_probability", 0.5)) * 100.0
+    disease_score = 0.55 * (float(photo_confidence or 0.0)) + 0.45 * disease_probability_proxy
+    disease_band: Literal["Low", "Medium", "High"] = (
+        "High" if disease_score >= 70 else "Medium" if disease_score >= 45 else "Low"
+    )
+
+    # pest risk: reuse biotic stress score (from photo+sat later). PoC -> band from biotic_stress_score.
+    pest_band: Literal["Low", "Medium", "High"] = (
+        "High" if biotic_stress_score >= 65 else "Medium" if biotic_stress_score >= 40 else "Low"
+    )
+
+    # yield loss risk: derived from low unified health + disease
+    yield_loss_risk = clamp(
+        round((100.0 - unified_health_index) * 0.12 + (biotic_stress_score / 100.0) * 8.0, 1),
+        0,
+        100,
+    )
+
+    # 6) Recommendation steps
+    # Keep it aligned with crop stress vs disease severity.
+    if disease_band == "High":
+        rec = FusionRecommendationOut(
+            title="Urgent scouting & targeted control (7-day window)",
+            steps=[
+                "Scout affected patches immediately and mark hotspots.",
+                "Apply recommended treatment for detected disease (fungicide/insecticide as per crop bulletin).",
+                "Avoid irrigation imbalance; follow moisture-conserving schedule.",
+                "Re-validate with one new geo-tagged photo within 5 days.",
+            ],
+        )
+    elif disease_band == "Medium":
+        rec = FusionRecommendationOut(
+            title="Targeted monitoring & early intervention",
+            steps=[
+                "Increase frequency of field scouting to 2–3 times this week.",
+                "Check irrigation distribution and correct over/under-watering.",
+                "Remove severely infected leaves/patches if locally applicable.",
+                "Re-validate after 5 days using a fresh photo.",
+            ],
+        )
+    else:
+        rec = FusionRecommendationOut(
+            title="Routine monitoring (stabilizing conditions)",
+            steps=[
+                "Maintain current irrigation and nutrient schedule.",
+                "Continue weekly scouting and remove minor infected patches if observed.",
+                "Monitor satellite confidence; respond if unified confidence drops.",
+            ],
+        )
+
+    return FusionResponseOut(
+        parcel_id=getattr(parcel, "parcel_id_str", None),
+        fieldId=input.fieldId,
+        crop=getattr(parcel, "crop", None),
+        unified_health_index=unified_health_index,
+        satellite_confidence=satellite_confidence,
+        photo_confidence=float(photo_confidence or 0.0),
+        unified_confidence=unified_confidence,
+        disease_detected=disease_detected,
+        abiotic_stress_score=abiotic_stress_score,
+        biotic_stress_score=biotic_stress_score,
+        anomaly_deviation_score=anomaly_deviation_score,
+        fusedRisk7Days=FusionRisk7DaysOut(
+            diseaseRisk=disease_band,
+            pestRisk=pest_band,
+            yieldLossRiskPct=float(yield_loss_risk),
+        ),
+        recommendation=rec,
+    )
+
+
+@app.get("/field-advisory/{fieldId}", response_model=FieldAdvisoryResponseOut)
+def field_advisory(fieldId: str, db: Session = Depends(get_db)):
+    """
+    Backend-driven field advisory (PoC):
+    - Uses parcel CHSS analytics already computed in `GET /parcels`.
+    - Produces the payload shape consumed by `src/routes/field-advisory.$fieldId.tsx`.
+    """
+    # 1) Load parcel (fieldId is treated as parcel_id_str in PoC).
+    parcel = db.execute(
+        select(models.Parcel).where(models.Parcel.parcel_id_str == fieldId)
+    ).scalars().first()
+
+    if parcel is None:
+        raise HTTPException(status_code=404, detail="Field/parcel not found")
+
+    # 2) Satellite CHSS analytics.
+    lat_val = float(parcel.lat) if parcel.lat is not None else 0.0
+    lng_val = float(parcel.lng) if parcel.lng is not None else 0.0
+    ndvi_val = float(parcel.ndvi) if parcel.ndvi is not None else 0.5
+    evi_val = float(getattr(parcel, "evi", ndvi_val - 0.05)) if hasattr(parcel, "evi") else ndvi_val - 0.05
+    ndre_val = float(getattr(parcel, "ndre", ndvi_val - 0.2)) if hasattr(parcel, "ndre") else ndvi_val - 0.2
+    health_val = float(parcel.health) if parcel.health is not None else 65.0
+
+    satellite_layer = _parcel_layer_analytics(health_val, ndvi_val, evi_val, ndre_val)
+
+    unified_health_index = float(satellite_layer.get("unified_health_index", 60.0))
+    abiotic_stress_score = float(satellite_layer.get("abiotic_stress_score", 50.0))
+    biotic_stress_score = float(satellite_layer.get("biotic_stress_score", 50.0))
+    anomaly_deviation_score = float(satellite_layer.get("anomaly_deviation_score", 50.0))
+    satellite_conf = float(satellite_layer.get("satellite_confidence", 60.0))
+
+    # 3) Derive disease name from crop (PoC mapping).
+    crop = str(getattr(parcel, "crop", "") or "")
+    disease_name_map = {
+        "Paddy": "Rice Blast",
+        "Cotton": "Cotton Bollworm",
+        "Chilli": "Chilli Leaf Curl",
+        "Maize": "Fall Armyworm",
+        "Red Gram": "Red Gram Wilt",
+    }
+    disease_name = disease_name_map.get(crop, "Crop Disease")
+
+    # Photo not available in this endpoint; approximate disease probability from satellite disease_probability.
+    disease_probability = float(satellite_layer.get("disease_probability", 0.5))  # 0..1
+    # Scale 0..1 probability to realistic confidence range (15-65%) with some base boost.
+    probabilityPct = round(max(15.0, min(65.0, disease_probability * 100.0 * 0.6 + satellite_conf * 0.15 + 8.0)), 1)
+
+    # Severity from probability.
+    if probabilityPct >= 80:
+        severity: Literal["Low", "Medium", "High", "Critical"] = "Critical"
+    elif probabilityPct >= 65:
+        severity = "High"
+    elif probabilityPct >= 45:
+        severity = "Medium"
+    else:
+        severity = "Low"
+
+    affectedAreaPct = round(max(1.0, min(45.0, (100.0 - unified_health_index) * 0.18 + anomaly_deviation_score * 0.07)), 1)
+
+    # 4) Risk bands (7 days).
+    # Use unified index and abiotic/biotic to shape bands.
+    def band_from_score(score_0_100: float) -> Literal["Low", "Medium", "High"]:
+        if score_0_100 >= 65:
+            return "High"
+        if score_0_100 >= 40:
+            return "Medium"
+        return "Low"
+
+    diseaseRisk = band_from_score(probabilityPct)
+    pestRisk = band_from_score(biotic_stress_score)
+    yieldLossRiskPct = round(
+        max(0.0, min(100.0, (100.0 - unified_health_index) * 0.22 + biotic_stress_score * 0.08 + abiotic_stress_score * 0.05)),
+        1,
+    )
+
+    # 5) Recommendation steps from parcel analytics recommendation.
+
+    base_reco = str(satellite_layer.get("recommendation", "Continue monitoring"))
+    # Turn into 3–4 actionable steps for the UI (PoC text-to-steps).
+    steps: list[str] = []
+    if base_reco:
+        # Simple split on punctuation.
+        parts = [p.strip() for p in base_reco.replace(" and ", ". ").replace("-", " ").split(".") if p.strip()]
+        steps = parts[:4]
+
+    if not steps:
+        steps = [base_reco]
+
+    # Add a validation/next action step aligned with field workflow.
+    steps.append("Upload a new geo-tagged crop image after 5 days to validate the advisory.")
+
+    # 6) Weather alert (PoC): derive tone/message from forecast drought and rainfall.
+    try:
+        _, forecast = _fetch_live_weather()
+        top3 = forecast[:3] if forecast else []
+        if top3:
+            avg_drought = sum(p.drought for p in top3) / len(top3)
+            total_rain = sum(p.rainfall for p in top3)
+        else:
+            avg_drought = 50
+            total_rain = 0
+
+        if avg_drought >= 65:
+            weather_tone: Literal["info", "warning"] = "warning"
+            weather_message = "High drought risk over the next few days."
+            weather_guidance = "Prioritise irrigation scheduling and avoid water stress during peak hours."
+        elif total_rain >= 25:
+            weather_tone = "warning"
+            weather_message = "Heavy rainfall window expected soon."
+            weather_guidance = "Delay pesticide application until rain subsides and protect exposed crops."
+        else:
+            weather_tone = "info"
+            weather_message = "Weather conditions are relatively stable."
+            weather_guidance = "Follow routine scouting and maintain balanced irrigation and nutrients."
+    except Exception:
+        weather_tone = "info"
+        weather_message = "Weather data unavailable; follow baseline advisory."
+        weather_guidance = "Verify locally through RSK/field staff and continue monitoring."
+
+    # 7) Disease detected block for the UI (PoC): approximate from satellite disease_probability.
+    probabilityPct = float(probabilityPct)
+    disease_sev: Literal["Low", "Medium", "High", "Critical"] = severity
+
+    disease_detected = FieldAdvisoryDiseaseDetectedOut(
+        name=disease_name,
+        probabilityPct=probabilityPct,
+        severity=disease_sev,
+        affectedAreaPct=affectedAreaPct,
+    )
+
+    ai_reco = FieldAdvisoryAiRecommendationOut(
+        title="AI Recommendation",
+        steps=steps,
+    )
+
+    predicted_risk = FieldAdvisoryPredictedRisk7DaysOut(
+        diseaseRisk=diseaseRisk,
+        pestRisk=pestRisk,
+        yieldLossRiskPct=float(yieldLossRiskPct),
+    )
+
+    weather_alert = FieldAdvisoryWeatherAlertOut(
+        tone=weather_tone,
+        message=weather_message,
+        guidance=weather_guidance,
+    )
+
+    return FieldAdvisoryResponseOut(
+        fieldId=fieldId,
+        crop=crop,
+        healthScorePct=float(unified_health_index),
+        diseaseDetected=disease_detected,
+        aiRecommendation=ai_reco,
+        predictedRisk7Days=predicted_risk,
+        weatherAlert=weather_alert,
+    )
+
+
+# ── Crop & Fertilizer Recommendation Endpoints ───────────────────────────────
+
+
+@app.post("/recommend/crop", response_model=CropRecoOut)
+def recommend_crop(inp: CropRecoInput) -> CropRecoOut:
+    """
+    Recommend a crop based on satellite health index, weather, and risk bands.
+    """
+    heuristic_inp = CropRecoHeuristicInput(
+        detected_crop=inp.detected_crop,
+        weather_rainfall_mm=inp.weather_rainfall_mm,
+        satellite_unified_health_index_pct=inp.satellite_unified_health_index_pct,
+        satellite_satellite_confidence_pct=inp.satellite_satellite_confidence_pct,
+        disease_risk=inp.disease_risk,
+        pest_risk=inp.pest_risk,
+    )
+    crop, conf = recommend_crop_poc(heuristic_inp)
+    return CropRecoOut(recommended_crop=crop, confidence=conf)
+
+
+@app.post("/recommend/fertilizer", response_model=FertilizerRecoOut)
+def recommend_fertilizer(inp: FertilizerRecoInput) -> FertilizerRecoOut:
+    """
+    Recommend fertilizer based on satellite stress proxies, soil health, growth stage, and weather.
+
+    Inputs:
+      - Crop (Paddy, Cotton, Groundnut, Red Gram)
+      - Soil Health (Poor, Moderate, Good)
+      - Growth Stage (Vegetative, Flowering, Grain Filling, Maturity)
+      - Weather rainfall (mm)
+      - Satellite health/stress scores
+      - Disease and pest risk bands
+
+    Outputs:
+      - Fertilizer name, dosage (kg/acre), timing, application method, cost (Rs/acre)
+      - Expected yield gain (%)
+      - Nutrient deficiency breakdown (N, P, K)
+    """
+    try:
+        heuristic_inp = FertilizerRecoHeuristicInput(
+            crop=inp.crop,
+            soil_health=inp.soil_health,
+            growth_stage=inp.growth_stage,
+            weather_rainfall_mm=inp.weather_rainfall_mm,
+            satellite_unified_health_index_pct=inp.satellite_unified_health_index_pct,
+            satellite_abiotic_stress_score_pct=inp.satellite_abiotic_stress_score_pct,
+            satellite_soil_moisture_score_pct=inp.satellite_soil_moisture_score_pct,
+            disease_risk=inp.disease_risk,
+            pest_risk=inp.pest_risk,
+        )
+        result = recommend_fertilizer_poc(heuristic_inp)
+        return FertilizerRecoOut(**result)
+    except Exception as e:
+        import logging
+        logging.exception("Error in recommend_fertilizer", exc_info=e)
+        from fastapi import Response
+        resp = JSONResponse(status_code=500, content={"detail": f"Fertilizer recommendation error: {e}"})
+        resp.headers["Access-Control-Allow-Origin"] = "*"
+        resp.headers["Access-Control-Allow-Methods"] = "*"
+        resp.headers["Access-Control-Allow-Headers"] = "*"
+        return resp
+

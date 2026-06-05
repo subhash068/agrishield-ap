@@ -1,40 +1,20 @@
-# TODO - AgriShield AP Hackathon Demo (ICRISAT-driven)
+# TODO - Fertilizer recommendation not updating with photo
 
-## Step 1: Build ICRISAT-backed yield prediction backend
-- [ ] Add an in-memory loader for `data/ICRISAT-District Level Data.csv` (cached).
-- [ ] Implement forecasting/risk logic:
-  - Use historical yield for (district, crop)
-  - Combine user rainfall signal with historical pattern to produce:
-    - predicted yield (kg/ha)
-    - predicted production (1000 tons)
-    - risk level (Low/Medium/High/Critical)
-- [ ] Expose endpoints:
-  - [ ] `GET /yield/history?district=&crop=` -> time-series
-  - [ ] `POST /yield/predict` -> prediction with risk
+## Step 1: Confirm root cause
+- [x] Verified frontend fertilizer page (`src/routes/fertilizer.tsx`) uses manual form state.
+- [x] Verified backend PoC fertilizer heuristic defaults when satellite inputs are missing.
+- [x] Found backend `/disease/detect` sets fertilizer inputs with `satellite_* = None`.
 
-## Step 2: Add ICRISAT early warning endpoints
-- [ ] Implement yield-reduction risk:
-  - Compare predicted yield vs historical moving average / previous year
-  - Output % reduction and risk level.
-- [ ] Expose endpoint:
-  - [ ] `POST /yield/alerts` -> reduction % + risk + short explanation
+## Step 2: Implement fix
+- [ ] Update backend `/fusion/fuse` to compute `fertilizer_recommendation` using:
+  - crop (from disease detection / crop gate)
+  - satellite CHSS metrics already computed in fusion (`unified_health_index`, `abiotic_stress_score`, `soil_moisture`)
+  - disease/pest risk derived from photo + satellite proxies
+- [ ] Update `DiseaseDetectionResponseOut` so that `fertilizer_recommendation` is not generated there (or keep but mark as “photo-only default”)
+  - minimal: stop showing default fertilizer card from `/disease/detect`
+- [ ] Update frontend `/farmers/scan.tsx` to render fertilizer recommendation from fusion output (instead of from `scanResult.fertilizer_recommendation`)
 
-## Step 3: Frontend “AI Crop Yield Prediction Dashboard” UI
-- [ ] Add new route/page (or extend existing `/predictions`) for interactive form:
-  - District, Crop, Year, Rainfall
-- [ ] Show:
-  - predicted yield + production + risk badge
-  - yield history line chart
-  - AI insight cards
-
-## Step 4: Frontend “Yield reduction early warning” UI
-- [ ] Add section/page to show:
-  - district + crop selection
-  - yield reduction % and risk
-  - recommended advisory line(s)
-
-## Step 5: Demo polish & testing
-- [ ] Run backend + frontend locally
-- [ ] Validate API responses with sample inputs (West Godavari + Rice)
-- [ ] Ensure UI loads without needing external services
+## Step 3: Testing
+- [ ] Run backend + frontend and upload multiple photos.
+- [ ] Verify fertilizer output changes with photo severity/crop.
 

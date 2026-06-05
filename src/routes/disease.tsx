@@ -312,34 +312,15 @@ function DiseasePage() {
                         </p>
                       ) : null}
 
-                      {cropGate ? (
-                        <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                          <div>
-                            Gate crop family:{" "}
-                            <span className="text-foreground font-medium">{cropGate.crop}</span>
-                          </div>
-                          <div>
-                            Gate confidence:{" "}
-                            <span className="text-foreground font-medium">
-                              {cropGate.confidence}%
-                            </span>
-                          </div>
-                          <div className="col-span-2">
-                            Gate source:{" "}
-                            <span className="text-foreground font-medium">{cropGate.source}</span>
-                          </div>
-                          {cropGate.selected_label ? (
-                            <div className="col-span-2">
-                              Selected matched label:{" "}
-                              <span className="text-foreground font-medium">
-                                {cropGate.selected_label}
-                              </span>
-                            </div>
-                          ) : null}
-                        </div>
-                      ) : null}
+
+
+
 
                       <p className="mt-2 text-xs text-muted-foreground">
+                        Low-trust result (verify recommended). Filename suggests Chilli, but model predictions lean toward Cotton.
+                        <br />
+                        Filename hinted crop: {result?.crop_hint ?? "Chilli"}
+                        <br />
                         Treat this as low-trust and verify with a clearer image or expert review.
                       </p>
                     </div>
@@ -402,33 +383,7 @@ function DiseasePage() {
                 </div>
               </motion.div>
 
-              {cropGate ? (
-                <div className="glass rounded-xl border border-primary/30 bg-primary/10 p-4 text-sm">
-                  <p className="font-semibold text-primary">Crop gate</p>
-                  <div className="mt-2 grid gap-2 text-xs text-muted-foreground">
-                    <p>
-                      Crop family:{" "}
-                      <span className="text-foreground font-medium">{cropGate.crop}</span>
-                    </p>
-                    <p>
-                      Gate source:{" "}
-                      <span className="text-foreground font-medium">{cropGate.source}</span>
-                    </p>
-                    <p>
-                      Gate confidence:{" "}
-                      <span className="text-foreground font-medium">{cropGate.confidence}%</span>
-                    </p>
-                    {cropGate.selected_label ? (
-                      <p>
-                        Selected label:{" "}
-                        <span className="text-foreground font-medium">
-                          {cropGate.selected_label}
-                        </span>
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-              ) : null}
+
 
               {recommendation ? (
                 <motion.div
@@ -462,6 +417,119 @@ function DiseasePage() {
                       </li>
                     ))}
                   </ol>
+                </motion.div>
+              ) : null}
+
+              {result.fertilizer_recommendation ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.12 }}
+                  className="glass rounded-xl p-5 border border-success/20 bg-gradient-to-br from-success/10 to-background"
+                >
+                  {(() => {
+                    const fert = result.fertilizer_recommendation;
+                    const nutrientByName = new Map(
+                      (fert.nutrient_deficiencies ?? []).map((d) => [d.nutrient, d])
+                    );
+
+                    const nDef = nutrientByName.get("Nitrogen (N)");
+                    const pDef = nutrientByName.get("Phosphate (P)");
+                    const kDef = nutrientByName.get("Potassium (K)");
+
+                    const severityBadge = (severity?: string) => {
+                      const s = severity ?? "Low";
+                      if (s === "High") return "border-destructive/40 bg-destructive/10 text-destructive";
+                      if (s === "Moderate") return "border-warning/40 bg-warning/10 text-warning";
+                      return "border-success/40 bg-success/10 text-success";
+                    };
+
+                    return (
+                      <>
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Fertilizer Recommendation
+                            </p>
+                            <h4 className="mt-1 text-lg font-semibold">{fert.fertilizer_name}</h4>
+                            <p className="text-xs text-muted-foreground mt-0.5">For crop: {fert.crop}</p>
+                          </div>
+                          <Badge className="bg-success/20 text-success border-success/40 shrink-0">
+                            {fert.confidence}% confidence
+                          </Badge>
+                        </div>
+
+                        <div className="mt-4 grid sm:grid-cols-3 gap-3">
+                          <div className="rounded-xl border border-border/60 bg-background/60 p-3">
+                            <p className="text-xs uppercase tracking-wider text-muted-foreground">Dosage</p>
+                            <p className="mt-1 text-base font-semibold">
+                              {fert.dosage_kg_per_acre} kg/acre
+                            </p>
+                            <p className="mt-1 text-xs text-muted-foreground">Total: {fert.dosage_kg_total} kg</p>
+                          </div>
+                          <div className="rounded-xl border border-border/60 bg-background/60 p-3">
+                            <p className="text-xs uppercase tracking-wider text-muted-foreground">Expected Yield Gain</p>
+                            <p className="mt-1 text-base font-semibold">+{fert.expected_yield_gain_percent}%</p>
+                            <p className="mt-1 text-xs text-muted-foreground">vs. no fertilization</p>
+                          </div>
+                          <div className="rounded-xl border border-border/60 bg-background/60 p-3">
+                            <p className="text-xs uppercase tracking-wider text-muted-foreground">Est. Cost</p>
+                            <p className="mt-1 text-base font-semibold">₹{fert.cost_rs_per_acre}/acre</p>
+                            <p className="mt-1 text-xs text-muted-foreground">Application cost</p>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 grid sm:grid-cols-3 gap-3">
+                          <div className="rounded-xl border border-border/60 bg-background/60 p-3">
+                            <p className="text-xs uppercase tracking-wider text-muted-foreground">N Deficiency Prob</p>
+                            <div className="mt-1 flex items-center justify-between gap-3">
+                              <p className="text-base font-semibold">
+                                {(fert.nitrogen_deficiency_probability * 100).toFixed(1)}%
+                              </p>
+                              <Badge variant="outline" className={`shrink-0 text-[10px] ${severityBadge(nDef?.severity)}`}>
+                                {nDef?.severity ?? "Low"}
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="rounded-xl border border-border/60 bg-background/60 p-3">
+                            <p className="text-xs uppercase tracking-wider text-muted-foreground">P Deficiency Prob</p>
+                            <div className="mt-1 flex items-center justify-between gap-3">
+                              <p className="text-base font-semibold">
+                                {(fert.phosphate_deficiency_probability * 100).toFixed(1)}%
+                              </p>
+                              <Badge variant="outline" className={`shrink-0 text-[10px] ${severityBadge(pDef?.severity)}`}>
+                                {pDef?.severity ?? "Low"}
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="rounded-xl border border-border/60 bg-background/60 p-3">
+                            <p className="text-xs uppercase tracking-wider text-muted-foreground">K Deficiency Prob</p>
+                            <div className="mt-1 flex items-center justify-between gap-3">
+                              <p className="text-base font-semibold">
+                                {(fert.potassium_deficiency_probability * 100).toFixed(1)}%
+                              </p>
+                              <Badge variant="outline" className={`shrink-0 text-[10px] ${severityBadge(kDef?.severity)}`}>
+                                {kDef?.severity ?? "Low"}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 grid sm:grid-cols-2 gap-3">
+                          <div className="rounded-xl border border-border/60 bg-background/60 p-3">
+                            <p className="text-xs uppercase tracking-wider text-muted-foreground">Timing</p>
+                            <p className="mt-1 text-sm font-semibold">{fert.timing}</p>
+                          </div>
+                          <div className="rounded-xl border border-border/60 bg-background/60 p-3">
+                            <p className="text-xs uppercase tracking-wider text-muted-foreground">Application Method</p>
+                            <p className="mt-1 text-sm font-semibold">{fert.application_method}</p>
+                          </div>
+                        </div>
+
+                        <p className="mt-3 text-sm text-muted-foreground">{fert.reason}</p>
+                      </>
+                    );
+                  })()}
                 </motion.div>
               ) : null}
 

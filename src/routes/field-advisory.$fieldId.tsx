@@ -18,8 +18,11 @@ import { Progress } from "@/components/ui/progress";
 import {
   type FarmerActionTracking,
   type FieldAdvisoryPayload,
+  getFieldAdvisoryPayloadAsync,
   getFieldAdvisoryPayload,
 } from "@/lib/field-advisory";
+
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/field-advisory/$fieldId")({
   head: () => ({
@@ -43,8 +46,15 @@ function riskBadgeTone(tone: FieldAdvisoryPayload["predictedRisk7Days"]["disease
 function FieldAdvisoryPage() {
   const { fieldId } = Route.useParams();
 
+  const { data: payload = null, isLoading } = useQuery({
+    queryKey: ["field-advisory", fieldId],
+    queryFn: () => getFieldAdvisoryPayloadAsync(fieldId),
+    staleTime: 5 * 60 * 1000,
+  });
 
-  const payload = useMemo<FieldAdvisoryPayload>(() => getFieldAdvisoryPayload(fieldId), [fieldId]);
+  const fallbackPayload = useMemo(() => getFieldAdvisoryPayload(fieldId), [fieldId]);
+
+  const effectivePayload = payload ?? fallbackPayload;
 
   const [tracking, setTracking] = useState<FarmerActionTracking>({
     treated: false,
@@ -63,14 +73,14 @@ function FieldAdvisoryPage() {
     return clamp(base + steps * 25, 0, 100);
   }, [tracking.treated, tracking.irrigationAdjusted, tracking.validationUploaded]);
 
-  const severity = payload.diseaseDetected.severity;
+  const severity = effectivePayload.diseaseDetected.severity;
 
   return (
     <div>
       <PageHeader
         icon={<ShieldCheck className="h-6 w-6 text-primary" />}
         eyebrow="Field Advisory"
-        title={`AgriShield Field Advisory · ${payload.fieldId}`}
+        title={`AgriShield Field Advisory · ${effectivePayload.fieldId}`}
         description="Satellite monitoring → AI disease detection → risk prediction → weather alert → action tracking."
       />
 
@@ -80,8 +90,8 @@ function FieldAdvisoryPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">Crop</p>
-                <h3 className="mt-1 text-lg font-semibold">{payload.crop}</h3>
-                <p className="mt-1 text-xs text-muted-foreground">Field area: {payload.diseaseDetected.affectedAreaPct}% affected</p>
+                <h3 className="mt-1 text-lg font-semibold">{effectivePayload.crop}</h3>
+                <p className="mt-1 text-xs text-muted-foreground">Field area: {effectivePayload.diseaseDetected.affectedAreaPct}% affected</p>
               </div>
               <Badge
                 variant="outline"
@@ -102,9 +112,9 @@ function FieldAdvisoryPage() {
             <div className="mt-4">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>Health score</span>
-                <span className="font-semibold text-foreground">{payload.healthScorePct}%</span>
+                <span className="font-semibold text-foreground">{effectivePayload.healthScorePct}%</span>
               </div>
-              <Progress value={payload.healthScorePct} className="mt-2 h-2" />
+              <Progress value={effectivePayload.healthScorePct} className="mt-2 h-2" />
             </div>
           </div>
 
@@ -112,8 +122,8 @@ function FieldAdvisoryPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">AI Disease Detected</p>
-                <h3 className="mt-1 text-lg font-semibold">{payload.diseaseDetected.name}</h3>
-                <p className="mt-1 text-xs text-muted-foreground">Confidence: {payload.diseaseDetected.probabilityPct}%</p>
+                <h3 className="mt-1 text-lg font-semibold">{effectivePayload.diseaseDetected.name}</h3>
+                <p className="mt-1 text-xs text-muted-foreground">Confidence: {effectivePayload.diseaseDetected.probabilityPct}%</p>
               </div>
               <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary">
                 Model: AgriShield Vision
@@ -123,7 +133,7 @@ function FieldAdvisoryPage() {
             <div className="mt-4 grid grid-cols-2 gap-2">
               <div className="rounded-lg border border-border/60 bg-background/50 p-3">
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Affected</p>
-                <p className="mt-1 text-sm font-semibold">{payload.diseaseDetected.affectedAreaPct}%</p>
+                <p className="mt-1 text-sm font-semibold">{effectivePayload.diseaseDetected.affectedAreaPct}%</p>
               </div>
               <div className="rounded-lg border border-border/60 bg-background/50 p-3">
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Next step</p>
@@ -262,11 +272,11 @@ function FieldAdvisoryPage() {
             </div>
 
             <p className="mt-2 text-sm text-muted-foreground leading-6">
-              Follow the field action plan based on detected Rice Blast risk.
+              {effectivePayload.aiRecommendation.title}
             </p>
 
             <div className="mt-4 space-y-2">
-              {payload.aiRecommendation.steps.map((step, i) => (
+              {effectivePayload.aiRecommendation.steps.map((step, i) => (
                 <div key={step} className="flex items-start gap-3 rounded-lg border border-border/60 bg-background/50 p-3">
                   <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary text-[11px] font-semibold">
                     {i + 1}
@@ -287,18 +297,18 @@ function FieldAdvisoryPage() {
                 <AlertTriangle className="h-4 w-4 text-warning" />
                 Predicted Risk (7 Days)
               </h3>
-              <Badge variant="outline" className={riskBadgeTone(payload.predictedRisk7Days.diseaseRisk)}>
-                {payload.predictedRisk7Days.diseaseRisk} disease risk
+              <Badge variant="outline" className={riskBadgeTone(effectivePayload.predictedRisk7Days.diseaseRisk)}>
+                {effectivePayload.predictedRisk7Days.diseaseRisk} disease risk
               </Badge>
             </div>
 
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <RiskBox label="Disease Risk" value={payload.predictedRisk7Days.diseaseRisk} tone="warning" />
-              <RiskBox label="Pest Risk" value={payload.predictedRisk7Days.pestRisk} tone="info" />
-              <RiskBox label="Yield Loss Risk" value={`${payload.predictedRisk7Days.yieldLossRiskPct}%`} tone="danger" />
+              <RiskBox label="Disease Risk" value={effectivePayload.predictedRisk7Days.diseaseRisk} tone="warning" />
+              <RiskBox label="Pest Risk" value={effectivePayload.predictedRisk7Days.pestRisk} tone="info" />
+              <RiskBox label="Yield Loss Risk" value={`${effectivePayload.predictedRisk7Days.yieldLossRiskPct}%`} tone="danger" />
               <div className="rounded-xl border border-border/60 bg-background/40 p-4">
                 <p className="text-xs text-muted-foreground">Affected health score context</p>
-                <p className="mt-2 text-sm font-semibold">Health: {payload.healthScorePct}% · Action: Medium priority</p>
+                <p className="mt-2 text-sm font-semibold">Health: {effectivePayload.healthScorePct}% · Action: Medium priority</p>
               </div>
             </div>
           </div>
@@ -310,9 +320,9 @@ function FieldAdvisoryPage() {
               <AlertTriangle className="h-4 w-4 text-accent" />
               Weather Alert
             </h3>
-            <p className="mt-2 text-sm text-muted-foreground leading-6">{payload.weatherAlert.message}</p>
+            <p className="mt-2 text-sm text-muted-foreground leading-6">{effectivePayload.weatherAlert.message}</p>
             <div className="mt-3 rounded-xl border border-border/60 bg-background/40 p-3 text-sm">
-              <span className="text-muted-foreground">Guidance:</span> <span className="font-medium">{payload.weatherAlert.guidance}</span>
+              <span className="text-muted-foreground">Guidance:</span> <span className="font-medium">{effectivePayload.weatherAlert.guidance}</span>
             </div>
           </div>
 

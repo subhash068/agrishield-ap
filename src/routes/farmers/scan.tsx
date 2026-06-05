@@ -19,10 +19,13 @@ import { Progress as UiProgress } from "@/components/ui/progress";
 import {
   createAlert,
   detectDisease,
+  fuseSatelliteGround,
   getAlerts,
   type Alert,
   type AlertCreateInput,
   type DiseaseDetectionResponse,
+  type FusionResponseOut,
+  type FusionFuseInput,
 } from "@/lib/api";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -46,6 +49,14 @@ type ScanResult = {
   model: string;
   top_k: Array<{ label: string; score: number }>;
   crop_hint?: string | null;
+  fertilizer_recommendation?: {
+    crop: string;
+    fertilizer_name: string;
+    dosage_kg_per_acre: number;
+    confidence: number;
+    reason: string;
+    nitrogen_deficiency_probability: number;
+  } | null;
 };
 
 type AlertForm = {
@@ -132,6 +143,8 @@ function FarmerScanPage() {
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [alertStatus, setAlertStatus] = useState<string | null>(null);
 
+  const [fusionResult, setFusionResult] = useState<FusionResponseOut | null>(null);
+
   const [alertForm, setAlertForm] = useState<AlertForm>(() => initialAlertForm(profile?.district ?? "Krishna"));
 
   useEffect(() => {
@@ -164,8 +177,11 @@ function FarmerScanPage() {
         model: data.model,
         top_k: data.top_k,
         crop_hint: data.crop_hint ?? null,
+        fertilizer_recommendation: data.fertilizer_recommendation ?? null,
       };
       setScanResult(next);
+
+      setFusionResult(null);
 
       setAlertForm((current) => ({
         ...current,
@@ -185,7 +201,17 @@ function FarmerScanPage() {
     },
   });
 
+  const fuseMutation = useMutation<FusionResponseOut, Error, FusionFuseInput>({
+    mutationFn: fuseSatelliteGround,
+    onSuccess: (data) => setFusionResult(data),
+    onError: () => {
+      // Keep scanResult intact even if fusion fails.
+      setFusionResult(null);
+    },
+  });
+
   const scanning = detectMutation.isPending;
+  const fusing = fuseMutation.isPending;
 
   const previewLabel = scanMode === "camera" ? "Camera capture" : "Gallery upload";
 
@@ -252,6 +278,26 @@ function FarmerScanPage() {
       { enableHighAccuracy: true, timeout: 4000, maximumAge: 0 },
     );
   }, [selectedFile]);
+
+  // Trigger fusion after:
+  // - disease detection succeeded (detectMutation.data)
+  // - we have a GPS coordinate (or fallback lat/lng)
+  useEffect(() => {
+    const d = detectMutation.data;
+    if (!d) return;
+    if (geoState.lat == null || geoState.lng == null) return;
+
+    const input: FusionFuseInput = {
+      fieldId: "FARMER-SCAN",
+      lat: geoState.lat,
+      lng: geoState.lng,
+      disease_detection_response: d,
+    };
+
+    // Avoid refetch loops if detectMutation.data changes due to retries
+    fuseMutation.mutate(input);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detectMutation.data, geoState.lat, geoState.lng]);
 
   const openPicker = (mode: CaptureMode) => {
     setScanMode(mode);
@@ -457,18 +503,102 @@ function FarmerScanPage() {
                       </div>
                     </div>
 
+                    {scanResult.fertilizer_recommendation ? (
+                      <div className="rounded-2xl border border-border/60 bg-background/50 p-4">
+                        <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Fertilizer Recommendation</p>
+                        <div className="mt-3 space-y-2">
+                          <div className="rounded-xl border border-success/30 bg-success/10 p-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <p className="text-sm font-semibold">{scanResult.fertilizer_recommendation.fertilizer_name}</p>
+                                <p className="text-xs text-muted-foreground mt-0.5">
+                                  For crop: {scanResult.fertilizer_recommendation.crop}
+                                </p>
+                              </div>
+                              <Badge className="bg-success/20 text-success border-success/40 shrink-0">
+                                {scanResult.fertilizer_recommendation.confidence}% conf
+                              </Badge>
+                            </div>
+                            <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                              <div className="rounded-lg bg-background/60 px-2 py-1.5">
+                                <p className="text-muted-foreground">Dosage</p>
+                                <p className="font-medium">{scanResult.fertilizer_recommendation.dosage_kg_per_acre} kg/acre</p>
+                              </div>
+                              <div className="rounded-lg bg-background/60 px-2 py-1.5">
+                                <p className="text-muted-foreground">N Deficit Prob</p>
+                                <p className="font-medium">{(scanResult.fertilizer_recommendation.nitrogen_deficiency_probability * 100).toFixed(1)}%</p>
+                              </div>
+                            </div>
+                            <p className="mt-2 text-xs text-muted-foreground">{scanResult.fertilizer_recommendation.reason}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
+
                     <div className="rounded-2xl border border-border/60 bg-background/50 p-4">
                       <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Recommendation</p>
-                      <div className="mt-3 text-sm text-muted-foreground space-y-2">
-                        <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
-                          {alertForm.action}
+
+                      {fusing ? (
+                        <div className="mt-3 text-sm text-muted-foreground space-y-2">
+                          <div className="rounded-xl border border-border/60 bg-muted/20 p-3">Fusing satellite + photo analytics...</div>
                         </div>
+                      ) : fusionResult ? (
+                        <div className="mt-3 text-sm text-muted-foreground space-y-2">
+                          <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
+                            {fusionResult.recommendation.title}
+                          </div>
+                          {fusionResult.recommendation.steps?.slice(0, 4).map((s, i) => (
+                            <div key={`${s}-${i}`} className="rounded-xl border border-border/60 bg-muted/20 p-3">
+                              {i + 1}. {s}
+                            </div>
+                          ))}
+                          <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
+                            Unified confidence: {Math.round(fusionResult.unified_confidence)}% · Satellite conf:{" "}
+                            {Math.round(fusionResult.satellite_confidence)}% · Photo conf:{" "}
+                            {Math.round(fusionResult.photo_confidence)}%
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mt-3 text-sm text-muted-foreground space-y-2">
+                          <div className="rounded-xl border border-border/60 bg-muted/20 p-3">{alertForm.action}</div>
+                          <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
+                            Apply within 48 hours for best results. Continue monitoring after 5 days.
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {fusionResult ? (
+                    <div className="mt-4 rounded-2xl border border-border/60 bg-background/50 p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Fused Risk (7 Days)</p>
+                        <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary">
+                          Disease: {fusionResult.fusedRisk7Days.diseaseRisk} · Pest:{" "}
+                          {fusionResult.fusedRisk7Days.pestRisk}
+                        </Badge>
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
-                          Apply within 48 hours for best results. Continue monitoring after 5 days.
+                          <p className="text-xs text-muted-foreground">Unified Health Index</p>
+                          <p className="mt-1 text-sm font-semibold">{fusionResult.unified_health_index}%</p>
+                        </div>
+
+                        <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
+                          <p className="text-xs text-muted-foreground">Unified Confidence</p>
+                          <p className="mt-1 text-sm font-semibold">{Math.round(fusionResult.unified_confidence)}%</p>
+                        </div>
+
+                        <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
+                          <p className="text-xs text-muted-foreground">Yield Loss Risk</p>
+                          <p className="mt-1 text-sm font-semibold">
+                            {Math.round(fusionResult.fusedRisk7Days.yieldLossRiskPct)}%
+                          </p>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  ) : null}
                 </div>
               ) : null}
             </div>
@@ -521,5 +651,3 @@ function FarmerScanPage() {
 }
 
 export default FarmerScanPage;
-
-

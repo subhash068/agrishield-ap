@@ -19,6 +19,7 @@ import { Route as PredictionsRouteImport } from './routes/predictions'
 import { Route as ParcelsRouteImport } from './routes/parcels'
 import { Route as MandalRouteImport } from './routes/mandal'
 import { Route as GovernmentRouteImport } from './routes/government'
+import { Route as FertilizerRouteImport } from './routes/fertilizer'
 import { Route as FarmersRouteImport } from './routes/farmers'
 import { Route as DiseaseRouteImport } from './routes/disease'
 import { Route as AdvisoryRouteImport } from './routes/advisory'
@@ -84,6 +85,11 @@ const MandalRoute = MandalRouteImport.update({
 const GovernmentRoute = GovernmentRouteImport.update({
   id: '/government',
   path: '/government',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FertilizerRoute = FertilizerRouteImport.update({
+  id: '/fertilizer',
+  path: '/fertilizer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FarmersRoute = FarmersRouteImport.update({
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/advisory': typeof AdvisoryRoute
   '/disease': typeof DiseaseRoute
   '/farmers': typeof FarmersRouteWithChildren
+  '/fertilizer': typeof FertilizerRoute
   '/government': typeof GovernmentRoute
   '/mandal': typeof MandalRoute
   '/parcels': typeof ParcelsRoute
@@ -199,6 +206,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/advisory': typeof AdvisoryRoute
   '/disease': typeof DiseaseRoute
+  '/fertilizer': typeof FertilizerRoute
   '/government': typeof GovernmentRoute
   '/mandal': typeof MandalRoute
   '/parcels': typeof ParcelsRoute
@@ -228,6 +236,7 @@ export interface FileRoutesById {
   '/advisory': typeof AdvisoryRoute
   '/disease': typeof DiseaseRoute
   '/farmers': typeof FarmersRouteWithChildren
+  '/fertilizer': typeof FertilizerRoute
   '/government': typeof GovernmentRoute
   '/mandal': typeof MandalRoute
   '/parcels': typeof ParcelsRoute
@@ -258,6 +267,7 @@ export interface FileRouteTypes {
     | '/advisory'
     | '/disease'
     | '/farmers'
+    | '/fertilizer'
     | '/government'
     | '/mandal'
     | '/parcels'
@@ -285,6 +295,7 @@ export interface FileRouteTypes {
     | '/'
     | '/advisory'
     | '/disease'
+    | '/fertilizer'
     | '/government'
     | '/mandal'
     | '/parcels'
@@ -313,6 +324,7 @@ export interface FileRouteTypes {
     | '/advisory'
     | '/disease'
     | '/farmers'
+    | '/fertilizer'
     | '/government'
     | '/mandal'
     | '/parcels'
@@ -342,6 +354,7 @@ export interface RootRouteChildren {
   AdvisoryRoute: typeof AdvisoryRoute
   DiseaseRoute: typeof DiseaseRoute
   FarmersRoute: typeof FarmersRouteWithChildren
+  FertilizerRoute: typeof FertilizerRoute
   GovernmentRoute: typeof GovernmentRoute
   MandalRoute: typeof MandalRoute
   ParcelsRoute: typeof ParcelsRoute
@@ -425,6 +438,13 @@ declare module '@tanstack/react-router' {
       path: '/government'
       fullPath: '/government'
       preLoaderRoute: typeof GovernmentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fertilizer': {
+      id: '/fertilizer'
+      path: '/fertilizer'
+      fullPath: '/fertilizer'
+      preLoaderRoute: typeof FertilizerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/farmers': {
@@ -578,6 +598,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdvisoryRoute: AdvisoryRoute,
   DiseaseRoute: DiseaseRoute,
   FarmersRoute: FarmersRouteWithChildren,
+  FertilizerRoute: FertilizerRoute,
   GovernmentRoute: GovernmentRoute,
   MandalRoute: MandalRoute,
   ParcelsRoute: ParcelsRoute,

@@ -132,6 +132,7 @@ function HomePage() {
   return (
     <div>
       {/* HERO */}
+
       <section className="relative overflow-hidden border-b border-border/60">
         <div className="absolute inset-0 grid-bg opacity-40" />
         <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />

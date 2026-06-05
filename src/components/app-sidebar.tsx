@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Satellite, ScanLine, Map, CloudSun, Users,
   MessageSquareWarning, ShieldAlert, FileBarChart2, Landmark,
-  Settings, Sparkles, Leaf,
+  Settings, Sparkles, Leaf, Beaker,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -19,14 +19,15 @@ const navMain = [
   { title: "Weather Intelligence",url: "/weather",      icon: CloudSun },
 ];
 const navOps = [
-  { title: "Farmer Services",     url: "/farmers",      icon: Users },
-  { title: "Advisory System",     url: "/advisory",     icon: MessageSquareWarning },
-  { title: "Mandal Surveillance", url: "/mandal",       icon: ShieldAlert },
-  { title: "AI Yield Dashboard",  url: "/yield-dashboard", icon: Sparkles },
-  { title: "AI Predictions",      url: "/predictions",  icon: Sparkles },
-  { title: "Reports & Analytics", url: "/reports",      icon: FileBarChart2 },
-  { title: "Government Dashboard",url: "/government",   icon: Landmark },
-  { title: "Settings",            url: "/settings",     icon: Settings },
+  { title: "Farmer Services",      url: "/farmers",           icon: Users },
+  { title: "Fertilizer Engine",    url: "/fertilizer",        icon: Beaker },
+  { title: "Advisory System",      url: "/advisory",          icon: MessageSquareWarning },
+  { title: "Mandal Surveillance",   url: "/mandal",            icon: ShieldAlert },
+  { title: "AI Yield Dashboard",    url: "/yield-dashboard",   icon: Sparkles },
+  { title: "AI Predictions",        url: "/predictions",       icon: Sparkles },
+  { title: "Reports & Analytics",   url: "/reports",           icon: FileBarChart2 },
+  { title: "Government Dashboard",  url: "/government",        icon: Landmark },
+  { title: "Settings",              url: "/settings",          icon: Settings },
 ];
 
 export function AppSidebar() {

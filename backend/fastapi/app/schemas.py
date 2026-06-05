@@ -112,13 +112,43 @@ class WeatherSummaryOut(BaseModel):
 
 
 class LayerAnalyticsOut(BaseModel):
+    # Raw spectral layer scores
     ndvi: float
     evi: float
     ndre: float
+
+    # Abiotic / biotic proxies derived from indices + health
     soil_moisture: float
     vegetation_stress: float
     anomaly_hotspots: float
+
+    # Biotic proxy (disease likelihood)
     disease_probability: float
+
+    # CHSS: Unified Crop Health Index + anomaly deviation breakdown
+    unified_health_index: float = Field(
+        description="Unified 0..100 crop health score (higher = healthier)."
+    )
+    abiotic_stress_score: float = Field(
+        description="0..100 abiotic stress contribution (drought/nutrient/moisture deficit)."
+    )
+    biotic_stress_score: float = Field(
+        description="0..100 biotic stress contribution (pests/disease likelihood)."
+    )
+    anomaly_deviation_score: float = Field(
+        description="0..100 deviation from historical/seasonal norms (proxy in PoC)."
+    )
+
+    # Confidence for satellite-derived assessment (0..100)
+    satellite_confidence: float = Field(
+        description="0..100 confidence that satellite signals indicate real stress/anomaly."
+    )
+
+    # Optional fused confidence placeholder (filled by fusion endpoint later)
+    unified_confidence: float | None = Field(
+        default=None, description="0..100 fused confidence using ground photo analytics (when available)."
+    )
+
     insight: str
     recommendation: str
     model: str = "AgriShield Parcel Analytics v2"
@@ -178,6 +208,60 @@ class DiseaseCropGateOut(BaseModel):
     matched: List[DiseaseTopKOut] = Field(default_factory=list)
 
 
+# ── Crop & Fertilizer Recommendation ────────────────────────────────────────
+
+Risk = Literal["Low", "Medium", "High"]
+
+
+class CropRecoInput(BaseModel):
+    detected_crop: str | None = None
+    weather_rainfall_mm: float | None = None
+    satellite_unified_health_index_pct: float | None = None
+    satellite_satellite_confidence_pct: float | None = None
+    disease_risk: Risk = "Medium"
+    pest_risk: Risk = "Medium"
+
+
+class CropRecoOut(BaseModel):
+    recommended_crop: str
+    confidence: int
+
+
+class FertilizerRecoInput(BaseModel):
+    crop: str | None = None
+    soil_health: Literal["Poor", "Moderate", "Good"] = "Moderate"
+    growth_stage: Literal["Vegetative", "Flowering", "Grain Filling", "Maturity"] = "Vegetative"
+    weather_rainfall_mm: float | None = None
+    satellite_unified_health_index_pct: float | None = None
+    satellite_abiotic_stress_score_pct: float | None = None
+    satellite_soil_moisture_score_pct: float | None = None
+    disease_risk: Risk = "Medium"
+    pest_risk: Risk = "Medium"
+
+
+class NutrientDeficiencyOut(BaseModel):
+    nutrient: str
+    severity: Literal["Low", "Moderate", "High"]
+    probability: float
+
+
+class FertilizerRecoOut(BaseModel):
+    crop: str
+    fertilizer_name: str
+    dosage_kg_per_acre: float
+    dosage_kg_total: float
+    timing: str
+    application_method: str
+    cost_rs_per_acre: float
+    expected_yield_gain_percent: float
+    confidence: int
+    reason: str
+    nutrient_deficiencies: list[NutrientDeficiencyOut]
+    nitrogen_deficiency_probability: float
+    phosphate_deficiency_probability: float
+    potassium_deficiency_probability: float
+
+
 class DiseaseDetectionResponseOut(BaseModel):
     label: str
     severity: Literal["Low", "Medium", "High", "Critical"]
@@ -188,6 +272,56 @@ class DiseaseDetectionResponseOut(BaseModel):
     mismatch_detected: bool = False
     mismatch_reason: str | None = None
     crop_hint: str | None = None
+    fertilizer_recommendation: FertilizerRecoOut | None = None
+
+
+class FusionRisk7DaysOut(BaseModel):
+    diseaseRisk: Literal["Low", "Medium", "High"]
+    pestRisk: Literal["Low", "Medium", "High"]
+    yieldLossRiskPct: float
+
+
+class FusionRecommendationOut(BaseModel):
+    title: str
+    steps: List[str]
+
+
+class FusionFuseInput(BaseModel):
+    parcel_id: str | None = None
+    fieldId: str | None = None
+
+    # If you don't know parcel_id, provide GPS so we can choose nearest parcel (PoC).
+    lat: float | None = None
+    lng: float | None = None
+
+    # Optional crop image for photo analytics
+    # (Handled as UploadFile in endpoint; this schema is for JSON fallback)
+    disease_detection_label_hint: str | None = None
+
+    # If client already ran disease detection (or in PoC), they can pass it here
+    disease_detection_response: DiseaseDetectionResponseOut | None = None
+
+
+class FusionResponseOut(BaseModel):
+    parcel_id: str | None = None
+    fieldId: str | None = None
+
+    crop: str | None = None
+    unified_health_index: float | None = None
+
+    satellite_confidence: float | None = None
+    photo_confidence: float | None = None
+
+    # Final CHSS confidence after fusion
+    unified_confidence: float
+
+    disease_detected: DiseaseDetectionResponseOut | None = None
+    abiotic_stress_score: float | None = None
+    biotic_stress_score: float | None = None
+    anomaly_deviation_score: float | None = None
+
+    fusedRisk7Days: FusionRisk7DaysOut
+    recommendation: FusionRecommendationOut
 
 
 class SupportCenterOut(BaseModel):
@@ -200,6 +334,40 @@ class SupportCenterOut(BaseModel):
     phone: str | None = None
     hours: str | None = None
     distance_km: float | None = None
+
+
+class FieldAdvisoryDiseaseDetectedOut(BaseModel):
+    name: str
+    probabilityPct: float
+    severity: Literal["Low", "Medium", "High", "Critical"]
+    affectedAreaPct: float
+
+
+class FieldAdvisoryAiRecommendationOut(BaseModel):
+    title: str
+    steps: List[str]
+
+
+class FieldAdvisoryPredictedRisk7DaysOut(BaseModel):
+    diseaseRisk: Literal["Low", "Medium", "High"]
+    pestRisk: Literal["Low", "Medium", "High"]
+    yieldLossRiskPct: float
+
+
+class FieldAdvisoryWeatherAlertOut(BaseModel):
+    tone: Literal["info", "warning"]
+    message: str
+    guidance: str
+
+
+class FieldAdvisoryResponseOut(BaseModel):
+    fieldId: str
+    crop: str
+    healthScorePct: float
+    diseaseDetected: FieldAdvisoryDiseaseDetectedOut
+    aiRecommendation: FieldAdvisoryAiRecommendationOut
+    predictedRisk7Days: FieldAdvisoryPredictedRisk7DaysOut
+    weatherAlert: FieldAdvisoryWeatherAlertOut
 
 
 class NearestSupportCentersOut(BaseModel):

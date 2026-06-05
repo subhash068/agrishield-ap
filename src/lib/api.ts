@@ -179,6 +179,22 @@ export type DiseaseDetectionResponse = {
   mismatch_detected?: boolean;
   mismatch_reason?: string | null;
   crop_hint?: string | null;
+  fertilizer_recommendation?: {
+    crop: string;
+    fertilizer_name: string;
+    dosage_kg_per_acre: number;
+    dosage_kg_total: number;
+    timing: string;
+    application_method: string;
+    cost_rs_per_acre: number;
+    expected_yield_gain_percent: number;
+    confidence: number;
+    reason: string;
+    nutrient_deficiencies: Array<{ nutrient: string; severity: "Low" | "Moderate" | "High"; probability: number }>;
+    nitrogen_deficiency_probability: number;
+    phosphate_deficiency_probability: number;
+    potassium_deficiency_probability: number;
+  } | null;
 };
 
 // ---- Schemes/Districts/Alerts ----
@@ -259,11 +275,22 @@ function kpiToHeroAndCards(k: DashboardKpiOut): { hero_stats: HeroStatOut[]; kpi
     { label: "Healthy Crop %", value: healthyPercent, unit: "%", trend: defaultTrend, confidence: defaultConf },
     { label: "Active Stress Alerts", value: activeStress, unit: null, trend: defaultTrend, confidence: defaultConf },
     { label: "Disease Accuracy", value: diseaseAccuracy, unit: "%", trend: defaultTrend, confidence: defaultConf },
-    { label: "High-Risk Mandals", value: highRiskMandals, unit: null, trend: defaultTrend, confidence: defaultConf },
+    ...(highRiskMandals > 0
+      ? [
+          {
+            label: "High-Risk Mandals",
+            value: highRiskMandals,
+            unit: null,
+            trend: defaultTrend,
+            confidence: defaultConf,
+          },
+        ]
+      : []),
     { label: "Predicted Yield Loss", value: predictedYieldLoss, unit: "%", trend: defaultTrend, confidence: defaultConf },
     { label: "Satellite Coverage", value: satelliteCoverage, unit: "%", trend: defaultTrend, confidence: defaultConf },
     { label: "AI Confidence Score", value: aiConfidence, unit: "%", trend: defaultTrend, confidence: defaultConf },
   ];
+
 
   return { hero_stats, kpi_cards };
 }
@@ -332,6 +359,128 @@ export function getWeatherProjection2027(): Promise<WeatherDatasetPoint[]> {
 
 export function getPredictions(): Promise<Prediction[]> {
   return apiFetch<Prediction[]>("/predictions");
+}
+
+export type FieldAdvisoryResponse = {
+  fieldId: string;
+  crop: string;
+  healthScorePct: number;
+  diseaseDetected: {
+    name: string;
+    probabilityPct: number;
+    severity: "Low" | "Medium" | "High" | "Critical";
+    affectedAreaPct: number;
+  };
+  aiRecommendation: {
+    title: string;
+    steps: string[];
+  };
+  predictedRisk7Days: {
+    diseaseRisk: "Low" | "Medium" | "High";
+    pestRisk: "Low" | "Medium" | "High";
+    yieldLossRiskPct: number;
+  };
+  weatherAlert: {
+    tone: "info" | "warning";
+    message: string;
+    guidance: string;
+  };
+};
+
+export function getFieldAdvisory(fieldId: string): Promise<FieldAdvisoryResponse> {
+  return apiFetch<FieldAdvisoryResponse>(`/field-advisory/${encodeURIComponent(fieldId)}`);
+}
+
+// ---- Fertilizer Recommendation ----
+
+export type NutrientDeficiency = {
+  nutrient: string;
+  severity: "Low" | "Moderate" | "High";
+  probability: number;
+};
+
+export type FertilizerRecoResponse = {
+  crop: string;
+  fertilizer_name: string;
+  dosage_kg_per_acre: number;
+  dosage_kg_total: number;
+  timing: string;
+  application_method: string;
+  cost_rs_per_acre: number;
+  expected_yield_gain_percent: number;
+  confidence: number;
+  reason: string;
+  nutrient_deficiencies: NutrientDeficiency[];
+  nitrogen_deficiency_probability: number;
+  phosphate_deficiency_probability: number;
+  potassium_deficiency_probability: number;
+};
+
+export type FertilizerRecoRequest = {
+  crop?: string;
+  soil_health?: "Poor" | "Moderate" | "Good";
+  growth_stage?: "Vegetative" | "Flowering" | "Grain Filling" | "Maturity";
+  weather_rainfall_mm?: number;
+  satellite_unified_health_index_pct?: number;
+  satellite_abiotic_stress_score_pct?: number;
+  satellite_soil_moisture_score_pct?: number;
+  disease_risk?: "Low" | "Medium" | "High";
+  pest_risk?: "Low" | "Medium" | "High";
+};
+
+export function getFertilizerRecommendation(payload: FertilizerRecoRequest): Promise<FertilizerRecoResponse> {
+  return apiFetch<FertilizerRecoResponse>("/recommend/fertilizer", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+// ---- Fusion (Satellite + Photo) ----
+
+export type FusionRisk7Days = {
+  diseaseRisk: "Low" | "Medium" | "High";
+  pestRisk: "Low" | "Medium" | "High";
+  yieldLossRiskPct: number;
+};
+
+export type FusionRecommendationOut = {
+  title: string;
+  steps: string[];
+};
+
+export type FusionResponseOut = {
+  parcel_id: string | null;
+  fieldId: string;
+  crop: string | null;
+  unified_health_index: number;
+  satellite_confidence: number;
+  photo_confidence: number;
+  unified_confidence: number;
+  disease_detected: DiseaseDetectionResponse | null;
+  abiotic_stress_score: number;
+  biotic_stress_score: number;
+  anomaly_deviation_score: number;
+  fusedRisk7Days: FusionRisk7Days;
+  recommendation: FusionRecommendationOut;
+};
+
+export type FusionFuseInput = {
+  fieldId: string;
+  parcel_id?: string;
+  lat?: number;
+  lng?: number;
+  disease_detection_response?: DiseaseDetectionResponse | null;
+};
+
+export function fuseSatelliteGround(payload: FusionFuseInput): Promise<FusionResponseOut> {
+  return apiFetch<FusionResponseOut>("/fusion/fuse", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
 }
 
 // ---- Disease detect ----

@@ -17,6 +17,8 @@ dist-ssr
 .nitro
 *.local
 
+/backend/fastapi/app/__pycache__/**
+/data
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
