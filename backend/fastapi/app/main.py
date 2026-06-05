@@ -32,6 +32,7 @@ from .schemas import (
     SpectralPointOut,
     DashboardKpiOut,
     FarmerRegisterInput,
+    NearestSupportCentersOut,
 )
 from .yield_schemas import (
     YieldHistoryPoint,

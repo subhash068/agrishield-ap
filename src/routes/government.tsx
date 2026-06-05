@@ -360,13 +360,18 @@ export const Route = createFileRoute("/government")({
 });
 
 function NearestSupportCentersSection() {
-  const [district, setDistrict] = useState<string>("West Godavari");
+  // "" means "All Districts"
+  const [district, setDistrict] = useState<string>("");
   const [mandal, setMandal] = useState<string>("");
 
   const query = useQuery({
     queryKey: ["nearest-support-centers", district, mandal],
-    queryFn: () => getNearestSupportCenters({ district, mandal: mandal.trim() ? mandal : undefined }),
-    enabled: Boolean(district),
+    queryFn: () =>
+      getNearestSupportCenters({
+        district: district ? district : undefined,
+        mandal: mandal.trim() ? mandal : undefined,
+      }),
+    enabled: true,
   });
 
   return (
@@ -383,7 +388,7 @@ function NearestSupportCentersSection() {
         </Badge>
       </div>
 
-      <div className="mt-4 grid md:grid-cols-[1fr_0.9fr] gap-3">
+          <div className="mt-4 grid md:grid-cols-[1fr_0.9fr] gap-3">
         <label className="grid gap-1.5 text-sm">
           <span className="text-xs uppercase tracking-wider text-muted-foreground">District</span>
           <select
@@ -391,6 +396,7 @@ function NearestSupportCentersSection() {
             value={district}
             onChange={(e) => setDistrict(e.target.value)}
           >
+            <option value="">All Districts</option>
             {DISTRICTS.map((d) => (
               <option key={d} value={d}>
                 {d}

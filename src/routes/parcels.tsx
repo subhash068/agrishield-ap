@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Map as MapIcon, Search } from "lucide-react";
@@ -19,6 +19,13 @@ import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { getParcels, getSpectralTrend, getWeatherForecast } from "@/lib/api";
 
 export const Route = createFileRoute("/parcels")({
@@ -45,31 +52,62 @@ function ParcelsPage() {
     queryKey: ["weather"],
     queryFn: getWeatherForecast,
   });
-  const { searchTerm, setSearchTerm, selectedDistrict } = useAppShell();
+  const { searchTerm, setSearchTerm, selectedDistrict, setSelectedDistrict } = useAppShell();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
-  const filtered = useMemo(
-    () =>
-      parcels
-        .filter(
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Prevent SSR/Client hydration mismatches:
+  // - During SSR, selectedId is null and queries may be empty -> UI can differ.
+  // - After the client mounts and parcels are available, select a default.
+  useEffect(() => {
+    if (!isClient) return;
+    if (selectedId) return;
+    if (!parcels.length) return;
+    setSelectedId(parcels[0]?.id ?? null);
+  }, [isClient, parcels, selectedId]);
+
+  const { filtered, filteredCount } = useMemo(() => {
+    const normalizedSearch = (searchTerm ?? "").toLowerCase().trim();
+    const normalizedDistrict = (selectedDistrict ?? "").toString().trim();
+
+    const districtFiltered =
+      normalizedDistrict && normalizedDistrict.toLowerCase() !== "all"
+        ? parcels.filter((parcel) => parcel.district === normalizedDistrict)
+        : parcels;
+
+    const searchFiltered = !normalizedSearch
+      ? districtFiltered
+      : districtFiltered.filter(
           (parcel) =>
-            (selectedDistrict === "all" || parcel.district === selectedDistrict) &&
-            (!searchTerm ||
-              parcel.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              parcel.farmer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              parcel.district.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              parcel.mandal.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              parcel.crop.toLowerCase().includes(searchTerm.toLowerCase())),
-        )
-        .slice(0, 80),
-    [parcels, searchTerm, selectedDistrict],
-  );
+            parcel.id.toLowerCase().includes(normalizedSearch) ||
+            parcel.farmer.toLowerCase().includes(normalizedSearch) ||
+            parcel.district.toLowerCase().includes(normalizedSearch) ||
+            parcel.mandal.toLowerCase().includes(normalizedSearch) ||
+            parcel.crop.toLowerCase().includes(normalizedSearch),
+        );
+
+    return {
+      filteredCount: searchFiltered.length,
+      filtered: searchFiltered.slice(0, 80),
+    };
+  }, [parcels, searchTerm, selectedDistrict]);
+
+  const districtOptions = useMemo(() => {
+    const unique = Array.from(new Set(parcels.map((p) => (p.district ?? "").trim()).filter(Boolean)));
+    unique.sort((a, b) => a.localeCompare(b));
+    return ["all", ...unique];
+  }, [parcels]);
 
   const selected = useMemo(() => {
     if (!filtered.length) return null;
+    if (!isClient && !selectedId) return null; // keep SSR stable until client mounts
     return filtered.find((parcel) => parcel.id === selectedId) ?? filtered[0];
-  }, [filtered, selectedId]);
+  }, [filtered, selectedId, isClient]);
 
   return (
     <div>
@@ -92,41 +130,63 @@ function ParcelsPage() {
                 onChange={(event) => setSearchTerm(event.target.value)}
               />
             </div>
+            <div className="mt-3">
+              <p className="text-[10px] text-muted-foreground mb-1">District</p>
+              <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
+                <SelectTrigger className="h-9 bg-muted/20 border-border/60 text-xs">
+                  <SelectValue placeholder="Select district" />
+                </SelectTrigger>
+                <SelectContent>
+                  {districtOptions.map((d) => (
+                    <SelectItem key={d} value={d}>
+                      {d === "all" ? "All districts" : d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <p className="mt-2 text-[10px] text-muted-foreground">
-              {filtered.length} of {parcels.length} parcels
+              {isClient ? `${filteredCount} of ${parcels.length} parcels` : `-- of -- parcels`}
+            </p>
+            <p className="text-[10px] text-muted-foreground opacity-70">
+              {isClient
+                ? `DEBUG filter: district=${String(selectedDistrict)} · searchTerm=${JSON.stringify(searchTerm)}`
+                : ""}
             </p>
           </div>
           <div className="flex-1 overflow-y-auto divide-y divide-border/40">
-            {filtered.map((parcel) => (
-              <button
-                key={parcel.id}
-                onClick={() => setSelectedId(parcel.id)}
-                className={`w-full text-left p-3 hover:bg-muted/30 transition ${selected?.id === parcel.id ? "bg-primary/10 border-l-2 border-primary" : ""}`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold">{parcel.id}</span>
-                  <Badge
-                    variant="outline"
-                    className={`text-[10px] ${
-                      parcel.risk === "High"
-                        ? "border-destructive/40 text-destructive"
-                        : parcel.risk === "Medium"
-                          ? "border-warning/40 text-warning"
-                          : "border-success/40 text-success"
-                    }`}
-                  >
-                    {parcel.risk}
-                  </Badge>
-                </div>
-                <div className="mt-0.5 text-[11px] text-muted-foreground truncate">
-                  {parcel.farmer} · {parcel.crop} · {parcel.district}
-                </div>
-                <div className="mt-2 flex items-center gap-2">
-                  <Progress value={parcel.health} className="h-1 flex-1" />
-                  <span className="text-[10px] tabular-nums">{parcel.health}%</span>
-                </div>
-              </button>
-            ))}
+            {isClient &&
+              filtered.map((parcel) => (
+                <button
+                  key={parcel.id}
+                  onClick={() => setSelectedId(parcel.id)}
+                  className={`w-full text-left p-3 hover:bg-muted/30 transition ${selected?.id === parcel.id ? "bg-primary/10 border-l-2 border-primary" : ""}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold">{parcel.id}</span>
+                    <Badge
+                      variant="outline"
+                      className={`text-[10px] ${
+                        parcel.risk === "High"
+                          ? "border-destructive/40 text-destructive"
+                          : parcel.risk === "Medium"
+                            ? "border-warning/40 text-warning"
+                            : "border-success/40 text-success"
+                      }`}
+                    >
+                      {parcel.risk}
+                    </Badge>
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-muted-foreground truncate">
+                    {parcel.farmer} · {parcel.crop} · {parcel.district}
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <Progress value={parcel.health} className="h-1 flex-1" />
+                    <span className="text-[10px] tabular-nums">{parcel.health}%</span>
+                  </div>
+                </button>
+              ))}
           </div>
         </div>
 

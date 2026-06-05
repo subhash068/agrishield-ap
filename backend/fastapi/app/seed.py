@@ -100,5 +100,3 @@ def seed_from_mock(db: Session):
         db.add(models.Prediction(**p))
 
     db.commit()
-
-
