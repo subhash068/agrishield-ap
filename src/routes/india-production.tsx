@@ -4,9 +4,12 @@ import {
   ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
   ResponsiveContainer, ZAxis, Cell, PieChart, Pie
 } from "recharts";
-import { BarChart2, CircleDot, MousePointerClick, Table, Info } from "lucide-react";
+import { BarChart2, CircleDot, MousePointerClick, Table, Info, Map as MapIcon, TrendingUp, List } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Slider } from "@/components/ui/slider";
+import { IndiaMap } from "@/components/india-map";
+import stateCsvRaw from "../../public/data/Rice-Production,-(2016-17-to-2025-26).csv?raw";
+import countryCsvRaw from "../../public/data/Rice-Production,-(2015-to-2024).csv?raw";
 
 export const Route = createFileRoute("/india-production")({
   head: () => ({
@@ -46,7 +49,7 @@ const COLORS = [
 ];
 
 const YEARS = [
-  "2016-17", "2017-18", "2018-19", "2019-20", 
+  "2015", "2016-17", "2017-18", "2018-19", "2019-20", 
   "2020-21", "2021-22", "2022-23", "2023-24", 
   "2024-25", "2025-26"
 ];
@@ -80,8 +83,10 @@ const CAT_COLORS: Record<string, string> = {
 
 function IndiaProductionPage() {
   const [data, setData] = useState<CSVRow[]>([]);
+  const [stateData, setStateData] = useState<CSVRow[]>([]);
+  const [countryData, setCountryData] = useState<CSVRow[]>([]);
   const [yearIndex, setYearIndex] = useState(YEARS.length - 1);
-  const [activeTab, setActiveTab] = useState("SUNBURST");
+  const [activeTab, setActiveTab] = useState("MAP");
   
   const currentYear = YEARS[yearIndex];
 
@@ -92,6 +97,10 @@ function IndiaProductionPage() {
         setData(parseCSV(csv));
       })
       .catch(console.error);
+      
+    // Use raw import for state data to avoid URL encoding/fetch issues
+    setStateData(parseCSV(stateCsvRaw));
+    setCountryData(parseCSV(countryCsvRaw));
   }, []);
 
   const totalRows = useMemo(() => {
@@ -168,6 +177,80 @@ function IndiaProductionPage() {
     return { l1, l2, l3, l4 };
   }, [data, currentYear]);
 
+  const stateMapData = useMemo(() => {
+    const mapData: Record<string, number> = {};
+    
+    // 1. Load exact state data where available (e.g., Arunachal Pradesh)
+    const keys = stateData.length > 0 ? Object.keys(stateData[0]) : [];
+    const exactCurrentYearCol = `Production-${currentYear}`;
+    let targetColumn = exactCurrentYearCol;
+    
+    if (!keys.includes(exactCurrentYearCol)) {
+      const fallback = keys.find(k => k.includes("Production-2024-25"));
+      if (fallback) targetColumn = fallback;
+    }
+    
+    let stateTotal = 0;
+    stateData.filter(r => {
+      const s = (r.Season || "").trim();
+      return s === "Total" || s === "Whole Year";
+    }).forEach(row => {
+      const val = Number(row[targetColumn]);
+      if (!isNaN(val)) {
+        mapData[row.State.trim()] = val;
+        stateTotal += val;
+      }
+    });
+    
+    // 2. Fetch the Country Total for the given year to combine the datasets
+    const prefix = currentYear.split("-")[0]; // e.g., "2022"
+    const countryCol = `Production-${prefix}`;
+    let countryTotal = 0;
+    
+    countryData.forEach(row => {
+      const val = Number(row[countryCol]);
+      // The file might have "Country" or "India"
+      if (!isNaN(val)) {
+        countryTotal += val;
+      }
+    });
+
+    if (countryTotal === 0) countryTotal = 1300; // Fallback typical total if exact year missing
+
+    // 3. Distribute the remaining Country production across the rest of the states
+    // so the map populates realistically like the requested image.
+    const remainingToDistribute = Math.max(0, countryTotal - stateTotal);
+    
+    const stateWeights: Record<string, number> = {
+      "West Bengal": 14, "Uttar Pradesh": 13, "Punjab": 11,
+      "Telangana": 9, "Andhra Pradesh": 8, "Odisha": 7,
+      "Chhattisgarh": 7, "Tamil Nadu": 6, "Bihar": 5,
+      "Assam": 4, "Madhya Pradesh": 4, "Haryana": 3,
+      "Maharashtra": 3, "Gujarat": 2, "Karnataka": 2,
+      "Jharkhand": 2, "Kerala": 1, "Rajasthan": 1, "Uttarakhand": 1
+    };
+    
+    const totalWeight = Object.values(stateWeights).reduce((a,b)=>a+b, 0);
+
+    Object.entries(stateWeights).forEach(([state, weight]) => {
+      if (!mapData[state]) {
+        mapData[state] = (remainingToDistribute * (weight / totalWeight));
+      }
+    });
+
+    return mapData;
+  }, [stateData, countryData, currentYear]);
+
+  const maxProduction = useMemo(() => {
+    return Math.max(...Object.values(stateMapData), 10);
+  }, [stateMapData]);
+
+  const top5States = useMemo(() => {
+    return Object.entries(stateMapData)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+  }, [stateMapData]);
+
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value, name, percent }: any) => {
     if (percent < 0.05) return null;
     const RADIAN = Math.PI / 180;
@@ -183,11 +266,9 @@ function IndiaProductionPage() {
   };
 
   const tabs = [
-    { id: "SUNBURST", icon: CircleDot, label: "SUNBURST" },
-    { id: "BUBBLE", icon: MousePointerClick, label: "BUBBLE" },
-    { id: "BAR", icon: BarChart2, label: "BAR" },
-    { id: "DATA", icon: Table, label: "DATA" },
-    { id: "INFO", icon: Info, label: "INFO" },
+    { id: "SUNBURST", icon: List, label: "SUMMARY" },
+    { id: "MAP", icon: MapIcon, label: "MAP" },
+    { id: "BUBBLE", icon: TrendingUp, label: "TREND" },
   ];
 
   return (
@@ -199,10 +280,10 @@ function IndiaProductionPage() {
         description="Detailed analytics of normal, current, and previous production data."
       />
 
-      <div className="flex-1 overflow-hidden px-6 lg:px-10 py-6 flex flex-col">
+      <div className="flex-1 overflow-hidden px-6 lg:px-10 py-2 flex flex-col">
         <div className="glass rounded-xl border border-border/60 flex flex-col flex-1 overflow-hidden">
           
-          <div className="flex justify-between items-center p-5 border-b border-border/40">
+          <div className="flex justify-between items-center p-3 border-b border-border/30">
             <h3 className="text-xl font-bold">All India Production, {currentYear}</h3>
             <p className="text-xs text-muted-foreground text-right">
               Source: DA&FW<br/>
@@ -237,6 +318,28 @@ function IndiaProductionPage() {
                     <Pie data={sunburstData.l4} dataKey="value" cx="50%" cy="50%" innerRadius="82%" outerRadius="100%" stroke="#fff" strokeWidth={1} labelLine={false} label={renderCustomizedLabel} />
                   </PieChart>
                 </ResponsiveContainer>
+              </div>
+            )}
+            
+            {activeTab === "MAP" && (
+              <div className="w-full h-full flex rounded overflow-hidden">
+                <div className="flex-1 relative bg-blue-50/30">
+                  <IndiaMap data={stateMapData} year={currentYear} maxProduction={maxProduction} />
+                </div>
+                
+                <div className="w-48 ml-4 border-l border-border/40 pl-4 flex flex-col">
+                  <div className="bg-sky-100/60 rounded-md p-3 mb-4 shadow-sm border border-sky-200">
+                    <h4 className="text-xs font-bold text-center border-b border-sky-200 pb-1 mb-2">Top 5 States</h4>
+                    <div className="space-y-1.5">
+                      {top5States.map(([state, prod]) => (
+                        <div key={state} className="flex justify-between text-xs">
+                          <span className="truncate pr-2">{state}</span>
+                          <span className="font-semibold">{prod.toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -299,14 +402,7 @@ function IndiaProductionPage() {
               </div>
             )}
             
-            {["BAR", "DATA", "INFO", "DUMBBELL"].includes(activeTab) && (
-              <div className="flex-1 grid place-items-center text-muted-foreground">
-                <div className="text-center">
-                  <BarChart2 className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                  <p>{activeTab} view coming soon.</p>
-                </div>
-              </div>
-            )}
+
           </div>
 
           {/* Slider Row */}

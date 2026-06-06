@@ -374,6 +374,18 @@ const selectedVillageDetails = useMemo(() => {
     const match = features.find((f) => {
       const p = f.properties;
       const name = p?.vilname11 ?? p?.vilnam_soi;
+      if (canonicalVillageName(name) !== wantedVillageCanon) return false;
+      
+      if (districtFilter !== "all" && canonicalDistrictName(p?.dtname) !== canonicalizeText(districtFilter)) {
+        return false;
+      }
+      if (mandalFilter !== "all" && canonicalMandalName(p?.sdtname) !== canonicalizeText(mandalFilter)) {
+        return false;
+      }
+      return true;
+    }) ?? features.find((f) => {
+      const p = f.properties;
+      const name = p?.vilname11 ?? p?.vilnam_soi;
       return canonicalVillageName(name) === wantedVillageCanon;
     });
 
@@ -390,7 +402,7 @@ const selectedVillageDetails = useMemo(() => {
       district: match.properties.dtname ? canonicalDistrictName(match.properties.dtname) : "",
       mandal: match.properties.sdtname ? match.properties.sdtname : "",
     };
-  }, [selectedVillage, villageGeoJson]);
+  }, [selectedVillage, villageGeoJson, districtFilter, mandalFilter]);
 
   const selectedRisk = selectedParcelFromAll ? riskTone(selectedParcelFromAll) : null;
 

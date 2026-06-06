@@ -160,6 +160,9 @@ export type Prediction = {
   probability: number;
   severity: "Low" | "Medium" | "High" | "Critical";
   crop: string;
+  horizon: string;
+  ensemble: string;
+  confidence_band: string;
 };
 
 export type DiseaseDetectionResponse = {

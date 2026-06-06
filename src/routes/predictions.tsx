@@ -31,11 +31,11 @@ export const Route = createFileRoute("/predictions")({
               <h3 className="mt-2 font-semibold">{p.label}</h3>
               <div className="mt-4 flex items-end gap-3">
                 <div className="text-4xl font-bold gradient-text tabular-nums">{p.probability}%</div>
-                <div className="text-[10px] text-muted-foreground mb-1.5">probability<br />next 14 days</div>
+                <div className="text-[10px] text-muted-foreground mb-1.5">probability<br />{p.horizon}</div>
               </div>
               <Progress value={p.probability} className="mt-3 h-1.5" />
               <p className="mt-3 text-xs text-muted-foreground">
-                Ensemble: CropVision-v4 · WeatherFusion · HistoricSpread-LSTM. Confidence band ±4.2%.
+                Ensemble: {p.ensemble}. Confidence band {p.confidence_band}.
               </p>
             </div>
           </div>

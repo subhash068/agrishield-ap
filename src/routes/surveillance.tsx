@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { Activity, Download, Filter, Leaf } from "lucide-react";
 import {
   LineChart,
@@ -63,6 +64,10 @@ function SurveillancePage() {
   });
   const { data: alerts = [] } = useQuery({ queryKey: ["alerts"], queryFn: getAlerts });
   const kpiCards = dashboardData?.kpi_cards ?? [];
+
+  const heatmapData = useMemo(() => {
+    return Array.from({ length: 13 * 14 }, () => Math.random());
+  }, []);
 
   return (
     <div>
@@ -143,29 +148,28 @@ function SurveillancePage() {
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold">Outbreak Heatmap - Last 14 Days</h3>
               <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                <span className="h-2.5 w-2.5 rounded-sm bg-success/40" /> Low
-                <span className="h-2.5 w-2.5 rounded-sm bg-warning/60" /> Medium
-                <span className="h-2.5 w-2.5 rounded-sm bg-destructive/70" /> High
+                <span className="h-2.5 w-2.5 rounded-full bg-success/80" /> Low
+                <span className="h-2.5 w-2.5 rounded-full bg-warning/80" /> Medium
+                <span className="h-2.5 w-2.5 rounded-full bg-destructive/80" /> High
               </div>
             </div>
             <div
               className="grid grid-cols-14 gap-1.5"
               style={{ gridTemplateColumns: "repeat(14, minmax(0, 1fr))" }}
             >
-              {Array.from({ length: 13 * 14 }, (_, i) => {
-                const v = Math.random();
+              {heatmapData.map((v, i) => {
                 const bg =
                   v > 0.85
-                    ? "bg-destructive/70"
+                    ? "bg-destructive/80"
                     : v > 0.6
-                      ? "bg-warning/60"
+                      ? "bg-warning/80"
                       : v > 0.3
-                        ? "bg-success/40"
-                        : "bg-muted/40";
+                        ? "bg-success/80"
+                        : "bg-black/20";
                 return (
                   <div
                     key={i}
-                    className={`aspect-square rounded-sm ${bg} hover:scale-110 transition`}
+                    className={`aspect-square rounded-md ${bg} hover:scale-110 transition`}
                     title={`Mandal cell ${i}`}
                   />
                 );

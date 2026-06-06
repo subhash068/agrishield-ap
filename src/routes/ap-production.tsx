@@ -85,17 +85,15 @@ function ApProductionPage() {
   }, [data]);
 
   const scatterData = useMemo(() => {
-    const cropMap: Record<string, { area: number; prod: number; count: number; yield: number }> = {};
+    const cropMap: Record<string, { area: number; prod: number; count: number }> = {};
     data.forEach(row => {
       const crop = row.Crop;
       const area = Number(row.Area);
       const prod = Number(row.Production);
-      const yld = Number(row.Yield);
       if (crop && !isNaN(area) && !isNaN(prod) && area > 0 && prod > 0) {
-        if (!cropMap[crop]) cropMap[crop] = { area: 0, prod: 0, count: 0, yield: 0 };
+        if (!cropMap[crop]) cropMap[crop] = { area: 0, prod: 0, count: 0 };
         cropMap[crop].area += area;
         cropMap[crop].prod += prod;
-        cropMap[crop].yield += (isNaN(yld) ? 0 : yld);
         cropMap[crop].count += 1;
       }
     });
@@ -104,7 +102,7 @@ function ApProductionPage() {
       crop,
       area: val.area / val.count,
       production: val.prod / val.count,
-      yield: val.yield / val.count,
+      yield: (val.prod / val.area) * 1000,
       fill: COLORS[index % COLORS.length]
     }));
   }, [data]);
@@ -122,29 +120,29 @@ function ApProductionPage() {
   }, [data]);
 
   const inputsData = useMemo(() => {
-    const cropMap: Record<string, { fert: number; pest: number; count: number; yield: number; prod: number }> = {};
+    const cropMap: Record<string, { fert: number; pest: number; count: number; area: number; prod: number }> = {};
     data.forEach(row => {
       const crop = row.Crop;
+      const area = Number(row.Area);
       const fert = Number(row.Fertilizer);
       const pest = Number(row.Pesticide);
       const prod = Number(row.Production);
-      const yld = Number(row.Yield);
-      if (crop && !isNaN(fert) && !isNaN(pest) && fert > 0 && pest > 0) {
-        if (!cropMap[crop]) cropMap[crop] = { fert: 0, pest: 0, count: 0, yield: 0, prod: 0 };
+      if (crop && !isNaN(area) && !isNaN(fert) && !isNaN(pest) && fert > 0 && pest > 0 && area > 0) {
+        if (!cropMap[crop]) cropMap[crop] = { fert: 0, pest: 0, count: 0, area: 0, prod: 0 };
         cropMap[crop].fert += fert;
         cropMap[crop].pest += pest;
         cropMap[crop].prod += (isNaN(prod) ? 0 : prod);
-        cropMap[crop].yield += (isNaN(yld) ? 0 : yld);
+        cropMap[crop].area += area;
         cropMap[crop].count += 1;
       }
     });
 
     return Object.entries(cropMap).map(([crop, val], index) => ({
       crop,
-      fertilizer: val.fert / val.count,
-      pesticide: val.pest / val.count,
+      fertilizer: val.fert / val.area,
+      pesticide: val.pest / val.area,
       production: val.prod / val.count,
-      yield: val.yield / val.count,
+      yield: (val.prod / val.area) * 1000,
       fill: COLORS[index % COLORS.length]
     }));
   }, [data]);
@@ -328,7 +326,16 @@ function ApProductionPage() {
                         return null;
                       }}
                     />
-                    <Pie data={seasonData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} fill="#8884d8" label>
+                    <Pie 
+                      data={seasonData} 
+                      dataKey="value" 
+                      nameKey="name" 
+                      cx="50%" 
+                      cy="50%" 
+                      outerRadius={120} 
+                      fill="#8884d8" 
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    >
                       {seasonData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}

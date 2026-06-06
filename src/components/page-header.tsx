@@ -21,7 +21,7 @@ export function PageHeader({
               {eyebrow}
             </Badge>
           )}
-          <h1 className="text-2xl lg:text-3xl font-bold tracking-tight flex items-center gap-3">
+          <h1 className="text-xl lg:text-2xl font-bold tracking-tight flex items-center gap-3">
             {icon}
             <span>{title}</span>
           </h1>
