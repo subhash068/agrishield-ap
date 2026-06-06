@@ -7,7 +7,7 @@ import type { Parcel } from "@/lib/api";
 type ParcelMapProps = {
   historic: number;
   activeLayer: string;
-  basemap: "Satellite" | "Hybrid" | "Terrain";
+  basemap: "Satellite" | "Dark" | "Terrain";
   parcels: Parcel[];
   districtFilter: string;
   mandalFilter: string;
@@ -360,31 +360,16 @@ features: (geojson.features ?? []).filter((feature) => {
         </>
       ) : null}
 
-      {basemap === "Hybrid" && !imageryFallback ? (
-        <>
-          <TileLayer
-            key="hybrid-satellite"
-            attribution='Tiles &copy; Esri'
-            url="https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-            crossOrigin="anonymous"
-            eventHandlers={{
-              tileerror: () => setImageryFallback(true),
-            }}
-          />
-          <TileLayer
-            key="hybrid-labels"
-            attribution='Labels &copy; Esri'
-            url="https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
-            opacity={0.9}
-            crossOrigin="anonymous"
-            eventHandlers={{
-              tileerror: () => setImageryFallback(true),
-            }}
-          />
-        </>
+      {basemap === "Dark" ? (
+        <TileLayer
+          key="dark-matter"
+          attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          crossOrigin="anonymous"
+        />
       ) : null}
 
-      {imageryFallback && (basemap === "Satellite" || basemap === "Hybrid") ? (
+      {imageryFallback && basemap === "Satellite" ? (
         <TileLayer
           key={`${basemap.toLowerCase()}-fallback`}
           attribution='&copy; OpenStreetMap contributors'
@@ -565,10 +550,13 @@ const isSelectedVillage =
             <Tooltip direction="top" offset={[0, -6]} opacity={1} sticky={false}>
               <div className="text-[11px] space-y-0.5 pointer-events-none">
                 <div className="font-semibold">
-                  {parcel.id} · {parcel.crop}
+                  {parcel.id} • {parcel.crop}
                 </div>
                 <div>
-                  {parcel.risk} risk · Health {parcel.health}%
+                  {parcel.risk} risk • Health {parcel.health}%
+                </div>
+                <div className="font-medium text-primary mt-0.5">
+                  {activeLayer}: {scoreForLayer(parcel, activeLayer).toFixed(2)}
                 </div>
                 <div className="text-[10px] text-muted-foreground mt-1 pt-1 border-t border-border/40">
                   {parcel.district} &gt; {parcel.mandal} &gt; {parcel.village}

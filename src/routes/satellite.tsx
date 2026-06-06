@@ -13,6 +13,7 @@ import {
   Info,
   Globe,
   Mountain,
+  Moon,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { useAppShell } from "@/components/app-shell-store";
@@ -58,7 +59,7 @@ const LAYERS = [
 ] as const;
 
 type LayerName = (typeof LAYERS)[number];
-type BasemapOption = "Satellite" | "Hybrid" | "Terrain";
+type BasemapOption = "Satellite" | "Dark" | "Terrain";
 
 type LayerEnabledState = Partial<Record<LayerName, boolean>>;
 
@@ -148,6 +149,18 @@ function canonicalMandalName(name: string | undefined | null) {
 
 function canonicalVillageName(name: string | undefined | null) {
   return canonicalizeText(name);
+}
+
+function pointInPolygon(point: [number, number], vs: number[][]) {
+  const x = point[0], y = point[1];
+  let inside = false;
+  for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+    const xi = vs[i][0], yi = vs[i][1];
+    const xj = vs[j][0], yj = vs[j][1];
+    const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
 }
 
 
@@ -242,7 +255,7 @@ function metricForLayer(parcel: Parcel, activeLayer: LayerName) {
 }
 
 function SatellitePage() {
-  const { data: parcels = [] } = useQuery({ queryKey: ["parcels"], queryFn: getParcels });
+  const { data: rawParcels = [] } = useQuery({ queryKey: ["parcels"], queryFn: getParcels });
   const [MapView, setMapView] = useState<null | ComponentType<SatelliteMapProps>>(null);
   const [historic, setHistoric] = useState(11);
   const [activeLayer, setActiveLayer] = useState<LayerName>("NDVI");
@@ -282,6 +295,47 @@ function SatellitePage() {
       .then((data) => setVillageGeoJson(data))
       .catch(() => setVillageGeoJson(null));
   }, []);
+
+  const parcels = useMemo(() => {
+    if (!villageGeoJson || rawParcels.length === 0) return rawParcels;
+
+    const features = (villageGeoJson as any).features || [];
+    
+    return rawParcels.map(p => {
+      if (p.village && p.village !== "Unknown Village") return p;
+
+      const pt: [number, number] = [p.lng, p.lat];
+      let foundVillage = "Unknown Village";
+      
+      for (const f of features) {
+        const mandalMatch = canonicalMandalName(f.properties?.sdtname) === canonicalizeText(p.mandal);
+        if (!mandalMatch) continue;
+
+        if (!f.geometry) continue;
+        const type = f.geometry.type;
+        const coords = f.geometry.coordinates;
+        
+        let inside = false;
+        if (type === "Polygon") {
+          inside = pointInPolygon(pt, coords[0]);
+        } else if (type === "MultiPolygon") {
+          for (const poly of coords) {
+            if (pointInPolygon(pt, poly[0])) {
+              inside = true;
+              break;
+            }
+          }
+        }
+        
+        if (inside) {
+          foundVillage = f.properties?.vilname11 || f.properties?.vilnam_soi || "Unknown Village";
+          break;
+        }
+      }
+      
+      return { ...p, village: foundVillage };
+    });
+  }, [rawParcels, villageGeoJson]);
 
   const districtOptions = useMemo(
     () =>
@@ -343,17 +397,68 @@ const villageOptions = useMemo(() => {
       parcels.filter((parcel) => {
         const districtMatches = districtFilter === "all" || parcel.district === districtFilter;
         const mandalMatches = mandalFilter === "all" || parcel.mandal === mandalFilter;
-        return districtMatches && mandalMatches;
+        const villageMatches = villageFilter === "all" || parcel.village === villageFilter;
+        return districtMatches && mandalMatches && villageMatches;
       }),
-    [districtFilter, mandalFilter, parcels],
+    [districtFilter, mandalFilter, villageFilter, parcels],
   );
   const selectedParcelFromAll = useMemo(
     () => parcels.find((parcel) => parcel.id === selectedParcelId) ?? null,
     [parcels, selectedParcelId],
   );
 
+  const activeLayerValue = useMemo(() => {
+    if (!selectedParcelFromAll) return 0;
+    switch (activeLayer) {
+      case "EVI": return selectedParcelFromAll.analytics.evi;
+      case "NDRE": return selectedParcelFromAll.analytics.ndre;
+      case "Soil Moisture": return selectedParcelFromAll.analytics.soil_moisture;
+      case "Vegetation Stress": return selectedParcelFromAll.analytics.vegetation_stress;
+      case "Anomaly Hotspots": return selectedParcelFromAll.analytics.anomaly_hotspots;
+      case "Disease Probability": return selectedParcelFromAll.analytics.disease_probability;
+      default: return selectedParcelFromAll.analytics.ndvi;
+    }
+  }, [selectedParcelFromAll, activeLayer]);
 
-const selectedVillageDetails = useMemo(() => {
+  const aiSummary = useMemo(() => {
+    if (filteredParcels.length === 0) return null;
+
+    let healthyNdviCount = 0;
+    const highRiskParcels: typeof filteredParcels = [];
+    
+    filteredParcels.forEach(p => {
+      const ndvi = p.ndvi ?? p.analytics?.ndvi ?? 0;
+      if (ndvi > 0.55) healthyNdviCount++;
+      if (p.risk === "High" || p.risk === "Critical" || p.health < 50) highRiskParcels.push(p);
+    });
+
+    const healthyPct = ((healthyNdviCount / filteredParcels.length) * 100).toFixed(1);
+    const stressCount = highRiskParcels.length;
+
+    const districtRiskCounts: Record<string, number> = {};
+    const riskMandals = new Set<string>();
+
+    highRiskParcels.forEach(p => {
+      districtRiskCounts[p.district] = (districtRiskCounts[p.district] || 0) + 1;
+      riskMandals.add(p.mandal);
+    });
+
+    const topDistricts = Object.entries(districtRiskCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(d => d[0])
+      .join(", ");
+    
+    return {
+      healthyPct,
+      stressCount,
+      topDistricts: topDistricts || "the selected region",
+      mandalCount: riskMandals.size
+    };
+  }, [filteredParcels]);
+
+
+  const selectedVillageDetails = useMemo(() => {
     if (!selectedVillage || !villageGeoJson) return null;
 
     const geojson = villageGeoJson as {
@@ -404,6 +509,49 @@ const selectedVillageDetails = useMemo(() => {
     };
   }, [selectedVillage, villageGeoJson, districtFilter, mandalFilter]);
 
+  const villageSummary = useMemo(() => {
+    if (!selectedVillageDetails) return null;
+    const villageNameCanon = canonicalVillageName(selectedVillageDetails.name);
+    
+    // Find parcels in this village
+    const villageParcels = parcels.filter(p => canonicalVillageName(p.village) === villageNameCanon);
+    
+    if (villageParcels.length === 0) return null;
+
+    let totalAcreage = 0;
+    let totalHealth = 0;
+    let highRiskCount = 0;
+    const cropAcreage: Record<string, number> = {};
+
+    villageParcels.forEach(p => {
+      totalAcreage += p.acreage;
+      totalHealth += p.health;
+      cropAcreage[p.crop] = (cropAcreage[p.crop] || 0) + p.acreage;
+      if (p.risk === "High" || p.risk === "Critical") {
+        highRiskCount++;
+      }
+    });
+
+    let primaryCrop = "None";
+    let maxAcreage = -1;
+    for (const [crop, acreage] of Object.entries(cropAcreage)) {
+      if (acreage > maxAcreage) {
+        maxAcreage = acreage;
+        primaryCrop = crop;
+      }
+    }
+
+    const averageHealth = (totalHealth / villageParcels.length).toFixed(1);
+
+    return {
+      parcelCount: villageParcels.length,
+      totalAcreage: totalAcreage.toFixed(1),
+      primaryCrop: primaryCrop,
+      averageHealth: averageHealth,
+      highRiskCount: highRiskCount,
+    };
+  }, [parcels, selectedVillageDetails]);
+
   const selectedRisk = selectedParcelFromAll ? riskTone(selectedParcelFromAll) : null;
 
 
@@ -425,13 +573,23 @@ const selectedVillageDetails = useMemo(() => {
     }
   }, [villageFilter, villageOptions]);
 
+  useEffect(() => {
+    if (selectedVillageDetails?.mandal) {
+      const canonMandal = canonicalizeText(selectedVillageDetails.mandal);
+      const properMandal = mandalOptions.find(m => canonicalizeText(m) === canonMandal);
+      if (properMandal && mandalFilter !== properMandal) {
+        setMandalFilter(properMandal);
+      }
+    }
+  }, [selectedVillageDetails, mandalFilter, mandalOptions]);
+
   return (
     <div>
       <PageHeader
         icon={<Satellite className="h-6 w-6 text-accent" />}
         eyebrow="GIS Console"
         title="Satellite Monitoring · Andhra Pradesh"
-        description="Parcel polygons, vegetation indices and AI hotspots over Sentinel-2 imagery."
+        description="Interactive map for field-level crop health, AI-driven stress alerts, and advanced spectral indices."
         actions={
           <>
             <Select value={districtFilter} onValueChange={setDistrictFilter}>
@@ -462,7 +620,13 @@ const selectedVillageDetails = useMemo(() => {
               </SelectContent>
             </Select>
 
-            <Select value={villageFilter} onValueChange={setVillageFilter}>
+            <Select 
+              value={villageFilter} 
+              onValueChange={(val) => {
+                setVillageFilter(val);
+                setSelectedVillage(val === "all" ? null : val);
+              }}
+            >
               <SelectTrigger className="h-8 w-[140px] bg-muted/20 border-border/60 text-xs">
                 <SelectValue placeholder="All villages" />
               </SelectTrigger>
@@ -476,15 +640,15 @@ const selectedVillageDetails = useMemo(() => {
               </SelectContent>
             </Select>
 
-            <Badge
+            {/* <Badge
               variant="outline"
               className="rounded-full border-success/40 bg-success/10 text-success gap-1.5 self-center ml-2 px-3 py-1"
             >
-              <Radio className="h-3.5 w-3.5 animate-pulse" /> LIVE
-            </Badge>
-            <Button variant="outline" size="sm" className="rounded-full gap-1.5 h-8 px-4">
+              <Radio className="h-3.5 w-3.5 animate-pulse" /> LIVE */}
+            {/* </Badge> */}
+            {/* <Button variant="outline" size="sm" className="rounded-full gap-1.5 h-8 px-4">
               <Maximize2 className="h-3.5 w-3.5" /> Full screen
-            </Button>
+            </Button> */}
           </>
         }
       />
@@ -626,50 +790,19 @@ const selectedVillageDetails = useMemo(() => {
           <div>
             <h3 className="font-semibold text-sm mb-2">Basemap</h3>
             <div className="grid grid-cols-3 gap-1.5">
-              {(["Satellite", "Hybrid", "Terrain"] as const).map((option) => (
-                <button
+              {(["Satellite", "Dark", "Terrain"] as const).map((option) => (
+                <Button
                   key={option}
-                  aria-pressed={basemap === option}
-                  className={`relative overflow-hidden rounded-lg border p-2 text-left transition ${
-                    basemap === option
-                      ? "border-primary/60 bg-primary/10 text-primary shadow-[0_0_0_1px_rgba(255,255,255,0.03)]"
-                      : "border-border/60 bg-muted/20 hover:border-primary/30"
-                  }`}
+                  size="sm"
+                  variant={basemap === option ? "default" : "outline"}
+                  className="w-full text-xs font-medium justify-center h-8"
                   onClick={() => setBasemap(option)}
                 >
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`grid h-8 w-8 place-items-center rounded-md border ${
-                        option === "Satellite"
-                          ? "border-sky-400/30 bg-gradient-to-br from-slate-900 via-slate-700 to-sky-500/60 text-sky-200"
-                          : option === "Hybrid"
-                            ? "border-cyan-400/30 bg-gradient-to-br from-slate-900 via-cyan-900/50 to-emerald-500/40 text-cyan-100"
-                            : "border-emerald-400/30 bg-gradient-to-br from-amber-200 via-emerald-300 to-sky-300 text-emerald-900"
-                      }`}
-                    >
-                      {option === "Satellite" ? (
-                        <Satellite className="h-3.5 w-3.5" />
-                      ) : option === "Hybrid" ? (
-                        <Globe className="h-3.5 w-3.5" />
-                      ) : (
-                        <Mountain className="h-3.5 w-3.5" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[10px] font-semibold leading-none">{option}</div>
-                      <div className="mt-1 text-[9px] text-muted-foreground leading-none">
-                        {option === "Satellite"
-                          ? "Imagery + labels"
-                          : option === "Hybrid"
-                            ? "Imagery + labels"
-                            : "Terrain relief"}
-                      </div>
-                    </div>
-                  </div>
-                  {basemap === option ? (
-                    <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-primary/20" />
-                  ) : null}
-                </button>
+                  {option === "Satellite" && <Satellite className="mr-1.5 h-3.5 w-3.5" />}
+                  {option === "Dark" && <Moon className="mr-1.5 h-3.5 w-3.5" />}
+                  {option === "Terrain" && <Mountain className="mr-1.5 h-3.5 w-3.5" />}
+                  {option}
+                </Button>
               ))}
             </div>
           </div>
@@ -700,13 +833,6 @@ const selectedVillageDetails = useMemo(() => {
             <h4 className="font-semibold">Village detail</h4>
             {selectedVillageDetails ? (
               <>
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <p className="font-semibold text-sm">{selectedVillageDetails.name}</p>
-                    <p className="text-muted-foreground">Village</p>
-                  </div>
-                </div>
-
                 <div className="rounded-lg border border-border/60 bg-background/40 p-3 text-xs space-y-1.5">
                   <p>
                     <span className="text-muted-foreground">District:</span>{" "}
@@ -717,15 +843,51 @@ const selectedVillageDetails = useMemo(() => {
                     {selectedVillageDetails.mandal || "—"}
                   </p>
                   <p>
-                    <span className="text-muted-foreground">Focus:</span>{" "}
-                    Click a village again or change filters to explore others.
+                    <span className="text-muted-foreground">Village:</span>{" "}
+                    {selectedVillageDetails.name || "—"}
                   </p>
+                  {villageSummary ? (
+                    <>
+                      <div className="my-1.5 border-t border-border/40" />
+                      <p>
+                        <span className="text-muted-foreground">Parcels Monitored:</span>{" "}
+                        {villageSummary.parcelCount}
+                      </p>
+                      <p>
+                        <span className="text-muted-foreground">Total Area:</span>{" "}
+                        {villageSummary.totalAcreage} ac
+                      </p>
+                      <p>
+                        <span className="text-muted-foreground">Primary Crop:</span>{" "}
+                        <span className="font-medium text-primary">{villageSummary.primaryCrop}</span>
+                      </p>
+                      <p>
+                        <span className="text-muted-foreground">Avg Health:</span>{" "}
+                        {villageSummary.averageHealth}%
+                      </p>
+                      <p>
+                        <span className="text-muted-foreground">High Risk Parcels:</span>{" "}
+                        {villageSummary.highRiskCount > 0 ? (
+                          <span className="text-destructive font-medium">{villageSummary.highRiskCount}</span>
+                        ) : (
+                          <span className="text-success font-medium">None</span>
+                        )}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="my-1.5 border-t border-border/40" />
+                      <p className="text-muted-foreground italic">
+                        No active parcels monitored in this village.
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 <Button
                   size="sm"
                   variant="outline"
-                  className="w-full"
+                  className="w-full text-red-400 border-red-900/50 hover:bg-red-500/10 hover:text-red-300"
                   onClick={() => {
                     setSelectedVillage(null);
                     setVillageFilter("all");
@@ -770,8 +932,8 @@ const selectedVillageDetails = useMemo(() => {
                   />
                   <InfoCard
                     icon={<Droplets className="h-3.5 w-3.5" />}
-                    label="NDVI"
-                    value={selectedParcelFromAll.analytics.ndvi.toFixed(2)}
+                    label={activeLayer}
+                    value={activeLayerValue.toFixed(2)}
 
                   />
                   <InfoCard
@@ -827,7 +989,6 @@ const selectedVillageDetails = useMemo(() => {
                     params={{ fieldId: selectedParcelFromAll.id }}
 
                     onClick={() => {
-                      // keep sidebar context stable
                     }}
                   >
                     Open Field Advisory
@@ -837,7 +998,7 @@ const selectedVillageDetails = useMemo(() => {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="w-full"
+                  className="w-full text-red-400 border-red-900/50 hover:bg-red-500/10 hover:text-red-300"
                   onClick={() => {
                     setSelectedParcelId(null);
                     setSelectedVillage(null);
@@ -857,12 +1018,20 @@ const selectedVillageDetails = useMemo(() => {
 
           <div className="glass rounded-lg p-3 text-xs">
             <h4 className="font-semibold mb-1.5">AI Parcel Summary</h4>
-            <p className="text-muted-foreground leading-relaxed">
-              78.4% of monitored parcels are in healthy NDVI band (&gt; 0.55).
-              <span className="text-warning"> 12,847 stress alerts</span> are concentrated in
-              Guntur, Anantapur and Kurnool. Recommend immediate field validation in 47 high-risk
-              mandals.
-            </p>
+            {aiSummary ? (
+              <p className="text-muted-foreground leading-relaxed">
+                {aiSummary.healthyPct}% of monitored parcels are in healthy NDVI band (&gt; 0.55).
+                {aiSummary.stressCount > 0 ? (
+                  <>
+                    <span className="text-warning"> {aiSummary.stressCount.toLocaleString()} stress alerts</span> are concentrated in {aiSummary.topDistricts}. Recommend immediate field validation in {aiSummary.mandalCount} high-risk {aiSummary.mandalCount === 1 ? 'mandal' : 'mandals'}.
+                  </>
+                ) : (
+                  <> No critical stress alerts detected in the current selection.</>
+                )}
+              </p>
+            ) : (
+              <p className="text-muted-foreground italic">No parcel data available for summary.</p>
+            )}
           </div>
         </aside>
       </div>
