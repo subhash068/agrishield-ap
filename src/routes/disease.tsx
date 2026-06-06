@@ -117,15 +117,17 @@ function DiseasePage() {
     mutationFn: detectDisease,
   });
 
-  const [geo, setGeo] = useState<{ lat: number; lng: number } | null>(null);
+  const [geo, setGeo] = useState<{ lat: number; lng: number }>({ lat: 16.5062, lng: 80.6480 });
   const [fusionResult, setFusionResult] = useState<FusionResponseOut | null>(null);
 
   const fusionMutation = useMutation<FusionResponseOut, Error, FusionFuseInput>({
     mutationFn: (input) => fuseSatelliteGround(input),
     onSuccess: (data) => setFusionResult(data),
-    onError: () => setFusionResult(null),
+    onError: (err) => {
+      console.error("Fusion mutation failed:", err);
+      setFusionResult(null);
+    },
   });
-
 
   const scanning = detectMutation.isPending;
   const result = detectMutation.data ?? null;
@@ -154,25 +156,19 @@ function DiseasePage() {
   }, []);
 
   // Best-effort location for fusion.
-  // Use fallback GPS if geolocation is unavailable.
   useEffect(() => {
-    if (geo) return;
-
-    if (!("geolocation" in navigator)) {
-      setGeo({ lat: 16.5062, lng: 80.6480 });
-      return;
-    }
+    if (!("geolocation" in navigator)) return;
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setGeo({ lat: position.coords.latitude, lng: position.coords.longitude });
       },
       () => {
-        setGeo({ lat: 16.5062, lng: 80.6480 });
+        // Fallback already set as initial state
       },
       { enableHighAccuracy: true, timeout: 4000, maximumAge: 0 },
     );
-  }, [geo]);
+  }, []);
 
 
   const runScan = () => {
