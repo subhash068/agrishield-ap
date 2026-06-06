@@ -399,7 +399,7 @@ const selectedVillageDetails = useMemo(() => {
 
     return {
       name: selectedVillage,
-      district: match.properties.dtname ? canonicalDistrictName(match.properties.dtname) : "",
+      district: match.properties.dtname ? canonicalDistrictName(match.properties.dtname).replace(/\b\w/g, l => l.toUpperCase()) : "",
       mandal: match.properties.sdtname ? match.properties.sdtname : "",
     };
   }, [selectedVillage, villageGeoJson, districtFilter, mandalFilter]);

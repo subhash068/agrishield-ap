@@ -544,6 +544,9 @@ const isSelectedVillage =
                   <div>
                     {parcel.risk} risk · Health {parcel.health}%
                   </div>
+                  <div className="text-[10px] text-muted-foreground mt-1 pt-1 border-t border-border/40">
+                    {parcel.district} &gt; {parcel.mandal} &gt; {parcel.village}
+                  </div>
                 </div>
               </Tooltip>
             </CircleMarker>
@@ -566,6 +569,9 @@ const isSelectedVillage =
                 </div>
                 <div>
                   {parcel.risk} risk · Health {parcel.health}%
+                </div>
+                <div className="text-[10px] text-muted-foreground mt-1 pt-1 border-t border-border/40">
+                  {parcel.district} &gt; {parcel.mandal} &gt; {parcel.village}
                 </div>
               </div>
             </Tooltip>
