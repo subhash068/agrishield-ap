@@ -62,6 +62,15 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: async ({ context: { queryClient } }) => {
+    await Promise.all([
+      queryClient.prefetchQuery({ queryKey: ["dashboard-data"], queryFn: getDashboardData }),
+      queryClient.prefetchQuery({ queryKey: ["alerts"], queryFn: getAlerts }),
+      queryClient.prefetchQuery({ queryKey: ["schemes"], queryFn: getSchemes }),
+      queryClient.prefetchQuery({ queryKey: ["crop-distribution"], queryFn: getCropDistribution }),
+      queryClient.prefetchQuery({ queryKey: ["district-rankings"], queryFn: getDistrictRankings }),
+    ]);
+  },
   component: HomePage,
 });
 

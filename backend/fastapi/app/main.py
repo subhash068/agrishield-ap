@@ -218,7 +218,7 @@ def startup():
     try:
         db = SessionLocal()
         try:
-            cnt = db.execute(select(models.Alert.id)).first()
+            cnt = db.execute(select(models.Parcel.id)).first()
             if cnt is None:
                 seed_from_mock(db)
             _ensure_parcel_schema(db)
@@ -1965,7 +1965,11 @@ async def fuse_satellite_ground(
             pest_risk=pest_band,
         )
         fert_result = FertilizerRecoOut(**recommend_fertilizer_poc(fert_inp))
-    except Exception:
+    except Exception as e:
+        import traceback
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error generating fertilizer recommendation: {e}\n{traceback.format_exc()}")
         fert_result = None
 
     return FusionResponseOut(
@@ -1989,7 +1993,6 @@ async def fuse_satellite_ground(
         recommendation=rec,
         explanation=explanation,
     )
-
 
 
 @app.get("/field-advisory/{fieldId}", response_model=FieldAdvisoryResponseOut)

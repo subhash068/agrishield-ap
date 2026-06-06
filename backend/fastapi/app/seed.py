@@ -7,6 +7,14 @@ from . import models
 
 
 def seed_from_mock(db: Session):
+    # Clear existing tables to prevent duplicates
+    db.query(models.Scheme).delete()
+    db.query(models.Alert).delete()
+    db.query(models.WeatherForecast).delete()
+    db.query(models.Parcel).delete()
+    db.query(models.Prediction).delete()
+    db.commit()
+
     # Seed only tables that exist in the provided SQL schema.
     crops = ["Paddy", "Cotton", "Maize", "Chilli", "Red Gram"]
 
@@ -51,7 +59,12 @@ def seed_from_mock(db: Session):
     import os
     import csv
 
-    csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "west_godavari_parcels_1200.csv")
+    # __file__ is app/seed.py
+    # dirname(__file__) is app/
+    # dirname(dirname(__file__)) is fastapi/
+    # dirname(dirname(dirname(__file__))) is backend/
+    # dirname(dirname(dirname(dirname(__file__)))) is agrishield-ap/
+    csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "data", "west_godavari_parcels_1200.csv")
     
     if os.path.exists(csv_path):
         with open(csv_path, mode="r", encoding="utf-8") as f:

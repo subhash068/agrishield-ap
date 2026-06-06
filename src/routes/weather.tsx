@@ -1,7 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CloudSun, CloudRain, Thermometer, Droplets, Wind, AlertTriangle } from "lucide-react";
+import {
+  CloudSun,
+  CloudRain,
+  Thermometer,
+  Droplets,
+  Wind,
+  AlertTriangle,
+  Sun,
+  CloudDrizzle,
+} from "lucide-react";
 import {
   LineChart,
   Line,
@@ -31,6 +40,8 @@ import {
   getWeatherHistory,
   getWeatherLiveSummary,
   getWeatherProjection2027,
+  getWeatherForecast,
+  type WeatherForecastPoint,
 } from "@/lib/api";
 
 const FALLBACK_DISTRICTS = [
@@ -51,6 +62,94 @@ const FALLBACK_DISTRICTS = [
 
 type WeatherMode = "history" | "projection";
 
+function WeatherIcon({ rainfall, temp }: { rainfall: number; temp: number }) {
+  if (rainfall >= 10) return <CloudRain className="h-8 w-8 text-info" />;
+  if (rainfall > 0) return <CloudDrizzle className="h-8 w-8 text-info/80" />;
+  if (temp >= 35) return <Sun className="h-8 w-8 text-warning" />;
+  return <CloudSun className="h-8 w-8 text-warning/80" />;
+}
+
+function formatDateToShort(dateStr: string) {
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString("en-US", { day: "numeric", month: "short" }).replace(" ", "-");
+}
+
+function WeatherInformationSection({ forecast }: { forecast: WeatherForecastPoint[] }) {
+  return (
+    <div className="glass rounded-xl p-5 mb-6 bg-gradient-to-br from-primary/5 to-transparent">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
+        <div>
+          <h2 className="text-lg font-bold">Weather Information</h2>
+        </div>
+        <div className="flex items-center gap-3 mt-4 md:mt-0">
+          <div className="relative">
+            <span className="absolute -top-2 left-2 bg-background px-1 text-[9px] text-muted-foreground z-10">
+              District
+            </span>
+            <Select defaultValue="eluru">
+              <SelectTrigger className="w-[120px] h-8 text-xs bg-background/50">
+                <SelectValue placeholder="District" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="eluru">Eluru</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="relative">
+            <span className="absolute -top-2 left-2 bg-background px-1 text-[9px] text-muted-foreground z-10">
+              Mandal
+            </span>
+            <Select defaultValue="chintalapudi">
+              <SelectTrigger className="w-[120px] h-8 text-xs bg-background/50">
+                <SelectValue placeholder="Mandal" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="chintalapudi">Chintalapudi</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="relative">
+            <span className="absolute -top-2 left-2 bg-background px-1 text-[9px] text-muted-foreground z-10">
+              Village
+            </span>
+            <Select defaultValue="chintalapudi">
+              <SelectTrigger className="w-[120px] h-8 text-xs bg-background/50">
+                <SelectValue placeholder="Village" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="chintalapudi">Chintalapudi</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
+      <h3 className="font-semibold mb-3">7 Days Forecast</h3>
+      <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin">
+        {forecast.slice(0, 7).map((day) => (
+          <div
+            key={day.day}
+            className="min-w-[150px] bg-background/80 border border-primary/10 rounded-lg p-3 flex items-center justify-between gap-3 shadow-sm"
+          >
+            <div className="flex flex-col items-center justify-center">
+              <WeatherIcon rainfall={day.rainfall} temp={day.temp} />
+              <span className="text-[10px] mt-1 font-medium text-primary">
+                {formatDateToShort(day.day)}
+              </span>
+            </div>
+            <div className="flex flex-col items-end">
+              <span className="text-xs font-semibold">{day.rainfall.toFixed(2)} mm</span>
+              <div className="h-[1px] w-full bg-border my-1" />
+              <span className="text-xs font-bold">{day.temp.toFixed(2)}° C</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/weather")({
   head: () => ({
     meta: [
@@ -67,6 +166,10 @@ export const Route = createFileRoute("/weather")({
 
 function WeatherPage() {
   const { data: districts = [] } = useQuery({ queryKey: ["districts"], queryFn: getDistricts });
+  const { data: forecastData = [] } = useQuery({
+    queryKey: ["weather-forecast"],
+    queryFn: getWeatherForecast,
+  });
   const { data: liveSummary } = useQuery({
     queryKey: ["weather-live"],
     queryFn: getWeatherLiveSummary,
@@ -145,6 +248,8 @@ function WeatherPage() {
       />
 
       <div className="px-6 lg:px-10 py-6 space-y-6">
+        <WeatherInformationSection forecast={forecastData} />
+
         <div className="glass rounded-xl p-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-xs text-muted-foreground">Weather mode</p>

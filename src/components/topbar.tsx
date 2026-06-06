@@ -133,7 +133,7 @@ export function TopBar() {
           >
             <Bell className="h-4 w-4" />
             <Badge className="absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[9px] bg-destructive text-destructive-foreground">
-              {filteredAlerts.length}
+              {isMounted ? filteredAlerts.length : 0}
             </Badge>
           </Button>
 
