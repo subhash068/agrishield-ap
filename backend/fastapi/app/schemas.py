@@ -39,6 +39,7 @@ class SpectralPointOut(BaseModel):
     ndvi: float
     evi: float
     ndre: float
+    savi: float
 
 
 class KpiCardOut(BaseModel):
@@ -116,6 +117,7 @@ class LayerAnalyticsOut(BaseModel):
     ndvi: float
     evi: float
     ndre: float
+    savi: float
 
     # Abiotic / biotic proxies derived from indices + health
     soil_moisture: float
@@ -169,6 +171,7 @@ class ParcelOut(BaseModel):
     ndvi: float
     evi: float
     ndre: float
+    savi: float
     analytics: LayerAnalyticsOut
     outline: list[list[float]]
     geometry: dict | None = None
@@ -314,14 +317,21 @@ class FusionResponseOut(BaseModel):
 
     # Final CHSS confidence after fusion
     unified_confidence: float
+    
+    # Explainable AI: reasons for the final risk/confidence score
+    explanation: list[str] | None = None
 
     disease_detected: DiseaseDetectionResponseOut | None = None
     abiotic_stress_score: float | None = None
     biotic_stress_score: float | None = None
     anomaly_deviation_score: float | None = None
 
+    # Fertilizer recommendation fused from satellite + photo
+    fertilizer_recommendation: FertilizerRecoOut | None = None
+
     fusedRisk7Days: FusionRisk7DaysOut
     recommendation: FusionRecommendationOut
+
 
 
 class SupportCenterOut(BaseModel):
@@ -373,4 +383,3 @@ class FieldAdvisoryResponseOut(BaseModel):
 class NearestSupportCentersOut(BaseModel):
     centers: List[SupportCenterOut]
     query: dict
-

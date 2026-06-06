@@ -18,10 +18,12 @@ import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as PredictionsRouteImport } from './routes/predictions'
 import { Route as ParcelsRouteImport } from './routes/parcels'
 import { Route as MandalRouteImport } from './routes/mandal'
+import { Route as IndiaProductionRouteImport } from './routes/india-production'
 import { Route as GovernmentRouteImport } from './routes/government'
 import { Route as FertilizerRouteImport } from './routes/fertilizer'
 import { Route as FarmersRouteImport } from './routes/farmers'
 import { Route as DiseaseRouteImport } from './routes/disease'
+import { Route as ApProductionRouteImport } from './routes/ap-production'
 import { Route as AdvisoryRouteImport } from './routes/advisory'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FarmersIndexRouteImport } from './routes/farmers/index'
@@ -82,6 +84,11 @@ const MandalRoute = MandalRouteImport.update({
   path: '/mandal',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IndiaProductionRoute = IndiaProductionRouteImport.update({
+  id: '/india-production',
+  path: '/india-production',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GovernmentRoute = GovernmentRouteImport.update({
   id: '/government',
   path: '/government',
@@ -100,6 +107,11 @@ const FarmersRoute = FarmersRouteImport.update({
 const DiseaseRoute = DiseaseRouteImport.update({
   id: '/disease',
   path: '/disease',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApProductionRoute = ApProductionRouteImport.update({
+  id: '/ap-production',
+  path: '/ap-production',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdvisoryRoute = AdvisoryRouteImport.update({
@@ -176,10 +188,12 @@ const FarmersAdvisoryRoute = FarmersAdvisoryRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/advisory': typeof AdvisoryRoute
+  '/ap-production': typeof ApProductionRoute
   '/disease': typeof DiseaseRoute
   '/farmers': typeof FarmersRouteWithChildren
   '/fertilizer': typeof FertilizerRoute
   '/government': typeof GovernmentRoute
+  '/india-production': typeof IndiaProductionRoute
   '/mandal': typeof MandalRoute
   '/parcels': typeof ParcelsRoute
   '/predictions': typeof PredictionsRoute
@@ -205,9 +219,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/advisory': typeof AdvisoryRoute
+  '/ap-production': typeof ApProductionRoute
   '/disease': typeof DiseaseRoute
   '/fertilizer': typeof FertilizerRoute
   '/government': typeof GovernmentRoute
+  '/india-production': typeof IndiaProductionRoute
   '/mandal': typeof MandalRoute
   '/parcels': typeof ParcelsRoute
   '/predictions': typeof PredictionsRoute
@@ -234,10 +250,12 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/advisory': typeof AdvisoryRoute
+  '/ap-production': typeof ApProductionRoute
   '/disease': typeof DiseaseRoute
   '/farmers': typeof FarmersRouteWithChildren
   '/fertilizer': typeof FertilizerRoute
   '/government': typeof GovernmentRoute
+  '/india-production': typeof IndiaProductionRoute
   '/mandal': typeof MandalRoute
   '/parcels': typeof ParcelsRoute
   '/predictions': typeof PredictionsRoute
@@ -265,10 +283,12 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/advisory'
+    | '/ap-production'
     | '/disease'
     | '/farmers'
     | '/fertilizer'
     | '/government'
+    | '/india-production'
     | '/mandal'
     | '/parcels'
     | '/predictions'
@@ -294,9 +314,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/advisory'
+    | '/ap-production'
     | '/disease'
     | '/fertilizer'
     | '/government'
+    | '/india-production'
     | '/mandal'
     | '/parcels'
     | '/predictions'
@@ -322,10 +344,12 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/advisory'
+    | '/ap-production'
     | '/disease'
     | '/farmers'
     | '/fertilizer'
     | '/government'
+    | '/india-production'
     | '/mandal'
     | '/parcels'
     | '/predictions'
@@ -352,10 +376,12 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdvisoryRoute: typeof AdvisoryRoute
+  ApProductionRoute: typeof ApProductionRoute
   DiseaseRoute: typeof DiseaseRoute
   FarmersRoute: typeof FarmersRouteWithChildren
   FertilizerRoute: typeof FertilizerRoute
   GovernmentRoute: typeof GovernmentRoute
+  IndiaProductionRoute: typeof IndiaProductionRoute
   MandalRoute: typeof MandalRoute
   ParcelsRoute: typeof ParcelsRoute
   PredictionsRoute: typeof PredictionsRoute
@@ -433,6 +459,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MandalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/india-production': {
+      id: '/india-production'
+      path: '/india-production'
+      fullPath: '/india-production'
+      preLoaderRoute: typeof IndiaProductionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/government': {
       id: '/government'
       path: '/government'
@@ -459,6 +492,13 @@ declare module '@tanstack/react-router' {
       path: '/disease'
       fullPath: '/disease'
       preLoaderRoute: typeof DiseaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ap-production': {
+      id: '/ap-production'
+      path: '/ap-production'
+      fullPath: '/ap-production'
+      preLoaderRoute: typeof ApProductionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/advisory': {
@@ -596,10 +636,12 @@ const FarmersRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdvisoryRoute: AdvisoryRoute,
+  ApProductionRoute: ApProductionRoute,
   DiseaseRoute: DiseaseRoute,
   FarmersRoute: FarmersRouteWithChildren,
   FertilizerRoute: FertilizerRoute,
   GovernmentRoute: GovernmentRoute,
+  IndiaProductionRoute: IndiaProductionRoute,
   MandalRoute: MandalRoute,
   ParcelsRoute: ParcelsRoute,
   PredictionsRoute: PredictionsRoute,

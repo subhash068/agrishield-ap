@@ -11,7 +11,9 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 from fastapi import Depends, FastAPI, UploadFile, File, Request as FastAPIRequest, Body, HTTPException
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import inspect, select, text, func
 from sqlalchemy.exc import SQLAlchemyError
@@ -150,88 +152,7 @@ def _parcel_geometry_payload(
     return outline, _outline_to_geojson(outline)
 
 def _fallback_parcels() -> list[ParcelOut]:
-    def seeded(value: int) -> float:
-        import math
-
-        x = math.sin(value) * 10000
-        return x - math.floor(x)
-
-    districts = [
-        "Anantapur",
-        "Chittoor",
-        "East Godavari",
-        "Guntur",
-        "Krishna",
-        "Kurnool",
-        "Nellore",
-        "Prakasam",
-        "Srikakulam",
-        "Visakhapatnam",
-        "Vizianagaram",
-        "West Godavari",
-        "YSR Kadapa",
-    ]
-    farmers = [
-        "Ramesh Reddy",
-        "Lakshmi Devi",
-        "Suresh Naidu",
-        "Kavitha Rao",
-        "Venkat Rao",
-        "Padma Sri",
-        "Krishna Murthy",
-        "Anjali Kumari",
-    ]
-    mandals = ["Penukonda", "Tadipatri", "Madanapalle", "Tenali", "Gudivada", "Adoni", "Kavali", "Ongole"]
-    crops = ["Paddy", "Cotton", "Maize", "Chilli", "Red Gram"]
-    lat_min, lat_max = 13.5, 19.1
-    lng_min, lng_max = 77.0, 84.7
-
-    parcels: list[ParcelOut] = []
-    for index in range(220):
-        crop = crops[index % len(crops)]
-        lat = lat_min + seeded(index + 1) * (lat_max - lat_min)
-        lng = lng_min + seeded(index + 7) * (lng_max - lng_min)
-        health = round(45 + seeded(index + 13) * 50, 1)
-        risk = "High" if health < 60 else "Medium" if health < 75 else "Low"
-        acreage = round(0.8 + seeded(index + 23) * 9, 2)
-        outline, geometry = _parcel_geometry_payload(
-            f"AP-{str(index + 1).zfill(5)}",
-            districts[index % len(districts)],
-            mandals[index % len(mandals)],
-            crop,
-            lat,
-            lng,
-            acreage,
-        )
-
-        parcels.append(
-            ParcelOut(
-                id=f"AP-{str(index + 1).zfill(5)}",
-                farmer=farmers[index % len(farmers)],
-                district=districts[index % len(districts)],
-                mandal=mandals[index % len(mandals)],
-                crop=crop,
-                acreage=acreage,
-                health=health,
-                risk=risk,
-                confidence=int(78 + seeded(index + 29) * 21),
-                lat=lat,
-                lng=lng,
-                ndvi=round(0.3 + seeded(index + 37) * 0.5, 2),
-                evi=round(0.2 + seeded(index + 41) * 0.6, 2),
-                ndre=round(0.15 + seeded(index + 47) * 0.45, 2),
-                analytics=_parcel_layer_analytics(
-                    health,
-                    round(0.3 + seeded(index + 37) * 0.5, 2),
-                    round(0.2 + seeded(index + 41) * 0.6, 2),
-                    round(0.15 + seeded(index + 47) * 0.45, 2),
-                ),
-                outline=outline,
-                geometry=geometry,
-            )
-        )
-
-    return parcels
+    return []
 
 app = FastAPI(title="AgriShield AP API")
 
@@ -254,8 +175,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.exception_handler(RequestValidationError)
+def request_validation_exception_handler(request: FastAPIRequest, exc: RequestValidationError):
+    import logging
+
+    logging.error("Request validation error", exc_info=exc)
+    return JSONResponse(status_code=422, content={"detail": "Request validation failed", "errors": exc.errors()})
+
+
 @app.exception_handler(Exception)
 def unhandled_exception_handler(request: FastAPIRequest, exc: Exception):
+
+
     import logging
 
     logging.exception("Unhandled API error", exc_info=exc)
@@ -401,6 +332,8 @@ def _ensure_parcel_schema(db: Session) -> set[str]:
         alterations.append("ALTER TABLE parcels ADD COLUMN IF NOT EXISTS evi double precision")
     if "ndre" not in parcel_columns:
         alterations.append("ALTER TABLE parcels ADD COLUMN IF NOT EXISTS ndre double precision")
+    if "savi" not in parcel_columns:
+        alterations.append("ALTER TABLE parcels ADD COLUMN IF NOT EXISTS savi double precision")
 
     if alterations:
         for statement in alterations:
@@ -581,10 +514,11 @@ def _clamp(value: float, minimum: float, maximum: float) -> float:
     return max(minimum, min(maximum, value))
 
 
-def _parcel_layer_analytics(health: float, ndvi: float, evi: float, ndre: float) -> dict:
+def _parcel_layer_analytics(health: float, ndvi: float, evi: float, ndre: float, savi: float) -> dict:
     ndvi_score = _clamp(ndvi, 0.0, 1.0)
     evi_score = _clamp(evi, 0.0, 1.0)
     ndre_score = _clamp(ndre, 0.0, 1.0)
+    savi_score = _clamp(savi, 0.0, 1.0)
 
     # Abiotic proxies
     stress_score = _clamp(1.0 - ndvi_score * 0.72 + (100.0 - health) / 240.0, 0.0, 1.0)  # 0..1
@@ -607,9 +541,8 @@ def _parcel_layer_analytics(health: float, ndvi: float, evi: float, ndre: float)
     biotic_stress = disease_score
 
     # Unified health: higher = healthier
-    # Components are stress-like (higher = worse), so invert and weight.
-    # Also include anomaly deviation to capture "unusual" patterns.
-    unified = _clamp(1.0 - (abiotic_stress * 0.45 + biotic_stress * 0.35 + anomaly_score * 0.20), 0.0, 1.0)
+    # CHSS UCHI formula
+    unified = 0.35 * ndvi_score + 0.25 * evi_score + 0.25 * ndre_score + 0.15 * savi_score
     unified_health_index = round(unified * 100.0, 1)
 
     # PoC deviation score: use anomaly_score + inverse health.
@@ -639,6 +572,7 @@ def _parcel_layer_analytics(health: float, ndvi: float, evi: float, ndre: float)
         "ndvi": round(ndvi_score, 3),
         "evi": round(evi_score, 3),
         "ndre": round(ndre_score, 3),
+        "savi": round(savi_score, 3),
 
         # Abiotic / biotic proxies (0..1)
         "soil_moisture": round(moisture_score, 3),
@@ -1258,10 +1192,13 @@ def parcels(db: Session = Depends(get_db)):
         ]
         has_evi = "evi" in parcel_columns
         has_ndre = "ndre" in parcel_columns
+        has_savi = "savi" in parcel_columns
         if has_evi:
             cols.append(models.Parcel.evi)
         if has_ndre:
             cols.append(models.Parcel.ndre)
+        if has_savi:
+            cols.append(models.Parcel.savi)
 
         stmt = select(*cols).order_by(models.Parcel.id)
         rows = db.execute(stmt).all()
@@ -1305,11 +1242,13 @@ def parcels(db: Session = Depends(get_db)):
 
             evi = r[idx] if has_evi else None; idx += (1 if has_evi else 0)
             ndre = r[idx] if has_ndre else None; idx += (1 if has_ndre else 0)
+            savi = r[idx] if has_savi else None; idx += (1 if has_savi else 0)
             analytics = _parcel_layer_analytics(
                 float(health),
                 float(ndvi),
                 float(evi if evi is not None else ndvi),
                 float(ndre if ndre is not None else ndvi),
+                float(savi if savi is not None else ndvi),
             )
             outline, geometry = _parcel_geometry_payload(
                 pid,
@@ -1338,6 +1277,7 @@ def parcels(db: Session = Depends(get_db)):
                     ndvi=ndvi,
                     evi=evi,
                     ndre=ndre,
+                    savi=savi,
                     analytics=analytics,
                     outline=outline,
                     geometry=geometry,
@@ -1532,17 +1472,18 @@ def predictions(db: Session = Depends(get_db)):
 @app.get("/spectral-trend", response_model=list[SpectralPointOut])
 def spectral_trend(db: Session = Depends(get_db)):
     # Always return deterministic data; this endpoint must never crash.
-    avg_ndvi, avg_evi, avg_ndre = 0.55, 0.42, 0.36
+    avg_ndvi, avg_evi, avg_ndre, avg_savi = 0.55, 0.42, 0.36, 0.30
 
     # Demo spectral time-series: derive a smooth curve from parcel-level indices.
     try:
         rows = db.execute(
-            select(models.Parcel.ndvi, models.Parcel.evi, models.Parcel.ndre).limit(120)
+            select(models.Parcel.ndvi, models.Parcel.evi, models.Parcel.ndre, models.Parcel.savi).limit(120)
         ).all()
         if rows:
             avg_ndvi = sum(r[0] for r in rows) / len(rows)
             avg_evi = sum(r[1] for r in rows) / len(rows)
             avg_ndre = sum(r[2] for r in rows) / len(rows)
+            avg_savi = sum(r[3] for r in rows) / len(rows)
     except Exception:
         pass
 
@@ -1553,6 +1494,7 @@ def spectral_trend(db: Session = Depends(get_db)):
         ndvi = avg_ndvi + 0.04 * (t - 0.5)
         evi = avg_evi + 0.03 * (t - 0.5)
         ndre = avg_ndre + 0.02 * (t - 0.5)
+        savi = avg_savi + 0.025 * (t - 0.5)
 
         points.append(
             SpectralPointOut(
@@ -1560,6 +1502,7 @@ def spectral_trend(db: Session = Depends(get_db)):
                 ndvi=round(ndvi, 3),
                 evi=round(evi, 3),
                 ndre=round(ndre, 3),
+                savi=round(savi, 3),
             )
         )
     return points
@@ -1609,11 +1552,11 @@ def dashboard_kpis(db: Session = Depends(get_db)):
             .where(models.Parcel.risk.in_(["High", "Critical"]))
             .group_by(models.Parcel.mandal)
         ).all()
-        # threshold: 10% of mandal parcels OR at least 200 parcels
+        # threshold: 10% of mandal parcels OR at least 10 parcels for demo dataset
         high_risk_mandal_count = sum(
             1
             for _, cnt in mandal_risky_counts
-            if cnt >= 200
+            if cnt >= 10
         )
 
         # Satellite coverage: parcels with non-null ndvi/evi/ndre
@@ -1668,7 +1611,6 @@ def dashboard_kpis(db: Session = Depends(get_db)):
             updated_at=err_str[:500],
         )
 
-
 import os
 import csv
 import random
@@ -1683,6 +1625,7 @@ def register_farmer(data: FarmerRegisterInput, db: Session = Depends(get_db)):
     ndvi = round(0.7 + random.random() * 0.2, 2)
     evi = round(ndvi - 0.05, 2)
     ndre = round(ndvi - 0.2, 2)
+    savi = round(ndvi - 0.15, 2)
     
     csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "data", "west_godavari_parcels_1200.csv")
     
@@ -1703,7 +1646,8 @@ def register_farmer(data: FarmerRegisterInput, db: Session = Depends(get_db)):
                 lng,
                 ndvi,
                 evi,
-                ndre
+                ndre,
+                savi
             ])
 
     # Insert into the database so it's immediately available without a restart
@@ -1722,6 +1666,7 @@ def register_farmer(data: FarmerRegisterInput, db: Session = Depends(get_db)):
         ndvi=ndvi,
         evi=evi,
         ndre=ndre,
+        savi=savi,
     )
     
     try:
@@ -1811,15 +1756,15 @@ async def disease_detect(file: UploadFile = File(...), db: Session = Depends(get
         fertilizer_recommendation=fert_result,
     )
 
-
 @app.post("/fusion/fuse", response_model=FusionResponseOut)
 async def fuse_satellite_ground(
-    input: FusionFuseInput = Body(...),
-    file: UploadFile | None = File(default=None),
+    input: FusionFuseInput,
     db: Session = Depends(get_db),
 ):
+
     """
     PoC fusion endpoint:
+
     - Select parcel using parcel_id or nearest by lat/lng.
     - Use satellite CHSS analytics from parcel (unified_health_index + confidence + stress/anomaly scores).
     - Use smartphone disease detection confidence from either provided disease_detection_response or uploaded image.
@@ -1854,11 +1799,12 @@ async def fuse_satellite_ground(
     lat_val = float(parcel.lat) if parcel.lat is not None else 0.0
     lng_val = float(parcel.lng) if parcel.lng is not None else 0.0
     ndvi_val = float(parcel.ndvi) if parcel.ndvi is not None else 0.5
-    evi_val = float(getattr(parcel, "evi", ndvi_val - 0.05)) if hasattr(parcel, "evi") else ndvi_val - 0.05
-    ndre_val = float(getattr(parcel, "ndre", ndvi_val - 0.2)) if hasattr(parcel, "ndre") else ndvi_val - 0.2
+    evi_val = float(parcel.evi) if getattr(parcel, "evi", None) is not None else ndvi_val - 0.05
+    ndre_val = float(parcel.ndre) if getattr(parcel, "ndre", None) is not None else ndvi_val - 0.2
+    savi_val = float(parcel.savi) if getattr(parcel, "savi", None) is not None else ndvi_val - 0.15
     health_val = float(parcel.health) if parcel.health is not None else 65.0
 
-    satellite_layer = _parcel_layer_analytics(health_val, ndvi_val, evi_val, ndre_val)
+    satellite_layer = _parcel_layer_analytics(health_val, ndvi_val, evi_val, ndre_val, savi_val)
 
     satellite_confidence = float(satellite_layer.get("satellite_confidence", 60.0))
     unified_health_index = float(satellite_layer.get("unified_health_index", 60.0))
@@ -1873,43 +1819,45 @@ async def fuse_satellite_ground(
     if input.disease_detection_response is not None:
         disease_detected = input.disease_detection_response
         photo_confidence = float(disease_detected.confidence)
-    elif file is not None:
-        if file.content_type and not file.content_type.startswith("image/"):
-            raise HTTPException(status_code=400, detail="Invalid file type. Upload an image.")
-        file_bytes = await file.read()
-        file_name = file.filename or "upload"
-        pick_label, pick_sev, confidence, top_k, model = _analyze_disease_image(file_name, file_bytes)
-        crop_gate, mismatch_detected, mismatch_reason = _build_crop_gate(file_name, top_k)
-
-        if crop_gate and crop_gate.matched and crop_gate.selected_label:
-            pick_label = crop_gate.selected_label
-            if crop_gate.selected_score is not None:
-                confidence = int(round(_clamp(crop_gate.selected_score * 100.0, 1.0, 99.0)))
-                pick_sev = _severity_from_probability(crop_gate.selected_score, pick_label)
-        crop_hint = crop_gate.crop if crop_gate else _extract_crop_hint(file_name)
-
-        disease_detected = DiseaseDetectionResponseOut(
-            label=pick_label,
-            severity=pick_sev,
-            confidence=confidence,
-            model=model,
-            top_k=top_k,
-            crop_gate=crop_gate,
-            mismatch_detected=mismatch_detected,
-            mismatch_reason=mismatch_reason,
-            crop_hint=crop_hint,
-        )
-        photo_confidence = float(disease_detected.confidence)
 
     if disease_detected is None or photo_confidence is None:
         # Fusion still works without photo, but spec expects photo confidence when possible.
         photo_confidence = 0.0
 
-    # 4) Fuse confidence
-    sat_w = 0.55
-    photo_w = 0.45
-    unified_confidence = sat_w * satellite_confidence + photo_w * float(photo_confidence or 0.0)
-    unified_confidence = float(round(unified_confidence, 1))
+    # Fetch live weather for explainable AI
+    try:
+        weather_summary, _ = _fetch_live_weather()
+        humidity = weather_summary.humidity
+    except:
+        humidity = 85  # mock high humidity
+
+    # 4) Fuse confidence (Satellite + Weather + Photo + Historical Pest)
+    # PoC weights: Photo (40%), Satellite (30%), Weather (15%), History (15%)
+    photo_score = float(photo_confidence or 0.0)
+    sat_w = 0.30
+    photo_w = 0.40
+    weather_w = 0.15
+    history_w = 0.15
+    
+    historical_pest_risk = 80.0  # Mock historical pest risk for the region
+    humidity_risk = min(100.0, humidity * 1.1) # High humidity increases risk
+    
+    # If photo confirms disease, overall risk shoots up
+    final_risk = (
+        sat_w * satellite_confidence + 
+        photo_w * photo_score + 
+        weather_w * humidity_risk + 
+        history_w * historical_pest_risk
+    )
+    unified_confidence = float(round(final_risk, 1))
+    
+    # Explainable AI
+    explanation = [
+        f"Satellite Anomaly: {anomaly_deviation_score}%",
+        f"Photo detection confidence: {photo_score}%" if photo_score > 0 else "No photo provided",
+        f"Weather Humidity: {'High' if humidity > 70 else 'Normal'} ({humidity}%)",
+        f"Historical Pest Data Risk: High (80%)"
+    ]
 
     # 5) Risk bands (PoC mapping)
     # disease risk: use photo confidence + satellite disease_probability proxy inside anomaly/satellite layer
@@ -1925,11 +1873,8 @@ async def fuse_satellite_ground(
     )
 
     # yield loss risk: derived from low unified health + disease
-    yield_loss_risk = clamp(
-        round((100.0 - unified_health_index) * 0.12 + (biotic_stress_score / 100.0) * 8.0, 1),
-        0,
-        100,
-    )
+    yield_val = round((100.0 - unified_health_index) * 0.12 + (biotic_stress_score / 100.0) * 8.0, 1)
+    yield_loss_risk = max(0, min(100, yield_val))
 
     # 6) Recommendation steps
     # Keep it aligned with crop stress vs disease severity.
@@ -1963,6 +1908,38 @@ async def fuse_satellite_ground(
             ],
         )
 
+    # 7) Fertilizer recommendation fused from satellite + photo
+    fert_result: FertilizerRecoOut | None = None
+    try:
+        crop_for_fert = None
+        if disease_detected is not None:
+            crop_for_fert = (getattr(disease_detected.crop_gate, "crop", None) if getattr(disease_detected, "crop_gate", None) else None) or getattr(disease_detected, "crop_hint", None)
+
+        # If photo didn't yield crop, fall back to parcel crop
+        crop_for_fert = crop_for_fert or getattr(parcel, "crop", None)
+
+        # Satellite soil moisture proxy is stored in satellite_layer as 0..1
+        soil_moisture_score_pct = float(satellite_layer.get("soil_moisture", 0.55)) * 100.0
+        abiotic_stress_score_pct = float(abiotic_stress_score)
+        unified_health_index_pct = float(unified_health_index)
+
+        # Map photo-derived severity confidence to risk bands
+        # Use disease_band/pest_band already computed from fusion steps.
+        fert_inp = FertilizerRecoHeuristicInput(
+            crop=crop_for_fert,
+            soil_health="Moderate",
+            growth_stage="Vegetative",
+            weather_rainfall_mm=None,
+            satellite_unified_health_index_pct=unified_health_index_pct,
+            satellite_abiotic_stress_score_pct=abiotic_stress_score_pct,
+            satellite_soil_moisture_score_pct=soil_moisture_score_pct,
+            disease_risk=disease_band,
+            pest_risk=pest_band,
+        )
+        fert_result = FertilizerRecoOut(**recommend_fertilizer_poc(fert_inp))
+    except Exception:
+        fert_result = None
+
     return FusionResponseOut(
         parcel_id=getattr(parcel, "parcel_id_str", None),
         fieldId=input.fieldId,
@@ -1975,13 +1952,16 @@ async def fuse_satellite_ground(
         abiotic_stress_score=abiotic_stress_score,
         biotic_stress_score=biotic_stress_score,
         anomaly_deviation_score=anomaly_deviation_score,
+        fertilizer_recommendation=fert_result,
         fusedRisk7Days=FusionRisk7DaysOut(
             diseaseRisk=disease_band,
             pestRisk=pest_band,
-            yieldLossRiskPct=float(yield_loss_risk),
+            yieldLossRiskPct=yield_loss_risk,
         ),
         recommendation=rec,
+        explanation=explanation,
     )
+
 
 
 @app.get("/field-advisory/{fieldId}", response_model=FieldAdvisoryResponseOut)
@@ -2003,11 +1983,12 @@ def field_advisory(fieldId: str, db: Session = Depends(get_db)):
     lat_val = float(parcel.lat) if parcel.lat is not None else 0.0
     lng_val = float(parcel.lng) if parcel.lng is not None else 0.0
     ndvi_val = float(parcel.ndvi) if parcel.ndvi is not None else 0.5
-    evi_val = float(getattr(parcel, "evi", ndvi_val - 0.05)) if hasattr(parcel, "evi") else ndvi_val - 0.05
-    ndre_val = float(getattr(parcel, "ndre", ndvi_val - 0.2)) if hasattr(parcel, "ndre") else ndvi_val - 0.2
+    evi_val = float(parcel.evi) if getattr(parcel, "evi", None) is not None else ndvi_val - 0.05
+    ndre_val = float(parcel.ndre) if getattr(parcel, "ndre", None) is not None else ndvi_val - 0.2
+    savi_val = float(parcel.savi) if getattr(parcel, "savi", None) is not None else ndvi_val - 0.15
     health_val = float(parcel.health) if parcel.health is not None else 65.0
 
-    satellite_layer = _parcel_layer_analytics(health_val, ndvi_val, evi_val, ndre_val)
+    satellite_layer = _parcel_layer_analytics(health_val, ndvi_val, evi_val, ndre_val, savi_val)
 
     unified_health_index = float(satellite_layer.get("unified_health_index", 60.0))
     abiotic_stress_score = float(satellite_layer.get("abiotic_stress_score", 50.0))

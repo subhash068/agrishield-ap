@@ -97,6 +97,7 @@ class Parcel(Base):
     ndvi: Mapped[float] = mapped_column(Float, nullable=False)
     evi: Mapped[float] = mapped_column(Float, nullable=False)
     ndre: Mapped[float] = mapped_column(Float, nullable=False)
+    savi: Mapped[float] = mapped_column(Float, nullable=False)
 
 
 # PostGIS geometry(Point,4326)

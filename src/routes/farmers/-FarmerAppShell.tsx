@@ -7,6 +7,24 @@ import { clearFarmerSession, getFarmerSession } from "@/lib/farmer-auth";
 
 import { Button } from "@/components/ui/button";
 import { FarmerBottomNav } from "@/routes/farmers/-bottom-nav";
+import { Languages } from "lucide-react";
+import { toast } from "sonner";
+import { useAppShell } from "@/components/app-shell-store";
+
+const TRANSLATIONS = {
+  en: {
+    title: "Farmer App",
+    parcelId: "Parcel ID:",
+    crop: "Crop",
+    logout: "Logout",
+  },
+  te: {
+    title: "రైతు యాప్",
+    parcelId: "పొలం ID:",
+    crop: "పంట",
+    logout: "లాగ్అవుట్",
+  }
+};
 
 // Farmer app shell: header + outlet + mobile bottom navigation.
 export function FarmerAppShell() {
@@ -14,6 +32,14 @@ export function FarmerAppShell() {
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState(() => getFarmerSession()?.profile ?? null);
+  const { locale, toggleLocale } = useAppShell();
+
+  const t = TRANSLATIONS[locale] || TRANSLATIONS.en;
+
+  function toggleLanguage() {
+    toggleLocale();
+    toast.success(locale === "en" ? "Switched to Telugu mode." : "Switched to English mode.");
+  }
 
   useEffect(() => {
     const handler = () => setProfile(getFarmerSession()?.profile ?? null);
@@ -26,9 +52,9 @@ export function FarmerAppShell() {
   }, []);
 
   const title = useMemo(() => {
-    if (!profile) return "Farmer App";
-    return profile.farmerName ? `${profile.farmerName}` : "Farmer App";
-  }, [profile]);
+    if (!profile) return t.title;
+    return profile.farmerName ? `${profile.farmerName}` : t.title;
+  }, [profile, t.title]);
 
 
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -74,29 +100,40 @@ export function FarmerAppShell() {
         <div className="mt-4 rounded-2xl border border-border/60 bg-background/50 p-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Farmer App</div>
+              <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t.title}</div>
               <h1 className="mt-1 text-lg font-bold">{title}</h1>
               <p className="mt-1 text-xs text-muted-foreground">
-                Parcel ID:{" "}
+                {t.parcelId}{" "}
                 <span className="font-semibold text-primary">{profile.parcelId}</span>
               </p>
             </div>
             <div className="flex flex-col items-end gap-2">
               <div className="text-right">
-                <div className="text-[11px] text-muted-foreground">Crop</div>
+                <div className="text-[11px] text-muted-foreground">{t.crop}</div>
                 <div className="text-sm font-semibold">{profile.cropType}</div>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 px-2"
-                onClick={() => {
-                  clearFarmerSession();
-                  navigate({ to: "/farmers" as any, replace: true });
-                }}
-              >
-                Logout
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  title="Language"
+                  onClick={toggleLanguage}
+                >
+                  <Languages className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-2"
+                  onClick={() => {
+                    clearFarmerSession();
+                    navigate({ to: "/farmers" as any, replace: true });
+                  }}
+                >
+                  {t.logout}
+                </Button>
+              </div>
             </div>
           </div>
         </div>

@@ -16,7 +16,14 @@ import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { detectDisease, type DiseaseDetectionResponse } from "@/lib/api";
+import {
+  detectDisease,
+  fuseSatelliteGround,
+  type DiseaseDetectionResponse,
+  type FusionResponseOut,
+  type FusionFuseInput,
+} from "@/lib/api";
+
 
 const diseaseRecommendations: Array<{
   match: (label: string) => boolean;
@@ -110,6 +117,16 @@ function DiseasePage() {
     mutationFn: detectDisease,
   });
 
+  const [geo, setGeo] = useState<{ lat: number; lng: number } | null>(null);
+  const [fusionResult, setFusionResult] = useState<FusionResponseOut | null>(null);
+
+  const fusionMutation = useMutation<FusionResponseOut, Error, FusionFuseInput>({
+    mutationFn: (input) => fuseSatelliteGround(input),
+    onSuccess: (data) => setFusionResult(data),
+    onError: () => setFusionResult(null),
+  });
+
+
   const scanning = detectMutation.isPending;
   const result = detectMutation.data ?? null;
   const errorMessage = detectMutation.error?.message ?? null;
@@ -136,10 +153,51 @@ function DiseasePage() {
     setCurrentTime(new Date().toLocaleTimeString());
   }, []);
 
+  // Best-effort location for fusion.
+  // Use fallback GPS if geolocation is unavailable.
+  useEffect(() => {
+    if (geo) return;
+
+    if (!("geolocation" in navigator)) {
+      setGeo({ lat: 16.5062, lng: 80.6480 });
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setGeo({ lat: position.coords.latitude, lng: position.coords.longitude });
+      },
+      () => {
+        setGeo({ lat: 16.5062, lng: 80.6480 });
+      },
+      { enableHighAccuracy: true, timeout: 4000, maximumAge: 0 },
+    );
+  }, [geo]);
+
+
   const runScan = () => {
     if (!selectedFile) return;
     detectMutation.mutate(selectedFile);
   };
+
+  // Trigger fusion after disease detection and geo are ready.
+  useEffect(() => {
+    if (!result) return;
+    if (!geo) return;
+
+    const input: FusionFuseInput = {
+      fieldId: "DISEASE-PAGE",
+      lat: geo.lat,
+      lng: geo.lng,
+      // Send the exact backend-shaped object to avoid schema drift.
+      disease_detection_response: result ?? null,
+    };
+
+
+
+    fusionMutation.mutate(input);
+  }, [result, geo]);
+
 
   const openFilePicker = () => {
     fileInputRef.current?.click();
@@ -420,7 +478,37 @@ function DiseasePage() {
                 </motion.div>
               ) : null}
 
-              {result.fertilizer_recommendation ? (
+              {fusionResult ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="glass rounded-xl p-5 border border-primary/20 bg-gradient-to-br from-primary/10 to-background"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                        CHSS Multi-Source Fusion
+                      </p>
+                      <h4 className="mt-1 text-lg font-semibold">Final Risk Score</h4>
+                    </div>
+                    <Badge variant="outline" className={fusionResult.unified_confidence >= 70 ? "border-destructive/40 text-destructive bg-destructive/10" : "border-warning/40 text-warning bg-warning/10"}>
+                      {fusionResult.unified_confidence}%
+                    </Badge>
+                  </div>
+                  <p className="mt-3 text-sm font-medium">Why was this alert generated?</p>
+                  <ul className="mt-2 space-y-2">
+                    {fusionResult.explanation?.map((exp, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary shrink-0" /> {exp}
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              ) : null}
+
+              {fusionResult?.fertilizer_recommendation ? (
+
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -428,9 +516,13 @@ function DiseasePage() {
                   className="glass rounded-xl p-5 border border-success/20 bg-gradient-to-br from-success/10 to-background"
                 >
                   {(() => {
-                    const fert = result.fertilizer_recommendation;
-                    const nutrientByName = new Map(
-                      (fert.nutrient_deficiencies ?? []).map((d) => [d.nutrient, d])
+                    const fert = fusionResult!.fertilizer_recommendation;
+                    type NutrientDeficiency = {
+                      nutrient: string;
+                      severity?: string;
+                    };
+                    const nutrientByName = new Map<string, NutrientDeficiency>(
+                      ((fert.nutrient_deficiencies ?? []) as NutrientDeficiency[]).map((d) => [d.nutrient, d]),
                     );
 
                     const nDef = nutrientByName.get("Nitrogen (N)");
@@ -533,7 +625,30 @@ function DiseasePage() {
                 </motion.div>
               ) : null}
 
-              <div className="glass rounded-xl p-5">
+              {fusionResult && (
+                <div className="flex gap-3 justify-end mt-4">
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => {
+                      alert(`ALERT SENT:\n${result.label} detected.\nVisit nearest RSK.\nSee recommended actions.`);
+                    }}
+                  >
+                    <CheckCircle2 className="h-4 w-4" /> Send SMS Alert
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => {
+                      alert(`IVR CALL INITIATED:\n"Namaskaram, this is AgriShield...`);
+                    }}
+                  >
+                    <CheckCircle2 className="h-4 w-4" /> Initiate IVR Call
+                  </Button>
+                </div>
+              )}
+
+              <div className="glass rounded-xl p-5 mt-4">
                 <h4 className="font-semibold text-sm">Top 3 predictions</h4>
                 <div className="mt-3 space-y-2">
                   {topPredictions.map((p, index) => (

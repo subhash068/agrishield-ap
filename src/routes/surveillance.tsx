@@ -70,17 +70,6 @@ function SurveillancePage() {
         icon={<Leaf className="h-6 w-6 text-primary" />}
         eyebrow="Crop Surveillance"
         title="Statewide Crop Intelligence Dashboard"
-        description="AI-fused KPIs from 1.93M parcels - Sentinel-2 + Landsat-9 - refreshed every 6 hours."
-        actions={
-          <>
-            <Button variant="outline" size="sm" className="gap-1.5">
-              <Filter className="h-3.5 w-3.5" /> Filters
-            </Button>
-            <Button size="sm" className="gap-1.5">
-              <Download className="h-3.5 w-3.5" /> Export
-            </Button>
-          </>
-        }
       />
 
       <div className="px-6 lg:px-10 py-6 space-y-6">

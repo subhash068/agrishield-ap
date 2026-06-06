@@ -52,58 +52,8 @@ export function KpiCard({ label, value, unit = "", trend = 0, confidence, index 
             <span className="text-2xl font-bold tabular-nums tracking-tight">{formatted}</span>
             {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
           </div>
-          <div className={cn("mt-1 inline-flex items-center gap-1 text-[11px] font-medium",
-            up ? "text-success" : "text-destructive")}>
-            {up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-            {Math.abs(trend).toFixed(1)}% · 30d
-          </div>
         </div>
-
-        {confidence !== undefined && (
-          <div className="relative h-14 w-14 shrink-0">
-            <svg viewBox="0 0 50 50" className="h-full w-full -rotate-90">
-              <circle cx="25" cy="25" r={r} className="fill-none stroke-muted/40" strokeWidth="3" />
-              <circle
-                cx="25" cy="25" r={r}
-                className="fill-none stroke-primary transition-all duration-1000"
-                strokeWidth="3" strokeLinecap="round"
-                strokeDasharray={c} strokeDashoffset={offset}
-                style={{ filter: "drop-shadow(0 0 4px oklch(0.78 0.19 145 / 0.6))" }}
-              />
-            </svg>
-            <div className="absolute inset-0 grid place-items-center text-[10px] font-semibold tabular-nums">
-              {confidence}%
-            </div>
-          </div>
-        )}
       </div>
-
-      {/* sparkline */}
-      <svg viewBox="0 0 100 24" className="mt-2 h-6 w-full">
-        <defs>
-          <linearGradient id={`spark-${index}`} x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="oklch(0.78 0.19 145)" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="oklch(0.78 0.19 145)" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path
-          d={(() => {
-            // Deterministic SSR/client path generation:
-            // - Use fixed rounding for x/y to avoid float/string precision differences.
-            // - Keep the same math and rounding rules on both server and client.
-            const round = (n: number) => Number(n.toFixed(3));
-            const pts = Array.from({ length: 18 }, (_, i) => {
-              const x = round(((i / 17) * 100));
-              const y = round(12 + Math.sin(i * 0.7 + index) * 6 + Math.cos(i * 0.4) * 3);
-              return `${x},${y}`;
-            });
-            return `M${pts.join(" L")} L100,24 L0,24 Z`;
-          })()}
-          fill={`url(#spark-${index})`}
-          stroke="oklch(0.78 0.19 145)"
-          strokeWidth="1"
-        />
-      </svg>
     </motion.div>
   );
 }

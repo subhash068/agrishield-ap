@@ -24,13 +24,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { getAlerts, getDistricts } from "@/lib/api";
+import { getAlerts, getDistricts, getWeatherLiveSummary } from "@/lib/api";
 import { getAssistantSuggestions, resolveGlobalSearch } from "@/lib/global-search";
 
 export function TopBar() {
   const navigate = useNavigate();
   const { data: districts = [] } = useQuery({ queryKey: ["districts"], queryFn: getDistricts });
   const { data: alerts = [] } = useQuery({ queryKey: ["alerts"], queryFn: getAlerts });
+  const { data: weather } = useQuery({ queryKey: ["weather-live"], queryFn: getWeatherLiveSummary });
   const { selectedDistrict, setSelectedDistrict, searchTerm, setSearchTerm, locale, toggleLocale } =
     useAppShell();
 
@@ -91,10 +92,7 @@ export function TopBar() {
     toast("Opened crop disease triage.");
   }
 
-  function toggleLanguage() {
-    toggleLocale();
-    toast.success(locale === "en" ? "Switched to Telugu mode." : "Switched to English mode.");
-  }
+
 
   return (
     <>
@@ -120,7 +118,9 @@ export function TopBar() {
           <Button asChild variant="ghost" size="sm" className="h-9 gap-1.5 hidden lg:flex">
             <Link to="/weather">
               <CloudSun className="h-4 w-4 text-accent" />
-              <span className="text-xs">31 C · Vijayawada</span>
+              <span className="text-xs">
+                {weather ? `${Math.round(weather.temperature)}°C · ${weather.location}` : "Loading..."}
+              </span>
             </Link>
           </Button>
 
@@ -147,15 +147,7 @@ export function TopBar() {
             <span className="text-xs hidden sm:inline">AI Assistant</span>
           </Button>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9"
-            title="Language"
-            onClick={toggleLanguage}
-          >
-            <Languages className="h-4 w-4" />
-          </Button>
+
 
           <Button
             asChild
@@ -173,115 +165,119 @@ export function TopBar() {
         </div>
       </header>
 
-      <Dialog open={assistantOpen} onOpenChange={setAssistantOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>AI Assistant</DialogTitle>
-            <DialogDescription>
-              Ask for a crop, district, weather, scheme, or alert view and I&apos;ll jump straight there.
-            </DialogDescription>
-          </DialogHeader>
+      {isMounted && (
+        <Dialog open={assistantOpen} onOpenChange={setAssistantOpen}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>AI Assistant</DialogTitle>
+              <DialogDescription>
+                Ask for a crop, district, weather, scheme, or alert view and I&apos;ll jump straight there.
+              </DialogDescription>
+            </DialogHeader>
 
-          <div className="space-y-3">
-            <Textarea
-              value={assistantPrompt}
-              onChange={(event) => setAssistantPrompt(event.target.value)}
-              placeholder="e.g. show drought risk in Anantapur"
-              className="min-h-24 bg-muted/40"
-            />
+            <div className="space-y-3">
+              <Textarea
+                value={assistantPrompt}
+                onChange={(event) => setAssistantPrompt(event.target.value)}
+                placeholder="e.g. show drought risk in Anantapur"
+                className="min-h-24 bg-muted/40"
+              />
 
-            <div className="grid grid-cols-2 gap-2">
-              {assistantSuggestions.map((suggestion) => (
-                <Button
-                  key={suggestion.title}
-                  type="button"
-                  variant="outline"
-                  className="justify-start"
-                  onClick={() => {
-                    setAssistantPrompt(suggestion.query);
-                    runSearch(suggestion.query);
-                  }}
-                >
-                  {suggestion.title}
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button type="button" variant="outline" onClick={() => setAssistantOpen(false)}>
-              Close
-            </Button>
-            <Button type="button" onClick={runAssistantPrompt}>
-              Run assistant
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={alertsOpen} onOpenChange={setAlertsOpen}>
-        <DialogContent className="sm:max-w-xl">
-          <DialogHeader>
-            <DialogTitle>Live Alerts</DialogTitle>
-            <DialogDescription>
-              {selectedDistrict === "all" ? "All districts" : selectedDistrict} · {filteredAlerts.length} active alert
-              {filteredAlerts.length === 1 ? "" : "s"}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
-            {filteredAlerts.map((alert) => (
-              <button
-                key={alert.id}
-                type="button"
-                onClick={() => handleNotificationAction(alert.type)}
-                className="w-full rounded-lg border border-border/60 bg-muted/20 p-3 text-left transition hover:border-primary/40 hover:bg-muted/30"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold">{alert.type}</span>
-                  <Badge
+              <div className="grid grid-cols-2 gap-2">
+                {assistantSuggestions.map((suggestion) => (
+                  <Button
+                    key={suggestion.title}
+                    type="button"
                     variant="outline"
-                    className={
-                      alert.severity === "Critical"
-                        ? "border-destructive/50 text-destructive bg-destructive/10"
-                        : alert.severity === "High"
-                          ? "border-warning/50 text-warning bg-warning/10"
-                          : "border-info/50 text-info bg-info/10"
-                    }
+                    className="justify-start"
+                    onClick={() => {
+                      setAssistantPrompt(suggestion.query);
+                      runSearch(suggestion.query);
+                    }}
                   >
-                    {alert.severity}
-                  </Badge>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {alert.crop} · {alert.district} · {alert.time}
-                </p>
-                <p className="mt-1.5 text-xs">{alert.action}</p>
-              </button>
-            ))}
-            {!filteredAlerts.length ? (
-              <div className="rounded-lg border border-dashed border-border/60 p-6 text-center text-sm text-muted-foreground">
-                No alerts match the current district filter.
+                    {suggestion.title}
+                  </Button>
+                ))}
               </div>
-            ) : null}
-          </div>
+            </div>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setAlertsOpen(false);
-                navigate({ to: "/surveillance" });
-              }}
-            >
-              Open surveillance
-            </Button>
-            <Button type="button" onClick={() => setAlertsOpen(false)}>
-              Done
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button type="button" variant="outline" onClick={() => setAssistantOpen(false)}>
+                Close
+              </Button>
+              <Button type="button" onClick={runAssistantPrompt}>
+                Run assistant
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {isMounted && (
+        <Dialog open={alertsOpen} onOpenChange={setAlertsOpen}>
+          <DialogContent className="sm:max-w-xl">
+            <DialogHeader>
+              <DialogTitle>Live Alerts</DialogTitle>
+              <DialogDescription>
+                {selectedDistrict === "all" ? "All districts" : selectedDistrict} · {filteredAlerts.length} active alert
+                {filteredAlerts.length === 1 ? "" : "s"}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+              {filteredAlerts.map((alert) => (
+                <button
+                  key={alert.id}
+                  type="button"
+                  onClick={() => handleNotificationAction(alert.type)}
+                  className="w-full rounded-lg border border-border/60 bg-muted/20 p-3 text-left transition hover:border-primary/40 hover:bg-muted/30"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold">{alert.type}</span>
+                    <Badge
+                      variant="outline"
+                      className={
+                        alert.severity === "Critical"
+                          ? "border-destructive/50 text-destructive bg-destructive/10"
+                          : alert.severity === "High"
+                            ? "border-warning/50 text-warning bg-warning/10"
+                            : "border-info/50 text-info bg-info/10"
+                      }
+                    >
+                      {alert.severity}
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {alert.crop} · {alert.district} · {alert.time}
+                  </p>
+                  <p className="mt-1.5 text-xs">{alert.action}</p>
+                </button>
+              ))}
+              {!filteredAlerts.length ? (
+                <div className="rounded-lg border border-dashed border-border/60 p-6 text-center text-sm text-muted-foreground">
+                  No alerts match the current district filter.
+                </div>
+              ) : null}
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setAlertsOpen(false);
+                  navigate({ to: "/surveillance" });
+                }}
+              >
+                Open surveillance
+              </Button>
+              <Button type="button" onClick={() => setAlertsOpen(false)}>
+                Done
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 }

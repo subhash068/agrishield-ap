@@ -461,9 +461,34 @@ export type FusionResponseOut = {
   abiotic_stress_score: number;
   biotic_stress_score: number;
   anomaly_deviation_score: number;
+  explanation?: string[] | null;
+  // added from backend fusion
+  fertilizer_recommendation?:
+    | {
+        crop: string;
+        fertilizer_name: string;
+        dosage_kg_per_acre: number;
+        dosage_kg_total: number;
+        timing: string;
+        application_method: string;
+        cost_rs_per_acre: number;
+        expected_yield_gain_percent: number;
+        confidence: number;
+        reason: string;
+        nutrient_deficiencies: Array<{
+          nutrient: string;
+          severity: "Low" | "Moderate" | "High";
+          probability: number;
+        }>;
+        nitrogen_deficiency_probability: number;
+        phosphate_deficiency_probability: number;
+        potassium_deficiency_probability: number;
+      }
+    | null;
   fusedRisk7Days: FusionRisk7Days;
   recommendation: FusionRecommendationOut;
 };
+
 
 export type FusionFuseInput = {
   fieldId: string;
@@ -498,77 +523,77 @@ export async function detectDisease(file: File): Promise<DiseaseDetectionRespons
 const MOCK_SUPPORT_CENTERS_FALLBACK: SupportCenter[] = [
   {
     id: "SC-RSK-WG-001",
-    name: "RSK Support Center - West Godavari",
+    name: "RSK Support Center - Bhimavaram",
     type: "RSK",
     district: "West Godavari",
-    mandal: "Eluru",
-    address: "Agriculture Resource Centre, Eluru Road, West Godavari",
+    mandal: "Bhimavaram",
+    address: "Agriculture Resource Centre, Bhimavaram Road, West Godavari",
     phone: "+91-90000-00011",
     hours: "10:00-17:30",
     distance_km: 3.2,
   },
   {
     id: "SC-ATMA-WG-002",
-    name: "ATMA Extension Unit - West Godavari",
+    name: "ATMA Extension Unit - Tanuku",
     type: "ATMA",
     district: "West Godavari",
-    mandal: "Kovvur",
-    address: "ATMA Extension Hub, Kovvur, West Godavari",
+    mandal: "Tanuku",
+    address: "ATMA Extension Hub, Tanuku, West Godavari",
     phone: "+91-90000-00012",
     hours: "09:30-16:30",
     distance_km: 7.8,
   },
   {
-    id: "SC-DEP-GNT-003",
-    name: "Agri Dept Helpdesk - Guntur",
+    id: "SC-DEP-WG-003",
+    name: "Agri Dept Helpdesk - Palakollu",
     type: "Department Helpdesk",
-    district: "Guntur",
-    mandal: "Guntur",
-    address: "Department of Agriculture Office, Guntur",
+    district: "West Godavari",
+    mandal: "Palakollu",
+    address: "Department of Agriculture Office, Palakollu, West Godavari",
     phone: "+91-90000-00021",
     hours: "10:30-18:00",
     distance_km: 12.5,
   },
   {
-    id: "SC-RSK-KNL-004",
-    name: "RSK Support Center - Kurnool",
+    id: "SC-RSK-WG-004",
+    name: "RSK Support Center - Narasapuram",
     type: "RSK",
-    district: "Kurnool",
-    mandal: "Adoni",
-    address: "Crop Advisory Center, Adoni, Kurnool",
+    district: "West Godavari",
+    mandal: "Narasapuram",
+    address: "Crop Advisory Center, Narasapuram, West Godavari",
     phone: "+91-90000-00031",
     hours: "10:00-17:30",
     distance_km: 9.4,
   },
   {
-    id: "SC-ATMA-KNL-005",
-    name: "ATMA Extension Unit - Kurnool",
+    id: "SC-ATMA-WG-005",
+    name: "ATMA Extension Unit - Tadepalligudem",
     type: "ATMA",
-    district: "Kurnool",
-    mandal: "Kowthalam",
-    address: "ATMA Extension Hub, Kowthalam, Kurnool",
+    district: "West Godavari",
+    mandal: "Tadepalligudem",
+    address: "ATMA Extension Hub, Tadepalligudem, West Godavari",
     phone: "+91-90000-00032",
     hours: "09:30-16:30",
     distance_km: 15.1,
   },
   {
-    id: "SC-RSK-ANP-006",
-    name: "RSK Support Center - Anantapur",
+    id: "SC-RSK-WG-006",
+    name: "RSK Support Center - Nidadavole",
     type: "RSK",
-    district: "Anantapur",
-    mandal: "Tadipatri",
-    address: "Agriculture Support Centre, Tadipatri, Anantapur",
+    district: "West Godavari",
+    mandal: "Nidadavole",
+    address: "Agriculture Support Centre, Nidadavole, West Godavari",
     phone: "+91-90000-00041",
     hours: "10:00-17:30",
     distance_km: 10.7,
   },
   {
-    id: "SC-DEP-SKL-007",
-    name: "Agri Dept Helpdesk - Srikakulam",
+    id: "SC-DEP-WG-007",
+    name: "Agri Dept Helpdesk - Kovvur",
     type: "Department Helpdesk",
-    district: "Srikakulam",
-    mandal: "Palasa",
-    address: "Department Helpdesk Office, Palasa, Srikakulam",
+    district: "West Godavari",
+    mandal: "Kovvur",
+    address: "Department Helpdesk Office, Kovvur, West Godavari",
     phone: "+91-90000-00051",
     hours: "10:30-18:00",
     distance_km: 18.6,

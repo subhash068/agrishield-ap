@@ -25,7 +25,9 @@ const navOps = [
   { title: "Mandal Surveillance",   url: "/mandal",            icon: ShieldAlert },
   { title: "AI Yield Dashboard",    url: "/yield-dashboard",   icon: Sparkles },
   { title: "AI Predictions",        url: "/predictions",       icon: Sparkles },
-  { title: "Reports & Analytics",   url: "/reports",           icon: FileBarChart2 },
+  // { title: "Reports & Analytics",   url: "/reports",           icon: FileBarChart2 },
+  { title: "All India Production",  url: "/india-production",  icon: FileBarChart2 },
+  { title: "AP Crop Analytics",     url: "/ap-production",     icon: FileBarChart2 },
   { title: "Government Dashboard",  url: "/government",        icon: Landmark },
   { title: "Settings",              url: "/settings",          icon: Settings },
 ];

@@ -17,7 +17,14 @@ import {
 import { useAppShell } from "@/components/app-shell-store";
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
-import { getDistrictRankings, getDistricts } from "@/lib/api";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getDistrictRankings, getDistricts, getParcels } from "@/lib/api";
 
 export const Route = createFileRoute("/mandal")({
   head: () => ({
@@ -38,41 +45,77 @@ function MandalPage() {
     queryKey: ["district-rankings"],
     queryFn: getDistrictRankings,
   });
+  const { selectedDistrict, setSelectedDistrict } = useAppShell();
   const { data: districts = [] } = useQuery({ queryKey: ["districts"], queryFn: getDistricts });
-  const { selectedDistrict } = useAppShell();
+
+  const { data: parcels = [] } = useQuery({ queryKey: ["parcels"], queryFn: getParcels });
 
   const mandalRanks = useMemo(() => {
-    const baseRanks = Array.from({ length: 18 }, (_, i) => ({
-      mandal: [
-        "Penukonda",
-        "Tadipatri",
-        "Madanapalle",
-        "Tenali",
-        "Gudivada",
-        "Adoni",
-        "Kavali",
-        "Ongole",
-        "Bapatla",
-        "Chirala",
-        "Markapur",
-        "Kanigiri",
-        "Atmakur",
-        "Rajampet",
-        "Pulivendula",
-        "Proddatur",
-        "Yemmiganur",
-        "Nandyal",
-      ][i],
-      district: districts[i % (districts.length || 1)] ?? "Unknown",
-      outbreaks: Math.floor(Math.random() * 80),
-      stress: +(40 + Math.random() * 55).toFixed(0),
-      trend: Math.random() > 0.5 ? 1 : -1,
-    })).sort((a, b) => b.outbreaks - a.outbreaks);
+    const uniqueMandals = Array.from(new Set(parcels.map((p) => p.mandal).filter(Boolean)));
+    
+    const baseMandals = uniqueMandals.length > 0 ? uniqueMandals : [
+      "Penukonda", "Tadipatri", "Madanapalle", "Tenali", "Gudivada", "Adoni", "Kavali", "Ongole"
+    ];
+
+    const baseRanks = baseMandals.map((mandalName, i) => {
+      const districtName = parcels.find(p => p.mandal === mandalName)?.district || (districts[i % (districts.length || 1)] ?? "Unknown");
+      return {
+        mandal: mandalName,
+        district: districtName,
+        outbreaks: Math.floor(Math.random() * 80),
+        stress: +(40 + Math.random() * 55).toFixed(0),
+        trend: Math.random() > 0.5 ? 1 : -1,
+      };
+    }).sort((a, b) => b.outbreaks - a.outbreaks);
 
     return selectedDistrict === "all"
       ? baseRanks
       : baseRanks.filter((row) => row.district === selectedDistrict);
-  }, [districts, selectedDistrict]);
+  }, [parcels, districts, selectedDistrict]);
+
+  const dynamicStats = useMemo(() => {
+    const mandalsCount = mandalRanks.length || 1;
+    const outbreaks = mandalRanks.reduce((sum, m) => sum + m.outbreaks, 0);
+    const rsks = mandalsCount * 15 + (outbreaks % 100);
+    const surveys = outbreaks * 26 + mandalsCount * 12;
+
+    return [
+      {
+        label: "Mandals Online",
+        value: `${mandalsCount} / ${mandalsCount}`,
+        sub: "APRTGS sync OK",
+        color: "text-success",
+      },
+      { label: "RSKs Reporting", value: rsks.toLocaleString("en-IN"), sub: "Real-time", color: "text-primary" },
+      {
+        label: "Outbreaks Active",
+        value: outbreaks.toLocaleString("en-IN"),
+        sub: `Across ${mandalsCount} mandals`,
+        color: "text-warning",
+      },
+      { label: "Surveys Today", value: surveys.toLocaleString("en-IN"), sub: "Field officers", color: "text-accent" },
+    ];
+  }, [mandalRanks]);
+
+  const dynamicRSKs = useMemo(() => {
+    const top = mandalRanks.slice(0, 4);
+    const officers = ["P. Subba Rao", "M. Kavitha", "K. Venkat", "S. Anil", "R. Krishna", "T. Lakshmi"];
+    
+    // Fallback if no mandals available
+    if (top.length === 0) {
+      return [
+        { name: "RSK Bhimavaram-1", officer: "P. Subba Rao", visits: 42, status: "Active" },
+        { name: "RSK Tanuku-2", officer: "M. Kavitha", visits: 38, status: "Active" },
+      ];
+    }
+
+    return top.map((m, i) => ({
+      name: `RSK ${m.mandal}-1`,
+      officer: officers[i % officers.length],
+      visits: 20 + (m.outbreaks % 30),
+      status: m.stress > 60 ? "Active" : "Low",
+    }));
+  }, [mandalRanks]);
 
   const tree = useMemo(
     () =>
@@ -95,24 +138,23 @@ function MandalPage() {
       />
 
       <div className="px-6 lg:px-10 py-6 space-y-6">
+        <div className="flex justify-end mb-4">
+          <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
+            <SelectTrigger className="w-[200px] h-9 bg-muted/20 border-border/60 text-xs">
+              <SelectValue placeholder="Filter by district" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Districts</SelectItem>
+              {districts.map(d => (
+                <SelectItem key={d} value={d}>{d}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* gov widgets */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {[
-            {
-              label: "Mandals Online",
-              value: "679 / 679",
-              sub: "APRTGS sync OK",
-              color: "text-success",
-            },
-            { label: "RSKs Reporting", value: "10,634", sub: "Real-time", color: "text-primary" },
-            {
-              label: "Outbreaks Active",
-              value: "318",
-              sub: "Across 47 mandals",
-              color: "text-warning",
-            },
-            { label: "Surveys Today", value: "8,420", sub: "Field officers", color: "text-accent" },
-          ].map((s) => (
+          {dynamicStats.map((s) => (
             <div key={s.label} className="glass rounded-xl p-4">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
                 {s.label}
@@ -131,18 +173,23 @@ function MandalPage() {
               Real-time ranking · live AI surveillance
             </p>
             <ResponsiveContainer width="100%" height={360}>
-              <BarChart data={mandalRanks} layout="vertical" margin={{ left: 60 }}>
+              <BarChart data={mandalRanks.slice(0, 15)} layout="vertical" margin={{ left: 60, bottom: 15 }}>
                 <CartesianGrid
                   stroke="oklch(0.32 0.04 200 / 30%)"
                   strokeDasharray="3 3"
                   horizontal={false}
                 />
-                <XAxis type="number" tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />
+                <XAxis 
+                  type="number" 
+                  tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} 
+                  label={{ value: 'Active Outbreaks', position: 'insideBottom', offset: -10, fill: 'oklch(0.5 0.03 200)', fontSize: 10 }}
+                />
                 <YAxis
                   type="category"
                   dataKey="mandal"
                   tick={{ fontSize: 10, fill: "oklch(0.9 0.02 180)" }}
                   width={80}
+                  interval={0}
                 />
                 <Tooltip
                   contentStyle={{
@@ -150,6 +197,7 @@ function MandalPage() {
                     border: "1px solid oklch(0.32 0.04 200)",
                     borderRadius: 8,
                   }}
+                  itemStyle={{ color: "oklch(0.9 0.02 180)" }}
                 />
                 <Bar dataKey="outbreaks" radius={[0, 6, 6, 0]}>
                   {mandalRanks.map((m, i) => (
@@ -188,12 +236,7 @@ function MandalPage() {
           <div className="glass rounded-xl p-5">
             <h3 className="font-semibold mb-3">RSK Monitoring</h3>
             <div className="space-y-2.5">
-              {[
-                { name: "RSK Vijayawada-3", officer: "P. Subba Rao", visits: 42, status: "Active" },
-                { name: "RSK Anantapur-1", officer: "M. Kavitha", visits: 38, status: "Active" },
-                { name: "RSK Tirupati-2", officer: "K. Venkat", visits: 12, status: "Low" },
-                { name: "RSK Kurnool-5", officer: "S. Anil", visits: 51, status: "Active" },
-              ].map((r) => (
+              {dynamicRSKs.map((r) => (
                 <div
                   key={r.name}
                   className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/20 p-3"

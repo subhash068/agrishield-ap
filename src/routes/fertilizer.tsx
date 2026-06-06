@@ -529,7 +529,7 @@ function FertilizerResult({ data }: { data: FertilizerRecoResponse }) {
             Application Timeline
           </h3>
           <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary">
-            {data.growth_stage ?? "Full season"}
+            {"Full season"}
           </Badge>
         </div>
 

@@ -503,33 +503,33 @@ function FarmerScanPage() {
                       </div>
                     </div>
 
-                    {scanResult.fertilizer_recommendation ? (
+                    {fusionResult?.fertilizer_recommendation ? (
                       <div className="rounded-2xl border border-border/60 bg-background/50 p-4">
                         <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Fertilizer Recommendation</p>
                         <div className="mt-3 space-y-2">
                           <div className="rounded-xl border border-success/30 bg-success/10 p-3">
                             <div className="flex items-start justify-between gap-2">
                               <div>
-                                <p className="text-sm font-semibold">{scanResult.fertilizer_recommendation.fertilizer_name}</p>
+                                <p className="text-sm font-semibold">{fusionResult.fertilizer_recommendation.fertilizer_name}</p>
                                 <p className="text-xs text-muted-foreground mt-0.5">
-                                  For crop: {scanResult.fertilizer_recommendation.crop}
+                                  For crop: {fusionResult.fertilizer_recommendation.crop}
                                 </p>
                               </div>
                               <Badge className="bg-success/20 text-success border-success/40 shrink-0">
-                                {scanResult.fertilizer_recommendation.confidence}% conf
+                                {fusionResult.fertilizer_recommendation.confidence}% conf
                               </Badge>
                             </div>
                             <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
                               <div className="rounded-lg bg-background/60 px-2 py-1.5">
                                 <p className="text-muted-foreground">Dosage</p>
-                                <p className="font-medium">{scanResult.fertilizer_recommendation.dosage_kg_per_acre} kg/acre</p>
+                                <p className="font-medium">{fusionResult.fertilizer_recommendation.dosage_kg_per_acre} kg/acre</p>
                               </div>
                               <div className="rounded-lg bg-background/60 px-2 py-1.5">
                                 <p className="text-muted-foreground">N Deficit Prob</p>
-                                <p className="font-medium">{(scanResult.fertilizer_recommendation.nitrogen_deficiency_probability * 100).toFixed(1)}%</p>
+                                <p className="font-medium">{(fusionResult.fertilizer_recommendation.nitrogen_deficiency_probability * 100).toFixed(1)}%</p>
                               </div>
                             </div>
-                            <p className="mt-2 text-xs text-muted-foreground">{scanResult.fertilizer_recommendation.reason}</p>
+                            <p className="mt-2 text-xs text-muted-foreground">{fusionResult.fertilizer_recommendation.reason}</p>
                           </div>
                         </div>
                       </div>

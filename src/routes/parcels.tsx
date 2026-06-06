@@ -93,7 +93,7 @@ function ParcelsPage() {
 
     return {
       filteredCount: searchFiltered.length,
-      filtered: searchFiltered.slice(0, 80),
+      filtered: searchFiltered,
     };
   }, [parcels, searchTerm, selectedDistrict]);
 
@@ -108,6 +108,28 @@ function ParcelsPage() {
     if (!isClient && !selectedId) return null; // keep SSR stable until client mounts
     return filtered.find((parcel) => parcel.id === selectedId) ?? filtered[0];
   }, [filtered, selectedId, isClient]);
+
+  const dynamicSpectralTrend = useMemo(() => {
+    if (!selected || !spectralTrend.length) return spectralTrend;
+    const scale = (selected.ndvi || 0.5) / 0.73;
+    return spectralTrend.map((pt) => ({
+      ...pt,
+      ndvi: Number(Math.max(0.1, Math.min(1.0, pt.ndvi * scale)).toFixed(2)),
+    }));
+  }, [selected, spectralTrend]);
+
+  const dynamicWeatherForecast = useMemo(() => {
+    if (!selected || !weatherForecast.length) return weatherForecast;
+    const idHash = parseInt(selected.id.replace(/\D/g, "") || "0", 10);
+    const rainOffset = (idHash % 10) - 5;
+    const tempOffset = (idHash % 6) - 3;
+    
+    return weatherForecast.map((pt) => ({
+      ...pt,
+      rainfall: Number(Math.max(0, pt.rainfall + rainOffset).toFixed(1)),
+      temp: Number((pt.temp + tempOffset).toFixed(1)),
+    }));
+  }, [selected, weatherForecast]);
 
   return (
     <div>
@@ -223,7 +245,7 @@ function ParcelsPage() {
             <div className="glass rounded-xl p-5">
               <h3 className="font-semibold text-sm mb-2">Spectral growth timeline</h3>
               <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={spectralTrend}>
+                <AreaChart data={dynamicSpectralTrend}>
                   <defs>
                     <linearGradient id="pg" x1="0" x2="0" y1="0" y2="1">
                       <stop offset="0%" stopColor="oklch(0.78 0.19 145)" stopOpacity={0.5} />
@@ -254,11 +276,16 @@ function ParcelsPage() {
             <div className="glass rounded-xl p-5">
               <h3 className="font-semibold text-sm mb-2">Weather correlation · next 14d</h3>
               <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={weatherForecast}>
+                <LineChart data={dynamicWeatherForecast}>
                   <CartesianGrid stroke="oklch(0.32 0.04 200 / 30%)" strokeDasharray="3 3" />
                   <XAxis dataKey="day" tick={{ fontSize: 9, fill: "oklch(0.68 0.03 200)" }} />
                   <YAxis tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />
                   <Tooltip
+                    formatter={(value: number, name: string) => {
+                      if (name === "rainfall") return [`${value} mm`, "Rainfall"];
+                      if (name === "temp") return [`${value}°C`, "Temperature"];
+                      return [value, name];
+                    }}
                     contentStyle={{
                       background: "oklch(0.21 0.04 200)",
                       border: "1px solid oklch(0.32 0.04 200)",
