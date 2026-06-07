@@ -1,8 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
-import os
-import csv
 
 Risk = Literal["Low", "Medium", "High"]
 SoilHealth = Literal["Poor", "Moderate", "Good"]
@@ -482,31 +480,6 @@ def recommend_fertilizer_poc(inp: FertilizerRecoHeuristicInput) -> dict:
 
     cost_per_acre = round(dosage_per_acre * product.cost_rs_per_kg, 0)
 
-    # --- CSV Override ---
-    csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "public", "data", "AI_Crop_Disease_Fertilizer_Dataset.csv")
-    csv_fertilizer_name = product.label
-    csv_reason = reason
-    if os.path.exists(csv_path):
-        matches = []
-        with open(csv_path, encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                c = row.get("crop_name", "").lower()
-                if crop_key in c or c in crop_key:
-                    matches.append(row)
-        
-        if matches:
-            # Pick a match (e.g. first one, or second if High risk for variety)
-            match = matches[1] if inp.disease_risk == "High" and len(matches) > 1 else matches[0]
-            csv_fertilizer_name = match.get("recommended_fertilizer", product.label)
-            try:
-                dosage_per_acre = float(match.get("dosage_per_acre_kg", dosage_per_acre))
-            except:
-                pass
-            method = match.get("application_method", method)
-            disease = match.get("disease_name", "disease")
-            csv_reason = f"AI Dataset Recommendation: Specifically optimal for {crop_meta.name} to prevent/treat {disease} under current risk profiles."
-
     nutrient_balance = (1.0 - n_prob) * 0.4 + (1.0 - p_prob) * 0.3 + (1.0 - k_prob) * 0.3
     yield_gain_pct = round(crop_meta.yield_gain_factor * 100 * nutrient_balance * (1.0 + n_prob * 0.3), 2)
 
@@ -520,7 +493,7 @@ def recommend_fertilizer_poc(inp: FertilizerRecoHeuristicInput) -> dict:
 
     return {
         "crop": crop_meta.name,
-        "fertilizer_name": csv_fertilizer_name,
+        "fertilizer_name": product.label,
         "dosage_kg_per_acre": dosage_per_acre,
         "dosage_kg_total": dosage_per_acre,
         "timing": timing_label,
@@ -528,7 +501,7 @@ def recommend_fertilizer_poc(inp: FertilizerRecoHeuristicInput) -> dict:
         "cost_rs_per_acre": cost_per_acre,
         "expected_yield_gain_percent": yield_gain_pct,
         "confidence": conf,
-        "reason": csv_reason,
+        "reason": reason,
         "nutrient_deficiencies": nutrient_deficiencies,
         "nitrogen_deficiency_probability": round(n_prob, 3),
         "phosphate_deficiency_probability": round(p_prob, 3),

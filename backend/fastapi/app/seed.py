@@ -13,6 +13,7 @@ def seed_from_mock(db: Session):
     db.query(models.WeatherForecast).delete()
     db.query(models.Parcel).delete()
     db.query(models.Prediction).delete()
+    db.query(models.FertilizerRecommendation).delete()
     db.commit()
 
     # Seed only tables that exist in the provided SQL schema.
@@ -103,5 +104,28 @@ def seed_from_mock(db: Session):
     ]
     for p in predictions:
         db.add(models.Prediction(**p))
+
+    # Seed Fertilizer Recommendations
+    fert_csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "public", "data", "AI_Crop_Disease_Fertilizer_Dataset.csv")
+    if os.path.exists(fert_csv_path):
+        with open(fert_csv_path, mode="r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                db.add(
+                    models.FertilizerRecommendation(
+                        crop_name=row.get("crop_name", ""),
+                        disease_name=row.get("disease_name", ""),
+                        recommended_fertilizer=row.get("recommended_fertilizer", ""),
+                        fertilizer_type=row.get("fertilizer_type", ""),
+                        npk_ratio=row.get("npk_ratio", ""),
+                        dosage_per_acre_kg=float(row.get("dosage_per_acre_kg", 0)),
+                        application_method=row.get("application_method", ""),
+                        application_stage=row.get("application_stage", ""),
+                        soil_type=row.get("soil_type", ""),
+                        season=row.get("season", ""),
+                        expected_recovery_percent=float(row.get("expected_recovery_percent", 0)),
+                        soil_ph=float(row.get("soil_ph", 0))
+                    )
+                )
 
     db.commit()

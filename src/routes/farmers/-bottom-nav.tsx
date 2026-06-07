@@ -15,10 +15,8 @@ export function FarmerBottomNav() {
   const mobile = useIsMobile();
   const path = useRouterState({ select: (r) => r.location.pathname });
 
-  if (!mobile) return null;
-
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border/60 bg-background/80 backdrop-blur">
+    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-40 border-t border-border/60 bg-background/80 backdrop-blur">
       <div className="grid grid-cols-6">
         {nav.map((item) => {
           const active = path === item.url || path.startsWith(item.url);

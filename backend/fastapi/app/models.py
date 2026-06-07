@@ -158,3 +158,26 @@ class DiseaseDetection(Base):
     updated_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     __table_args__ = (CheckConstraint(f"severity IN {SEVERITIES}", name="disease_detections_severity_valid"),)
+
+
+class FertilizerRecommendation(Base):
+    __tablename__ = "fertilizer_recommendations"
+
+    id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+
+    crop_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    disease_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    recommended_fertilizer: Mapped[str] = mapped_column(String(255), nullable=False)
+    fertilizer_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    npk_ratio: Mapped[str] = mapped_column(String(50), nullable=False)
+    dosage_per_acre_kg: Mapped[float] = mapped_column(Float, nullable=False)
+    application_method: Mapped[str] = mapped_column(String(255), nullable=False)
+    application_stage: Mapped[str] = mapped_column(String(255), nullable=False)
+    soil_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    season: Mapped[str] = mapped_column(String(100), nullable=False)
+    expected_recovery_percent: Mapped[float] = mapped_column(Float, nullable=False)
+    soil_ph: Mapped[float] = mapped_column(Float, nullable=False)
+
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+

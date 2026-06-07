@@ -93,11 +93,12 @@ export function FarmerAppShell() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)]">
-      <div className="px-4 pt-4 pb-24 max-w-xl mx-auto">
-        <Outlet />
+    <div className="min-h-[calc(100vh-3.5rem)] bg-muted/10">
+      <div className="max-w-[430px] mx-auto min-h-[calc(100vh-3.5rem)] bg-background shadow-2xl relative border-x border-border/50">
+        <div className="px-4 pt-4 pb-24">
+          <Outlet />
 
-        <div className="mt-4 rounded-2xl border border-border/60 bg-background/50 p-4">
+          <div className="mt-4 rounded-2xl border border-border/60 bg-background/50 p-4">
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t.title}</div>
@@ -137,9 +138,10 @@ export function FarmerAppShell() {
             </div>
           </div>
         </div>
+        </div>
+        
+        <FarmerBottomNav />
       </div>
-
-      {mobile ? <FarmerBottomNav /> : <div className="h-4" />}
     </div>
   );
 }

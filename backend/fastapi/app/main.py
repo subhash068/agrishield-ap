@@ -1749,31 +1749,6 @@ def _load_surveillance_csv():
             
     return district_agg, crop_counts, disease_counts
 
-@lru_cache(maxsize=1)
-def _load_fertilizer_csv():
-    csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "public", "data", "AI_Crop_Disease_Fertilizer_Dataset.csv")
-    fertilizers = {}
-    if os.path.exists(csv_path):
-        with open(csv_path, encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                crop = row.get('crop_name', '').strip().lower()
-                disease = row.get('disease_name', '').strip().lower()
-                
-                crop = crop.replace("paddy (rice)", "rice").replace("paddy", "rice")
-                disease = disease.replace(" disease", "").replace(" virus", "")
-                
-                fert_obj = {
-                    "fertilizer": row.get('recommended_fertilizer', ''),
-                    "dosage": str(row.get('dosage_per_acre_kg', '')) + " kg/acre",
-                    "method": row.get('application_method', '')
-                }
-                
-                fertilizers[f"{crop}_{disease}"] = fert_obj
-                if disease not in fertilizers:
-                    fertilizers[disease] = fert_obj
-    return fertilizers
-
 @app.get("/surveillance/data", response_model=SurveillanceDataOut)
 def get_surveillance_data(db: Session = Depends(get_db)):
     # Calculate district statistics for lat/lng
@@ -1797,6 +1772,20 @@ def get_surveillance_data(db: Session = Depends(get_db)):
     district_results = []
     db_districts = {d["district"]: d for d in districts_data}
     csv_districts, csv_crops, csv_diseases = _load_surveillance_csv()
+    
+    fert_recs = db.query(models.FertilizerRecommendation).all()
+    fert_data = {}
+    for row in fert_recs:
+        crop = row.crop_name.strip().lower().replace("paddy (rice)", "rice").replace("paddy", "rice")
+        disease = row.disease_name.strip().lower().replace(" disease", "").replace(" virus", "")
+        fert_obj = {
+            "fertilizer": row.recommended_fertilizer,
+            "dosage": f"{row.dosage_per_acre_kg} kg/acre",
+            "method": row.application_method
+        }
+        fert_data[f"{crop}_{disease}"] = fert_obj
+        if disease not in fert_data:
+            fert_data[disease] = fert_obj
 
     for district in ALL_DISTRICTS:
         d = db_districts.get(district, {
@@ -1847,9 +1836,7 @@ def get_surveillance_data(db: Session = Depends(get_db)):
         
         treatment = None
         if top_crop and top_disease:
-            fert_data = _load_fertilizer_csv()
             key_exact = f"{top_crop}_{top_disease}"
-            
             if key_exact in fert_data:
                 treatment = fert_data[key_exact]
             elif top_disease in fert_data:
@@ -2368,7 +2355,7 @@ def recommend_crop(inp: CropRecoInput) -> CropRecoOut:
 
 
 @app.post("/recommend/fertilizer", response_model=FertilizerRecoOut)
-def recommend_fertilizer(inp: FertilizerRecoInput) -> FertilizerRecoOut:
+def recommend_fertilizer(inp: FertilizerRecoInput, db: Session = Depends(get_db)) -> FertilizerRecoOut:
     """
     Recommend fertilizer based on satellite stress proxies, soil health, growth stage, and weather.
 
@@ -2388,21 +2375,39 @@ def recommend_fertilizer(inp: FertilizerRecoInput) -> FertilizerRecoOut:
     try:
         heuristic_inp = FertilizerRecoHeuristicInput(
             crop=inp.crop,
-            soil_health=inp.soil_health,
-            growth_stage=inp.growth_stage,
             weather_rainfall_mm=inp.weather_rainfall_mm,
             satellite_unified_health_index_pct=inp.satellite_unified_health_index_pct,
             satellite_abiotic_stress_score_pct=inp.satellite_abiotic_stress_score_pct,
             satellite_soil_moisture_score_pct=inp.satellite_soil_moisture_score_pct,
             disease_risk=inp.disease_risk,
             pest_risk=inp.pest_risk,
+            soil_health=inp.soil_health,
+            growth_stage=inp.growth_stage,
         )
         result = recommend_fertilizer_poc(heuristic_inp)
+        
+        # Override with DB data
+        crop_name = (inp.crop or "paddy").strip().lower()
+        matches = db.query(models.FertilizerRecommendation).filter(
+            models.FertilizerRecommendation.crop_name.ilike(f"%{crop_name}%")
+        ).all()
+        
+        if matches:
+            match = matches[1] if inp.disease_risk == "High" and len(matches) > 1 else matches[0]
+            result["fertilizer_name"] = match.recommended_fertilizer
+            result["dosage_kg_per_acre"] = match.dosage_per_acre_kg
+            result["dosage_kg_total"] = match.dosage_per_acre_kg
+            result["application_method"] = match.application_method
+            result["reason"] = f"DB Recommendation: Specifically optimal for {match.crop_name} to treat {match.disease_name} under current risk profiles."
+            
+            # Recalculate cost based on new DB dosage (assuming avg ₹35 per kg for standard fertilizers)
+            result["cost_rs_per_acre"] = round(match.dosage_per_acre_kg * 35, 0)
+
         return FertilizerRecoOut(**result)
     except Exception as e:
         import logging
+        from fastapi.responses import JSONResponse
         logging.exception("Error in recommend_fertilizer", exc_info=e)
-        from fastapi import Response
         resp = JSONResponse(status_code=500, content={"detail": f"Fertilizer recommendation error: {e}"})
         resp.headers["Access-Control-Allow-Origin"] = "*"
         resp.headers["Access-Control-Allow-Methods"] = "*"

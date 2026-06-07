@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { Megaphone, Leaf, ShieldCheck, Droplets } from "lucide-react";
+import { Megaphone, Leaf, ShieldCheck, Droplets, FlaskConical } from "lucide-react";
 
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,9 @@ import { Card } from "@/components/ui/card";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { getFarmerSession } from "@/lib/farmer-auth";
+import { useQuery } from "@tanstack/react-query";
+import { getFertilizerRecommendation } from "@/lib/api";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/farmers/advisory")({
   head: () => ({
@@ -29,6 +32,22 @@ function FarmerAdvisoryPage() {
   const navigate = useNavigate();
   const session = getFarmerSession();
   const profile = session?.profile;
+
+  const { data: fertReco, isLoading } = useQuery({
+    queryKey: ["fertilizer-reco", profile?.cropType],
+    queryFn: () => getFertilizerRecommendation({
+      crop: profile?.cropType,
+      soil_health: "Moderate",
+      growth_stage: "Vegetative",
+      weather_rainfall_mm: 50,
+      satellite_unified_health_index_pct: 65,
+      satellite_abiotic_stress_score_pct: 40,
+      satellite_soil_moisture_score_pct: 55,
+      disease_risk: "High",
+      pest_risk: "Medium",
+    }),
+    enabled: !!profile,
+  });
 
   const items = useMemo<AdvisoryItem[]>(() => {
     if (!profile) return [];
@@ -125,6 +144,52 @@ function FarmerAdvisoryPage() {
             Crop: <span className="font-semibold text-foreground">{profile.cropType}</span>. Follow the advisory steps and update field observations in Reports.
           </div>
         </Card>
+
+        {isLoading && (
+          <Card className="p-4 rounded-2xl bg-background/50 border-border/60">
+             <Skeleton className="h-6 w-1/2 mb-3" />
+             <Skeleton className="h-4 w-full mb-2" />
+             <Skeleton className="h-4 w-3/4" />
+          </Card>
+        )}
+
+        {fertReco && (
+          <Card className="p-4 rounded-2xl bg-background/50 border-border/60 overflow-hidden relative">
+            <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+              <FlaskConical className="w-24 h-24" />
+            </div>
+            
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-1.5 rounded-md bg-primary/10 text-primary">
+                <FlaskConical className="h-4 w-4" />
+              </div>
+              <div className="font-semibold text-base">AI Fertilizer Plan</div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="rounded-xl border border-border/60 bg-background p-3">
+                 <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 font-semibold">Recommended</div>
+                 <div className="font-medium text-sm text-foreground">{fertReco.fertilizer_name}</div>
+              </div>
+              <div className="rounded-xl border border-border/60 bg-background p-3">
+                 <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 font-semibold">Dosage</div>
+                 <div className="font-semibold text-sm text-primary">{fertReco.dosage_kg_per_acre} kg/acre</div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border/60 bg-background p-3 mb-4 flex items-center justify-between">
+              <div>
+                <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 font-semibold">Timing & Method</div>
+                <div className="font-medium text-xs text-foreground">{fertReco.timing}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">{fertReco.application_method}</div>
+              </div>
+            </div>
+
+            <div className="text-xs text-muted-foreground leading-5 bg-muted/30 p-3 rounded-xl border border-border/40">
+              <span className="font-medium text-foreground">Scientific Basis:</span> {fertReco.reason}
+            </div>
+          </Card>
+        )}
       </div>
     </div>
   );
