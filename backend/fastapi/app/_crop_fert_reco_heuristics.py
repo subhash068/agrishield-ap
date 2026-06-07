@@ -7,7 +7,7 @@ SoilHealth = Literal["Poor", "Moderate", "Good"]
 GrowthStage = Literal["Vegetative", "Flowering", "Grain Filling", "Maturity"]
 
 # Supported crops
-SUPPORTED_CROPS = {"paddy", "cotton", "groundnut", "red gram"}
+SUPPORTED_CROPS = {"paddy", "cotton", "groundnut", "red gram", "chilli", "maize", "tomato", "sugarcane", "soybean", "mustard", "potato", "wheat", "sunflower", "apple", "grape", "pepper", "brinjal", "pea", "guava", "pumpkin", "mango"}
 
 
 @dataclass(frozen=True)
@@ -78,6 +78,37 @@ CROP_METADATA: dict[str, CropMeta] = {
         base_yield_t_ha=1.5,
         yield_gain_factor=0.038,
     ),
+    "chilli": CropMeta(
+        name="Chilli",
+        n_requirement_kg_ha=120.0,
+        p_requirement_kg_ha=60.0,
+        k_requirement_kg_ha=60.0,
+        base_yield_t_ha=2.5,
+        yield_gain_factor=0.05,
+    ),
+    "maize": CropMeta(
+        name="Maize",
+        n_requirement_kg_ha=150.0,
+        p_requirement_kg_ha=60.0,
+        k_requirement_kg_ha=60.0,
+        base_yield_t_ha=5.0,
+        yield_gain_factor=0.04,
+    ),
+    "tomato": CropMeta(name="Tomato", n_requirement_kg_ha=120.0, p_requirement_kg_ha=60.0, k_requirement_kg_ha=60.0, base_yield_t_ha=20.0, yield_gain_factor=0.06),
+    "sugarcane": CropMeta(name="Sugarcane", n_requirement_kg_ha=250.0, p_requirement_kg_ha=100.0, k_requirement_kg_ha=100.0, base_yield_t_ha=80.0, yield_gain_factor=0.03),
+    "soybean": CropMeta(name="Soybean", n_requirement_kg_ha=30.0, p_requirement_kg_ha=60.0, k_requirement_kg_ha=40.0, base_yield_t_ha=2.5, yield_gain_factor=0.04),
+    "mustard": CropMeta(name="Mustard", n_requirement_kg_ha=80.0, p_requirement_kg_ha=40.0, k_requirement_kg_ha=40.0, base_yield_t_ha=1.5, yield_gain_factor=0.035),
+    "potato": CropMeta(name="Potato", n_requirement_kg_ha=150.0, p_requirement_kg_ha=80.0, k_requirement_kg_ha=100.0, base_yield_t_ha=20.0, yield_gain_factor=0.04),
+    "wheat": CropMeta(name="Wheat", n_requirement_kg_ha=120.0, p_requirement_kg_ha=60.0, k_requirement_kg_ha=40.0, base_yield_t_ha=3.5, yield_gain_factor=0.04),
+    "sunflower": CropMeta(name="Sunflower", n_requirement_kg_ha=80.0, p_requirement_kg_ha=40.0, k_requirement_kg_ha=40.0, base_yield_t_ha=1.8, yield_gain_factor=0.038),
+    "apple": CropMeta(name="Apple", n_requirement_kg_ha=100.0, p_requirement_kg_ha=50.0, k_requirement_kg_ha=100.0, base_yield_t_ha=15.0, yield_gain_factor=0.04),
+    "grape": CropMeta(name="Grape", n_requirement_kg_ha=80.0, p_requirement_kg_ha=40.0, k_requirement_kg_ha=80.0, base_yield_t_ha=10.0, yield_gain_factor=0.04),
+    "pepper": CropMeta(name="Pepper", n_requirement_kg_ha=100.0, p_requirement_kg_ha=50.0, k_requirement_kg_ha=50.0, base_yield_t_ha=1.5, yield_gain_factor=0.05),
+    "brinjal": CropMeta(name="Brinjal", n_requirement_kg_ha=100.0, p_requirement_kg_ha=50.0, k_requirement_kg_ha=50.0, base_yield_t_ha=20.0, yield_gain_factor=0.05),
+    "pea": CropMeta(name="Pea", n_requirement_kg_ha=20.0, p_requirement_kg_ha=40.0, k_requirement_kg_ha=20.0, base_yield_t_ha=1.5, yield_gain_factor=0.04),
+    "guava": CropMeta(name="Guava", n_requirement_kg_ha=80.0, p_requirement_kg_ha=40.0, k_requirement_kg_ha=80.0, base_yield_t_ha=15.0, yield_gain_factor=0.04),
+    "pumpkin": CropMeta(name="Pumpkin", n_requirement_kg_ha=80.0, p_requirement_kg_ha=40.0, k_requirement_kg_ha=60.0, base_yield_t_ha=15.0, yield_gain_factor=0.04),
+    "mango": CropMeta(name="Mango", n_requirement_kg_ha=100.0, p_requirement_kg_ha=50.0, k_requirement_kg_ha=100.0, base_yield_t_ha=10.0, yield_gain_factor=0.04),
 }
 
 # ── Fertilizer products ────────────────────────────────────────────────────────
@@ -128,6 +159,108 @@ TIMING_SCHEDULES: dict[str, dict[GrowthStage, tuple[str, str]]] = {
         "Flowering": ("First flowering (40-45 DAS)", "Side-dressing"),
         "Grain Filling": ("Pod development (60-70 DAS)", "Foliar spray"),
         "Maturity": ("Pod maturity stage", "Not recommended"),
+    },
+    "chilli": {
+        "Vegetative": ("Basal + 30 DAT", "Band placement"),
+        "Flowering": ("First flowering (45-50 DAT)", "Side-dressing"),
+        "Grain Filling": ("Fruit development (60-80 DAT)", "Foliar spray"),
+        "Maturity": ("Harvest stage", "Not recommended"),
+    },
+    "maize": {
+        "Vegetative": ("Knee high stage (30 DAS)", "Side-dressing"),
+        "Flowering": ("Tasseling (50-55 DAS)", "Broadcast"),
+        "Grain Filling": ("Silking/Grain filling (65-75 DAS)", "Foliar spray"),
+        "Maturity": ("Maturity stage", "Not recommended"),
+    },
+    "tomato": {
+        "Vegetative": ("Basal + 20 DAT", "Band placement"),
+        "Flowering": ("Early flowering (30-40 DAT)", "Side-dressing"),
+        "Grain Filling": ("Fruit setting (50-60 DAT)", "Foliar spray"),
+        "Maturity": ("Harvest stage", "Not recommended"),
+    },
+    "sugarcane": {
+        "Vegetative": ("Basal + 45 DAS", "Band placement"),
+        "Flowering": ("Tillering (90-120 DAS)", "Side-dressing"),
+        "Grain Filling": ("Grand growth (150-180 DAS)", "Foliar spray"),
+        "Maturity": ("Maturity stage", "Not recommended"),
+    },
+    "soybean": {
+        "Vegetative": ("Basal", "Band placement"),
+        "Flowering": ("Pre-flowering (35-40 DAS)", "Foliar spray"),
+        "Grain Filling": ("Pod filling (55-65 DAS)", "Foliar spray"),
+        "Maturity": ("Maturity stage", "Not recommended"),
+    },
+    "mustard": {
+        "Vegetative": ("Basal + 25 DAS", "Band placement"),
+        "Flowering": ("Pre-flowering (40-45 DAS)", "Side-dressing"),
+        "Grain Filling": ("Siliqua formation (60-70 DAS)", "Foliar spray"),
+        "Maturity": ("Maturity stage", "Not recommended"),
+    },
+    "potato": {
+        "Vegetative": ("Basal + 25 DAS", "Band placement"),
+        "Flowering": ("Tuber initiation (40-45 DAS)", "Side-dressing"),
+        "Grain Filling": ("Tuber bulking (60-70 DAS)", "Foliar spray"),
+        "Maturity": ("Maturity stage", "Not recommended"),
+    },
+    "wheat": {
+        "Vegetative": ("Basal + 21 DAS (CRI stage)", "Top dressing"),
+        "Flowering": ("Late jointing / Booting (60-65 DAS)", "Top dressing"),
+        "Grain Filling": ("Milking stage (80-85 DAS)", "Foliar spray"),
+        "Maturity": ("Maturity stage", "Not recommended"),
+    },
+    "sunflower": {
+        "Vegetative": ("Basal + 30 DAS", "Band placement"),
+        "Flowering": ("Star bud stage (40-45 DAS)", "Side-dressing"),
+        "Grain Filling": ("Seed filling (60-70 DAS)", "Foliar spray"),
+        "Maturity": ("Maturity stage", "Not recommended"),
+    },
+    "apple": {
+        "Vegetative": ("Spring / Bud break", "Soil application"),
+        "Flowering": ("Petal fall", "Foliar spray"),
+        "Grain Filling": ("Fruit development", "Foliar spray"),
+        "Maturity": ("Pre-harvest", "Not recommended"),
+    },
+    "grape": {
+        "Vegetative": ("Bud burst", "Soil application"),
+        "Flowering": ("Pre-bloom", "Foliar spray"),
+        "Grain Filling": ("Berry development", "Foliar spray"),
+        "Maturity": ("Veraison / Ripening", "Not recommended"),
+    },
+    "pepper": {
+        "Vegetative": ("Basal + 30 DAT", "Band placement"),
+        "Flowering": ("First flowering (45-50 DAT)", "Side-dressing"),
+        "Grain Filling": ("Fruit development (60-80 DAT)", "Foliar spray"),
+        "Maturity": ("Harvest stage", "Not recommended"),
+    },
+    "brinjal": {
+        "Vegetative": ("Basal + 30 DAT", "Band placement"),
+        "Flowering": ("First flowering (45-50 DAT)", "Side-dressing"),
+        "Grain Filling": ("Fruit development (60-80 DAT)", "Foliar spray"),
+        "Maturity": ("Harvest stage", "Not recommended"),
+    },
+    "pea": {
+        "Vegetative": ("Basal", "Band placement"),
+        "Flowering": ("First flowering (35-40 DAS)", "Foliar spray"),
+        "Grain Filling": ("Pod filling (50-60 DAS)", "Foliar spray"),
+        "Maturity": ("Maturity stage", "Not recommended"),
+    },
+    "guava": {
+        "Vegetative": ("Pre-monsoon", "Soil application"),
+        "Flowering": ("Flowering stage", "Foliar spray"),
+        "Grain Filling": ("Fruit development", "Foliar spray"),
+        "Maturity": ("Ripening", "Not recommended"),
+    },
+    "pumpkin": {
+        "Vegetative": ("Basal + 20 DAS", "Band placement"),
+        "Flowering": ("Vining / Flowering (35-40 DAS)", "Side-dressing"),
+        "Grain Filling": ("Fruit development (50-60 DAS)", "Foliar spray"),
+        "Maturity": ("Maturity stage", "Not recommended"),
+    },
+    "mango": {
+        "Vegetative": ("Post-harvest / Pre-monsoon", "Soil application"),
+        "Flowering": ("Pre-bloom (Panicle emergence)", "Foliar spray"),
+        "Grain Filling": ("Fruit set (Pea/Marble stage)", "Foliar spray"),
+        "Maturity": ("Maturation", "Not recommended"),
     },
 }
 
