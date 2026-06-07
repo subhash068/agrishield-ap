@@ -219,13 +219,14 @@ export function SatelliteMap({
 
   const [imageryFallback, setImageryFallback] = useState(false);
 
+  const parcelsGeoJsonRef = useRef<L.GeoJSON>(null);
+
   const parcelsWithBand = useMemo(() => {
-    return parcels.map((parcel, index) => {
+    return parcels.map((parcel) => {
       const healthBand = parcel.health >= 75 ? "healthy" : parcel.health >= 60 ? "moderate" : "warning";
-      const motion = Math.sin((historic + parcel.lat) * 0.45 + index * 0.17) * 0.015;
-      return { ...parcel, healthBand, displayMotion: motion };
+      return { ...parcel, healthBand };
     });
-  }, [historic, parcels]);
+  }, [parcels]);
 
   const layerScale = (parcel: (typeof parcelsWithBand)[number]) => {
     return scoreForLayer(parcel, activeLayer);
@@ -236,7 +237,7 @@ export function SatelliteMap({
     const palette = paletteForLayer(activeLayer);
     const selected = selectedParcelId === parcel.id;
     const layerColor = colorForScore(activeLayer, scale);
-    const historyBias = parcel.displayMotion ?? 0;
+    const historyBias = Math.sin((historic + parcel.lat) * 0.45 + parcel.lng * 100 * 0.17) * 0.015;
 
     return {
       color: selected ? palette.glow : layerColor,
@@ -245,6 +246,12 @@ export function SatelliteMap({
       weight: selected ? 2.7 : 1.25,
     };
   };
+
+  useEffect(() => {
+    if (parcelsGeoJsonRef.current) {
+      parcelsGeoJsonRef.current.setStyle((feature: any) => styleFor(feature.properties));
+    }
+  }, [historic, activeLayer, selectedParcelId]);
 
   const selectedParcel = parcelsWithBand.find((parcel) => parcel.id === selectedParcelId) ?? null;
 
@@ -475,73 +482,61 @@ const isSelectedVillage =
 
 
       <Pane name="parcels" style={{ zIndex: 450 }}>
-        {parcelsWithBand.map((parcel) => {
-          const positions = geometryToLeafletPositions(parcel);
-          const canRenderPolygon = positions.length > 2;
-
-          const clickHandler = () => onSelectParcel(parcel.id);
-
-          if (!canRenderPolygon) {
-            return (
-              <CircleMarker
-                key={`${parcel.id}-fallback`}
-                center={[parcel.lat, parcel.lng]}
-                radius={0.5}
-                pathOptions={{
-                  color: paletteForLayer(activeLayer).glow,
-                  fillColor: paletteForLayer(activeLayer).glow,
-                  fillOpacity: 0,
-                  weight: 0,
-                }}
-                eventHandlers={{
-                  click: clickHandler,
-                }}
-              >
-                <Tooltip direction="top" offset={[0, -6]} opacity={1} sticky={false}>
-                  <div className="text-[11px] space-y-0.5 pointer-events-none">
-                    <div className="font-semibold">
-                      {parcel.id} · {parcel.crop}
-                    </div>
-                    <div>
-                      {parcel.risk} risk · Health {parcel.health}%
-                    </div>
-                    <div className="text-[10px] text-muted-foreground mt-1 pt-1 border-t border-border/40">
-                      {parcel.district} &gt; {parcel.mandal} &gt; {parcel.village}
-                    </div>
-                  </div>
-                </Tooltip>
-              </CircleMarker>
-            );
-          }
-
-          return (
-            <Polygon
-              key={parcel.id}
-              positions={positions as any}
-              pathOptions={styleFor(parcel)}
-              eventHandlers={{
-                click: clickHandler,
-              }}
-            >
-              <Tooltip direction="top" offset={[0, -6]} opacity={1} sticky={false}>
-                <div className="text-[11px] space-y-0.5 pointer-events-none">
-                  <div className="font-semibold">
-                    {parcel.id} • {parcel.crop}
-                  </div>
-                  <div>
-                    {parcel.risk} risk • Health {parcel.health}%
-                  </div>
-                  <div className="font-medium text-primary mt-0.5">
-                    {activeLayer}: {scoreForLayer(parcel, activeLayer).toFixed(2)}
-                  </div>
-                  <div className="text-[10px] text-muted-foreground mt-1 pt-1 border-t border-border/40">
-                    {parcel.district} &gt; {parcel.mandal} &gt; {parcel.village}
+        {parcelsWithBand.length > 0 && (
+          <GeoJSON
+            ref={parcelsGeoJsonRef}
+            key="parcels-layer"
+            data={{
+              type: "FeatureCollection",
+              features: parcelsWithBand.map(parcel => {
+                let coords = parcel.outline.map(([lat, lng]) => [lng, lat]);
+                // Close the polygon if not closed
+                if (coords.length > 0 && (coords[0][0] !== coords[coords.length-1][0] || coords[0][1] !== coords[coords.length-1][1])) {
+                  coords.push([...coords[0]]);
+                }
+                
+                return {
+                  type: "Feature",
+                  properties: parcel,
+                  geometry: parcel.geometry ?? {
+                    type: "Polygon",
+                    coordinates: [coords]
+                  }
+                };
+              })
+            } as any}
+            style={(feature: any) => {
+              const parcel = feature.properties as typeof parcelsWithBand[0];
+              return styleFor(parcel);
+            }}
+            onEachFeature={(feature, layer) => {
+              const parcel = feature.properties as typeof parcelsWithBand[0];
+              
+              layer.on('click', () => {
+                onSelectParcel(parcel.id);
+              });
+              
+              const tooltipContent = `
+                <div class="text-[11px] space-y-0.5 pointer-events-none">
+                  <div class="font-semibold">${parcel.id} • ${parcel.crop}</div>
+                  <div>${parcel.risk} risk • Health ${parcel.health}%</div>
+                  <div class="font-medium text-primary mt-0.5">${activeLayer}: ${scoreForLayer(parcel, activeLayer).toFixed(2)}</div>
+                  <div class="text-[10px] text-muted-foreground mt-1 pt-1 border-t border-border/40">
+                    ${parcel.district} &gt; ${parcel.mandal} &gt; ${parcel.village}
                   </div>
                 </div>
-              </Tooltip>
-            </Polygon>
-          );
-        })}
+              `;
+              
+              layer.bindTooltip(tooltipContent, {
+                direction: "top",
+                offset: [0, -6],
+                opacity: 1,
+                sticky: false,
+                className: "glass-tooltip"
+              });
+            }}
+          />
+        )}
 
         {selectedParcel ? (
           <Polygon

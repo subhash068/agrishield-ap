@@ -733,7 +733,7 @@ const villageOptions = useMemo(() => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                className="h-8 px-2 text-xs text-destructive/70 hover:text-destructive hover:bg-destructive/10"
                 onClick={() => {
                   setDistrictFilter("all");
                   setMandalFilter("all");
@@ -742,7 +742,7 @@ const villageOptions = useMemo(() => {
                   setSelectedParcelId(null);
                 }}
               >
-                Clear
+                Clear filters
               </Button>
             )}
 
@@ -1021,8 +1021,8 @@ const villageOptions = useMemo(() => {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className="font-semibold text-sm">Parcel ID: {selectedParcelFromAll.id}</p>
-                    <p className="font-semibold text-sm">Crop: {selectedParcelFromAll.crop}</p>
-                    <p className="font-semibold text-sm">Farmer: {selectedParcelFromAll.farmer}</p>
+                    <p className="font-semibold text-sm">Crop Name: {selectedParcelFromAll.crop}</p>
+                    <p className="font-semibold text-sm">Farmer Name: {selectedParcelFromAll.farmer}</p>
                   </div>
                   {selectedRisk ? (
                     <Badge className={selectedRisk.chip}>{selectedRisk.label}</Badge>
