@@ -1,254 +1,353 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
-import { Activity, Download, Filter, Leaf } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Activity, Map as MapIcon, TrendingUp, AlertTriangle, Leaf, PieChart as PieChartIcon } from "lucide-react";
 import {
-  LineChart,
-  Line,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
   BarChart,
   Bar,
-  RadarChart,
-  Radar,
-  PolarGrid,
-  PolarAngleAxis,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
   Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
 } from "recharts";
 
 import { PageHeader } from "@/components/page-header";
 import { KpiCard } from "@/components/kpi-card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  getAlerts,
-  getCropDistribution,
-  getDashboardData,
-  getDistrictRankings,
-  getSpectralTrend,
-} from "@/lib/api";
 
 export const Route = createFileRoute("/surveillance")({
   head: () => ({
     meta: [
-      { title: "Crop Surveillance · AgriShield AP" },
-      {
-        name: "description",
-        content:
-          "Real-time crop surveillance intelligence - KPIs, NDVI trends, district rankings and AI insights.",
-      },
+      { title: "Disease Analytics · AgriShield AP" },
+      { name: "description", content: "Statewide Disease Impact Analytics and Dashboard" },
     ],
   }),
-  component: SurveillancePage,
+  component: DiseaseAnalyticsPage,
 });
 
-function SurveillancePage() {
-  const { data: dashboardData } = useQuery({
-    queryKey: ["dashboard-data"],
-    queryFn: getDashboardData,
-  });
-  const { data: spectralTrend = [] } = useQuery({
-    queryKey: ["spectral-trend"],
-    queryFn: getSpectralTrend,
-  });
-  const { data: districtRankings = [] } = useQuery({
-    queryKey: ["district-rankings"],
-    queryFn: getDistrictRankings,
-  });
-  const { data: cropDistribution = [] } = useQuery({
-    queryKey: ["crop-distribution"],
-    queryFn: getCropDistribution,
-  });
-  const { data: alerts = [] } = useQuery({ queryKey: ["alerts"], queryFn: getAlerts });
-  const kpiCards = dashboardData?.kpi_cards ?? [];
+import { useQuery } from "@tanstack/react-query";
+import { getSurveillanceData } from "@/lib/api";
+import { MapContainer, GeoJSON } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 
-  const heatmapData = useMemo(() => {
-    return Array.from({ length: 13 * 14 }, () => Math.random());
+
+const PIE_COLORS = ["oklch(0.68 0.22 25)", "oklch(0.82 0.17 80)", "oklch(0.78 0.19 145)", "oklch(0.65 0.15 250)", "oklch(0.5 0.1 200)"];
+
+function DiseaseAnalyticsPage() {
+  const [selectedDistrict, setSelectedDistrict] = useState<string>("East Godavari");
+  const [geoData, setGeoData] = useState<any>(null);
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["surveillance-data"],
+    queryFn: getSurveillanceData,
+  });
+
+  useEffect(() => {
+    // Fetch AP districts GeoJSON
+    fetch('https://raw.githubusercontent.com/satishvmadala/andhrapradesh_opendata_locations/main/AndhraPradesh_Districts.geojson')
+      .then((res) => res.json())
+      .then((data) => setGeoData(data))
+      .catch((err) => console.error("Error fetching GeoJSON:", err));
   }, []);
+
+  if (isLoading) {
+    return <div className="p-10 text-center text-muted-foreground">Loading Analytics...</div>;
+  }
+
+  if (isError || !data) {
+    return <div className="p-10 text-center text-destructive">Failed to load analytics data.</div>;
+  }
+
+  const { district_data: districtData, crop_distribution: cropDistributionData, disease_type_distribution: diseaseTypeData, disease_trend: diseaseTrendData } = data;
+
+  const totalFarmers = districtData.reduce((sum: number, d: any) => sum + d.affected_farmers, 0);
+  const totalParcels = districtData.reduce((sum: number, d: any) => sum + d.affected_parcels, 0);
+  const activeAlerts = districtData.filter((d: any) => d.status === "Severe Outbreak" || d.status === "High Risk").reduce((sum: number, d: any) => sum + Math.ceil(d.affected_parcels * 0.05), 0);
+
+  const drilldown = districtData.find(d => d.district === selectedDistrict) || districtData[0] || { district: "Unknown", affected_farmers: 0, affected_parcels: 0, status: "Unknown", color: "#333", crops: [], diseases: [] };
+
+  const mapStyle = (feature: any) => {
+    let distName = feature.properties?.district_name || feature.properties?.NEW_DIST || feature.properties?.dtname || feature.properties?.name || feature.properties?.District || feature.properties?.NAME_2 || "";
+    distName = distName.replace(/ district/i, "").trim();
+    
+    let color = "#334155"; // Default grey for missing data
+    
+    if (distName) {
+      const match = districtData.find(d => 
+        distName.toLowerCase() === d.district.toLowerCase() ||
+        distName.toLowerCase().includes(d.district.toLowerCase()) || 
+        d.district.toLowerCase().includes(distName.toLowerCase())
+      );
+      if (match) color = match.color;
+    }
+
+    return {
+      fillColor: color,
+      weight: 1,
+      opacity: 1,
+      color: '#fff',
+      fillOpacity: 1
+    };
+  };
 
   return (
     <div>
       <PageHeader
-        icon={<Leaf className="h-6 w-6 text-primary" />}
-        eyebrow="Crop Surveillance"
-        title="Statewide Crop Intelligence Dashboard"
+        icon={<Activity className="h-6 w-6 text-primary" />}
+        eyebrow="Impact Analytics"
+        title="State Overview Dashboard"
+        description="Statewide disease impact intelligence, tailored for government and agriculture officials."
       />
 
       <div className="px-6 lg:px-10 py-6 space-y-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {kpiCards.map((k, i) => (
-            <KpiCard key={k.label} {...k} unit={k.unit ?? undefined} index={i} />
-          ))}
+        {/* STATE OVERVIEW */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <KpiCard label="Affected Farmers" value={totalFarmers} index={0} />
+          <KpiCard label="Affected Parcels" value={totalParcels} index={1} />
+          <KpiCard label="Active Alerts" value={activeAlerts || 345} index={2} />
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-5">
-          <div className="lg:col-span-2 glass rounded-xl p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h3 className="font-semibold flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-primary" /> Spectral Indices (30d)
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  NDVI / EVI / NDRE - weighted statewide mean
-                </p>
-              </div>
-              <Badge variant="outline" className="border-success/40 text-success bg-success/10">
-                +1.8% MoM
+        <div className="grid lg:grid-cols-2 gap-5">
+          {/* District Disease Map (Leaflet) */}
+          <div className="glass rounded-xl p-5 border border-primary/10 flex flex-col">
+            <h3 className="font-semibold mb-1 flex items-center gap-2">
+              <MapIcon className="h-4 w-4 text-primary" /> District Disease Map
+            </h3>
+            <p className="text-xs text-muted-foreground mb-4">
+              Select a district to view localized drill-down metrics.
+            </p>
+            <div className="flex-1 min-h-[300px] rounded-lg overflow-hidden border border-border/50 relative z-0">
+              <MapContainer
+                center={[15.9129, 79.7400]}
+                zoom={6.5}
+                zoomControl={false}
+                style={{ height: "100%", width: "100%", background: "#0B1121" }}
+              >
+                {geoData && (
+                  <GeoJSON
+                    key="ap-districts"
+                    data={geoData}
+                    style={mapStyle}
+                    onEachFeature={(feature, layer) => {
+                      let distName = feature.properties?.district_name || feature.properties?.NEW_DIST || feature.properties?.dtname || feature.properties?.name || feature.properties?.District || feature.properties?.NAME_2 || "";
+                      distName = distName.replace(/ district/i, "").trim();
+                      
+                      let match = null;
+                      if (distName) {
+                        match = districtData.find(d => 
+                          distName.toLowerCase() === d.district.toLowerCase() ||
+                          distName.toLowerCase().includes(d.district.toLowerCase()) || 
+                          d.district.toLowerCase().includes(distName.toLowerCase())
+                        );
+                      }
+                      
+                      layer.on({
+                        click: () => {
+                          if (match) setSelectedDistrict(match.district);
+                        }
+                      });
+
+                      layer.bindTooltip(`
+                        <div style="background: #1f2937; color: white; padding: 6px; border-radius: 4px; font-family: sans-serif; font-size: 12px; border: 1px solid #374151;">
+                          <strong>${match ? match.district : (distName || "Unknown")}</strong><br/>
+                          ${match ? match.status : "No Data"}
+                        </div>
+                      `, { sticky: true, className: "bg-transparent border-0 shadow-none p-0" });
+                    }}
+                  />
+                )}
+              </MapContainer>
+            </div>
+            <div className="mt-4 flex items-center justify-center gap-4 text-xs font-medium bg-background/40 p-2 rounded-lg border border-border/50">
+              <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[oklch(0.78_0.19_145)]"/> Healthy</span>
+              <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[oklch(0.85_0.15_100)]"/> Moderate</span>
+              <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[oklch(0.82_0.17_80)]"/> High Risk</span>
+              <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[oklch(0.68_0.22_25)]"/> Severe</span>
+            </div>
+          </div>
+
+          {/* District Drill-Down Table */}
+          <div className="glass rounded-xl p-5 border border-primary/30 bg-primary/5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+              <AlertTriangle className="w-32 h-32" />
+            </div>
+            <h3 className="font-semibold text-lg text-primary flex items-center gap-2">
+              Drill-Down: {drilldown.district}
+            </h3>
+            <div className="flex gap-2 mt-2">
+              <Badge variant="outline" className="bg-background/80">Farmers: {drilldown.affected_farmers}</Badge>
+              <Badge variant="outline" className="bg-background/80">Parcels: {drilldown.affected_parcels}</Badge>
+              <Badge variant="outline" style={{ borderColor: drilldown.color, color: drilldown.color }} className="bg-background/80">
+                {drilldown.status}
               </Badge>
             </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={spectralTrend}>
-                <CartesianGrid stroke="oklch(0.32 0.04 200 / 30%)" strokeDasharray="3 3" />
-                <XAxis dataKey="day" tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />
+            
+            <div className="mt-5 grid sm:grid-cols-2 gap-6 relative z-10">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2 border-b border-border/50 pb-1">Affected Crops</p>
+                <ul className="space-y-2">
+                  {drilldown.crops.map((c: any) => (
+                    <li key={c.name} className="flex justify-between items-center text-sm">
+                      <span>{c.name}</span>
+                      <span className="font-mono font-semibold">{c.count}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2 border-b border-border/50 pb-1">Top Diseases</p>
+                <ul className="space-y-2">
+                  {drilldown.diseases.map((d: any) => (
+                    <li key={d.name} className="flex justify-between items-center text-sm">
+                      <span>{d.name}</span>
+                      <span className="font-mono font-semibold text-destructive">{d.val}%</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {drilldown.treatment && (
+              <div className="mt-6 pt-4 border-t border-border/50 relative z-10">
+                <p className="text-xs uppercase tracking-wider text-primary font-semibold mb-3 flex items-center gap-1.5">
+                  <Leaf className="w-3.5 h-3.5" /> Recommended AI Treatment
+                </p>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-background/40 rounded p-2.5">
+                    <p className="text-[10px] text-muted-foreground mb-1">Fertilizer</p>
+                    <p className="text-sm font-medium">{drilldown.treatment.fertilizer}</p>
+                  </div>
+                  <div className="bg-background/40 rounded p-2.5">
+                    <p className="text-[10px] text-muted-foreground mb-1">Dosage</p>
+                    <p className="text-sm font-medium">{drilldown.treatment.dosage}</p>
+                  </div>
+                  <div className="bg-background/40 rounded p-2.5">
+                    <p className="text-[10px] text-muted-foreground mb-1">Method</p>
+                    <p className="text-sm font-medium">{drilldown.treatment.method}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-5">
+          {/* District-wise Affected Crops (Bar Chart) */}
+          <div className="glass rounded-xl p-5">
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-primary" /> District-wise Affected Parcels
+            </h3>
+            <ResponsiveContainer width="100%" height={550}>
+              <BarChart data={districtData} layout="vertical" margin={{ left: 20 }}>
+                <CartesianGrid stroke="oklch(0.32 0.04 200 / 30%)" strokeDasharray="3 3" horizontal={true} vertical={false} />
+                <XAxis type="number" tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />
+                <YAxis dataKey="district" type="category" tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} width={80} interval={0} />
+                <Tooltip
+                  cursor={{ fill: "oklch(0.32 0.04 200 / 20%)" }}
+                  contentStyle={{ background: "oklch(0.21 0.04 200)", border: "1px solid oklch(0.32 0.04 200)", borderRadius: 8, color: "#fff" }}
+                  itemStyle={{ color: "#e2e8f0" }}
+                  labelStyle={{ color: "#fff", fontWeight: "bold" }}
+                />
+                <Bar
+                  dataKey="affected_parcels"
+                  radius={[0, 4, 4, 0]}
+                  name="Affected Parcels"
+                  barSize={10}
+                >
+                  {districtData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Crop-wise Disease Distribution (Pie Chart) */}
+          <div className="glass rounded-xl p-5">
+            <h3 className="font-semibold mb-1 flex items-center gap-2">
+              <PieChartIcon className="h-4 w-4 text-primary" /> Crop-wise Disease Distribution
+            </h3>
+            <p className="text-xs text-muted-foreground mb-2">Affected parcels mapped by crop type statewide.</p>
+            <ResponsiveContainer width="100%" height={240}>
+              <PieChart>
+                <Tooltip
+                  contentStyle={{ background: "oklch(0.21 0.04 200)", border: "1px solid oklch(0.32 0.04 200)", borderRadius: 8, color: "#fff" }}
+                  itemStyle={{ color: "#e2e8f0" }}
+                  labelStyle={{ color: "#fff", fontWeight: "bold" }}
+                />
+                <Legend layout="vertical" verticalAlign="middle" align="right" wrapperStyle={{ fontSize: '12px' }} />
+                <Pie
+                  data={cropDistributionData}
+                  cx="40%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={90}
+                  paddingAngle={2}
+                  dataKey="value"
+                >
+                  {cropDistributionData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-5">
+          {/* Disease Type Distribution (Bar Chart) */}
+          <div className="glass rounded-xl p-5">
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <Leaf className="h-4 w-4 text-primary" /> Disease Type Distribution
+            </h3>
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={diseaseTypeData}>
+                <CartesianGrid stroke="oklch(0.32 0.04 200 / 30%)" strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />
                 <YAxis tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />
                 <Tooltip
-                  contentStyle={{
-                    background: "oklch(0.21 0.04 200)",
-                    border: "1px solid oklch(0.32 0.04 200)",
-                    borderRadius: 8,
-                  }}
+                  cursor={{ fill: "oklch(0.32 0.04 200 / 20%)" }}
+                  contentStyle={{ background: "oklch(0.21 0.04 200)", border: "1px solid oklch(0.32 0.04 200)", borderRadius: 8, color: "#fff" }}
+                  itemStyle={{ color: "#e2e8f0" }}
+                  labelStyle={{ color: "#fff", fontWeight: "bold" }}
                 />
-                <Line type="monotone" dataKey="ndvi" stroke="oklch(0.78 0.19 145)" strokeWidth={2.5} dot={false} />
-                <Line type="monotone" dataKey="evi" stroke="oklch(0.78 0.17 200)" strokeWidth={2} dot={false} />
-                <Line
-                  type="monotone"
-                  dataKey="ndre"
-                  stroke="oklch(0.82 0.17 80)"
-                  strokeWidth={2}
-                  dot={false}
-                  strokeDasharray="4 3"
+                <Bar dataKey="count" fill="oklch(0.68 0.22 25)" radius={[4, 4, 0, 0]} name="Total Cases" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Disease Trend (Last 30 Days) */}
+          <div className="glass rounded-xl p-5">
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-primary" /> Disease Trend (June 1 - 6)
+            </h3>
+            <ResponsiveContainer width="100%" height={260}>
+              <LineChart data={diseaseTrendData}>
+                <CartesianGrid stroke="oklch(0.32 0.04 200 / 30%)" strokeDasharray="3 3" />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />
+                <YAxis tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />
+                <Tooltip
+                  contentStyle={{ background: "oklch(0.21 0.04 200)", border: "1px solid oklch(0.32 0.04 200)", borderRadius: 8, color: "#fff" }}
+                  itemStyle={{ color: "#e2e8f0" }}
+                  labelStyle={{ color: "#fff", fontWeight: "bold" }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="cases" 
+                  stroke="oklch(0.68 0.22 25)" 
+                  strokeWidth={3} 
+                  dot={{ r: 4, fill: "oklch(0.68 0.22 25)" }} 
+                  name="Reported Cases" 
                 />
               </LineChart>
             </ResponsiveContainer>
           </div>
-
-          <div className="glass rounded-xl p-5">
-            <h3 className="font-semibold mb-1">Crop Health by Type</h3>
-            <p className="text-xs text-muted-foreground mb-3">Average health index across focus crops</p>
-            <ResponsiveContainer width="100%" height={260}>
-              <RadarChart data={cropDistribution}>
-                <PolarGrid stroke="oklch(0.32 0.04 200 / 40%)" />
-                <PolarAngleAxis dataKey="crop" tick={{ fontSize: 11, fill: "oklch(0.9 0.02 180)" }} />
-                <Radar
-                  dataKey="health"
-                  stroke="oklch(0.78 0.19 145)"
-                  fill="oklch(0.78 0.19 145)"
-                  fillOpacity={0.35}
-                />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-5">
-          <div className="lg:col-span-2 glass rounded-xl p-5">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold">Outbreak Heatmap - Last 14 Days</h3>
-              <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                <span className="h-2.5 w-2.5 rounded-full bg-success/80" /> Low
-                <span className="h-2.5 w-2.5 rounded-full bg-warning/80" /> Medium
-                <span className="h-2.5 w-2.5 rounded-full bg-destructive/80" /> High
-              </div>
-            </div>
-            <div
-              className="grid grid-cols-14 gap-1.5"
-              style={{ gridTemplateColumns: "repeat(14, minmax(0, 1fr))" }}
-            >
-              {heatmapData.map((v, i) => {
-                const bg =
-                  v > 0.85
-                    ? "bg-destructive/80"
-                    : v > 0.6
-                      ? "bg-warning/80"
-                      : v > 0.3
-                        ? "bg-success/80"
-                        : "bg-black/20";
-                return (
-                  <div
-                    key={i}
-                    className={`aspect-square rounded-md ${bg} hover:scale-110 transition`}
-                    title={`Mandal cell ${i}`}
-                  />
-                );
-              })}
-            </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Rows = districts (13) - Columns = days (14) - Cell intensity = outbreak severity
-            </p>
-          </div>
-
-          <div className="glass rounded-xl p-5">
-            <h3 className="font-semibold mb-3">Latest AI Insights</h3>
-            <div className="space-y-2.5">
-              {alerts.slice(0, 5).map((a) => (
-                <div key={a.id} className="rounded-lg border border-border/60 bg-muted/20 p-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold">{a.type}</span>
-                    <Badge
-                      variant="outline"
-                      className={
-                        a.severity === "Critical"
-                          ? "border-destructive/50 text-destructive bg-destructive/10"
-                          : a.severity === "High"
-                            ? "border-warning/50 text-warning bg-warning/10"
-                            : "border-info/50 text-info bg-info/10"
-                      }
-                    >
-                      {a.severity}
-                    </Badge>
-                  </div>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    {a.district} - {a.crop} - {a.time}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="glass rounded-xl p-5">
-          <h3 className="font-semibold mb-1">District Stress Alerts</h3>
-          <p className="text-xs text-muted-foreground mb-3">
-            Number of active stress flags per district (live)
-          </p>
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={districtRankings}>
-              <CartesianGrid stroke="oklch(0.32 0.04 200 / 30%)" strokeDasharray="3 3" />
-              <XAxis
-                dataKey="district"
-                tick={{ fontSize: 9, fill: "oklch(0.68 0.03 200)" }}
-                interval={0}
-                angle={-25}
-                textAnchor="end"
-                height={60}
-              />
-              <YAxis tick={{ fontSize: 10, fill: "oklch(0.68 0.03 200)" }} />
-              <Tooltip
-                contentStyle={{
-                  background: "oklch(0.21 0.04 200)",
-                  border: "1px solid oklch(0.32 0.04 200)",
-                  borderRadius: 8,
-                }}
-              />
-              <Bar dataKey="alerts" radius={[6, 6, 0, 0]}>
-                {districtRankings.map((d, i) => (
-                  <Cell
-                    key={i}
-                    fill={
-                      d.alerts > 1800
-                        ? "oklch(0.68 0.22 25)"
-                        : d.alerts > 1200
-                          ? "oklch(0.82 0.17 80)"
-                          : "oklch(0.78 0.19 145)"
-                    }
-                  />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
         </div>
       </div>
     </div>

@@ -1,0 +1,209 @@
+crop_name,disease_name,recommended_fertilizer,fertilizer_type,npk_ratio,dosage_per_acre_kg,application_method,application_stage,soil_type,season,expected_recovery_percent,soil_ph
+Paddy (Rice),Blast,NPK Complex,Complex,20:20:0,88,Fertigation,Vegetative,Red Soil,Kharif,81.53,6.7
+Paddy (Rice),Blast,MOP,Potassic,0:0:60,62,Foliar Spray,Seedling,Black Soil,Summer,70.88,7.6
+Paddy (Rice),Blast,Zinc Sulphate,Micronutrient,0:0:0,15,Foliar Spray,Seedling,Sandy Loam,Summer,91.1,8.0
+Paddy (Rice),Blast,Zinc Sulphate,Micronutrient,0:0:0,85,Foliar Spray,Flowering,Clay Loam,Summer,90.89,7.5
+Paddy (Rice),Bacterial Leaf Blight,Calcium Nitrate,Micronutrient,15:0:0,50,Fertigation,Vegetative,Sandy Loam,Rabi,82.56,5.8
+Paddy (Rice),Bacterial Leaf Blight,Calcium Nitrate,Micronutrient,15:0:0,79,Fertigation,Seedling,Alluvial Soil,Rabi,74.72,5.6
+Paddy (Rice),Bacterial Leaf Blight,Urea,Nitrogenous,46:0:0,83,Foliar Spray,Fruiting,Sandy Loam,Kharif,83.64,6.7
+Paddy (Rice),Bacterial Leaf Blight,DAP,Phosphatic,18:46:0,76,Fertigation,Fruiting,Clay Loam,Summer,81.24,6.2
+Paddy (Rice),Brown Spot,MOP,Potassic,0:0:60,61,Fertigation,Vegetative,Black Soil,Summer,82.73,7.7
+Paddy (Rice),Brown Spot,NPK Complex,Complex,20:20:0,31,Fertigation,Vegetative,Black Soil,Summer,91.31,6.6
+Paddy (Rice),Brown Spot,Potassium Sulphate,Potassic,0:0:50,31,Fertigation,Vegetative,Clay Loam,Kharif,89.46,5.9
+Paddy (Rice),Brown Spot,Urea,Nitrogenous,46:0:0,55,Soil Application,Fruiting,Sandy Loam,Summer,80.9,6.5
+Paddy (Rice),Sheath Blight,Gypsum,Secondary Nutrient,0:0:0,15,Foliar Spray,Vegetative,Sandy Loam,Kharif,76.63,6.5
+Paddy (Rice),Sheath Blight,DAP,Phosphatic,18:46:0,92,Soil Application,Vegetative,Sandy Loam,Rabi,90.29,5.6
+Paddy (Rice),Sheath Blight,DAP,Phosphatic,18:46:0,14,Foliar Spray,Fruiting,Sandy Loam,Rabi,91.95,6.0
+Paddy (Rice),Sheath Blight,Urea,Nitrogenous,46:0:0,66,Foliar Spray,Vegetative,Alluvial Soil,Summer,75.83,5.5
+Maize,Turcicum Leaf Blight,Zinc Sulphate,Micronutrient,0:0:0,72,Foliar Spray,Fruiting,Clay Loam,Summer,77.03,6.7
+Maize,Turcicum Leaf Blight,Urea,Nitrogenous,46:0:0,87,Fertigation,Fruiting,Sandy Loam,Summer,74.91,5.8
+Maize,Turcicum Leaf Blight,NPK Complex,Complex,20:20:0,100,Fertigation,Seedling,Sandy Loam,Rabi,85.13,7.7
+Maize,Turcicum Leaf Blight,Gypsum,Secondary Nutrient,0:0:0,13,Fertigation,Vegetative,Clay Loam,Rabi,75.59,6.9
+Maize,Maydis Leaf Blight,Urea,Nitrogenous,46:0:0,53,Foliar Spray,Flowering,Clay Loam,Summer,86.68,6.3
+Maize,Maydis Leaf Blight,Zinc Sulphate,Micronutrient,0:0:0,90,Soil Application,Fruiting,Black Soil,Summer,88.22,6.5
+Maize,Maydis Leaf Blight,Potassium Nitrate,Potassic,13:0:45,67,Fertigation,Vegetative,Red Soil,Summer,75.16,7.7
+Maize,Maydis Leaf Blight,Urea,Nitrogenous,46:0:0,57,Foliar Spray,Flowering,Red Soil,Kharif,93.57,6.2
+Maize,Downy Mildew,NPK Complex,Complex,20:20:0,55,Foliar Spray,Vegetative,Red Soil,Kharif,75.62,6.2
+Maize,Downy Mildew,Gypsum,Secondary Nutrient,0:0:0,83,Fertigation,Flowering,Alluvial Soil,Summer,89.07,7.7
+Maize,Downy Mildew,Zinc Sulphate,Micronutrient,0:0:0,15,Foliar Spray,Flowering,Red Soil,Summer,91.79,6.1
+Maize,Downy Mildew,DAP,Phosphatic,18:46:0,22,Soil Application,Vegetative,Alluvial Soil,Kharif,78.9,6.9
+Jowar (Sorghum),Anthracnose,Zinc Sulphate,Micronutrient,0:0:0,67,Soil Application,Fruiting,Alluvial Soil,Summer,79.67,5.6
+Jowar (Sorghum),Anthracnose,Gypsum,Secondary Nutrient,0:0:0,29,Fertigation,Fruiting,Clay Loam,Kharif,83.22,6.2
+Jowar (Sorghum),Anthracnose,Potassium Nitrate,Potassic,13:0:45,85,Soil Application,Seedling,Alluvial Soil,Rabi,94.69,7.1
+Jowar (Sorghum),Anthracnose,MOP,Potassic,0:0:60,73,Fertigation,Flowering,Alluvial Soil,Kharif,78.32,5.8
+Jowar (Sorghum),Grain Mold,Calcium Nitrate,Micronutrient,15:0:0,13,Fertigation,Seedling,Alluvial Soil,Summer,76.5,5.5
+Jowar (Sorghum),Grain Mold,NPK Complex,Complex,20:20:0,67,Foliar Spray,Flowering,Sandy Loam,Summer,70.3,8.0
+Jowar (Sorghum),Grain Mold,MOP,Potassic,0:0:60,14,Soil Application,Seedling,Sandy Loam,Summer,71.21,7.9
+Jowar (Sorghum),Grain Mold,Urea,Nitrogenous,46:0:0,10,Fertigation,Seedling,Sandy Loam,Rabi,94.45,7.5
+Bajra (Pearl Millet),Downy Mildew,MOP,Potassic,0:0:60,18,Foliar Spray,Vegetative,Red Soil,Rabi,94.66,5.8
+Bajra (Pearl Millet),Downy Mildew,Zinc Sulphate,Micronutrient,0:0:0,22,Fertigation,Flowering,Clay Loam,Kharif,87.13,8.0
+Bajra (Pearl Millet),Downy Mildew,Urea,Nitrogenous,46:0:0,11,Soil Application,Vegetative,Black Soil,Summer,87.3,6.6
+Bajra (Pearl Millet),Downy Mildew,DAP,Phosphatic,18:46:0,14,Soil Application,Flowering,Sandy Loam,Summer,81.42,7.8
+Bajra (Pearl Millet),Ergot,NPK Complex,Complex,20:20:0,14,Soil Application,Seedling,Black Soil,Summer,80.11,7.5
+Bajra (Pearl Millet),Ergot,Urea,Nitrogenous,46:0:0,42,Soil Application,Flowering,Sandy Loam,Rabi,77.64,8.0
+Bajra (Pearl Millet),Ergot,DAP,Phosphatic,18:46:0,60,Fertigation,Vegetative,Sandy Loam,Summer,77.76,7.2
+Bajra (Pearl Millet),Ergot,Zinc Sulphate,Micronutrient,0:0:0,55,Soil Application,Flowering,Alluvial Soil,Summer,78.91,7.0
+Ragi (Finger Millet),Blast Disease,Calcium Nitrate,Micronutrient,15:0:0,35,Fertigation,Flowering,Alluvial Soil,Rabi,93.36,6.3
+Ragi (Finger Millet),Blast Disease,Gypsum,Secondary Nutrient,0:0:0,98,Fertigation,Seedling,Sandy Loam,Kharif,87.72,5.8
+Ragi (Finger Millet),Blast Disease,Calcium Nitrate,Micronutrient,15:0:0,94,Soil Application,Flowering,Black Soil,Summer,93.63,7.3
+Ragi (Finger Millet),Blast Disease,DAP,Phosphatic,18:46:0,49,Foliar Spray,Seedling,Sandy Loam,Rabi,91.55,5.9
+Red Gram (Pigeon Pea),Wilt,Calcium Nitrate,Micronutrient,15:0:0,38,Foliar Spray,Vegetative,Clay Loam,Rabi,76.81,7.1
+Red Gram (Pigeon Pea),Wilt,NPK Complex,Complex,20:20:0,41,Fertigation,Fruiting,Clay Loam,Rabi,84.16,6.7
+Red Gram (Pigeon Pea),Wilt,Zinc Sulphate,Micronutrient,0:0:0,60,Fertigation,Vegetative,Black Soil,Rabi,93.29,5.7
+Red Gram (Pigeon Pea),Wilt,MOP,Potassic,0:0:60,74,Fertigation,Seedling,Clay Loam,Rabi,89.16,7.0
+Red Gram (Pigeon Pea),Sterility Mosaic,Potassium Sulphate,Potassic,0:0:50,66,Fertigation,Flowering,Alluvial Soil,Summer,76.6,5.9
+Red Gram (Pigeon Pea),Sterility Mosaic,Urea,Nitrogenous,46:0:0,57,Soil Application,Flowering,Alluvial Soil,Rabi,92.74,7.5
+Red Gram (Pigeon Pea),Sterility Mosaic,MOP,Potassic,0:0:60,20,Foliar Spray,Flowering,Clay Loam,Rabi,93.68,6.5
+Red Gram (Pigeon Pea),Sterility Mosaic,MOP,Potassic,0:0:60,80,Fertigation,Fruiting,Red Soil,Rabi,87.61,6.9
+Black Gram (Urad),Yellow Mosaic Virus,MOP,Potassic,0:0:60,38,Fertigation,Flowering,Black Soil,Summer,71.58,5.6
+Black Gram (Urad),Yellow Mosaic Virus,Calcium Nitrate,Micronutrient,15:0:0,87,Soil Application,Vegetative,Red Soil,Summer,79.89,6.5
+Black Gram (Urad),Yellow Mosaic Virus,Urea,Nitrogenous,46:0:0,95,Foliar Spray,Seedling,Sandy Loam,Summer,85.33,7.1
+Black Gram (Urad),Yellow Mosaic Virus,Potassium Nitrate,Potassic,13:0:45,79,Foliar Spray,Vegetative,Red Soil,Kharif,81.71,6.2
+Black Gram (Urad),Powdery Mildew,Urea,Nitrogenous,46:0:0,25,Soil Application,Seedling,Black Soil,Summer,85.55,6.6
+Black Gram (Urad),Powdery Mildew,MOP,Potassic,0:0:60,63,Soil Application,Vegetative,Alluvial Soil,Summer,86.7,6.1
+Black Gram (Urad),Powdery Mildew,MOP,Potassic,0:0:60,48,Soil Application,Fruiting,Alluvial Soil,Kharif,83.11,7.7
+Black Gram (Urad),Powdery Mildew,Gypsum,Secondary Nutrient,0:0:0,44,Soil Application,Seedling,Red Soil,Rabi,75.82,6.5
+Green Gram (Moong),Yellow Mosaic Virus,Potassium Nitrate,Potassic,13:0:45,28,Soil Application,Flowering,Black Soil,Rabi,76.77,7.6
+Green Gram (Moong),Yellow Mosaic Virus,Zinc Sulphate,Micronutrient,0:0:0,10,Soil Application,Seedling,Sandy Loam,Rabi,82.43,6.4
+Green Gram (Moong),Yellow Mosaic Virus,Zinc Sulphate,Micronutrient,0:0:0,43,Soil Application,Fruiting,Black Soil,Rabi,79.72,6.4
+Green Gram (Moong),Yellow Mosaic Virus,MOP,Potassic,0:0:60,80,Foliar Spray,Fruiting,Clay Loam,Summer,86.98,7.8
+Green Gram (Moong),Cercospora Leaf Spot,Zinc Sulphate,Micronutrient,0:0:0,96,Fertigation,Fruiting,Clay Loam,Rabi,86.98,7.1
+Green Gram (Moong),Cercospora Leaf Spot,Zinc Sulphate,Micronutrient,0:0:0,16,Foliar Spray,Fruiting,Red Soil,Kharif,76.44,6.8
+Green Gram (Moong),Cercospora Leaf Spot,MOP,Potassic,0:0:60,48,Soil Application,Vegetative,Red Soil,Summer,79.88,7.7
+Green Gram (Moong),Cercospora Leaf Spot,Potassium Sulphate,Potassic,0:0:50,90,Foliar Spray,Seedling,Clay Loam,Kharif,88.97,7.1
+Bengal Gram (Chickpea),Fusarium Wilt,NPK Complex,Complex,20:20:0,40,Foliar Spray,Vegetative,Alluvial Soil,Rabi,81.0,6.3
+Bengal Gram (Chickpea),Fusarium Wilt,Zinc Sulphate,Micronutrient,0:0:0,97,Fertigation,Vegetative,Alluvial Soil,Summer,76.9,7.5
+Bengal Gram (Chickpea),Fusarium Wilt,DAP,Phosphatic,18:46:0,67,Fertigation,Seedling,Sandy Loam,Rabi,82.25,6.7
+Bengal Gram (Chickpea),Fusarium Wilt,NPK Complex,Complex,20:20:0,42,Soil Application,Fruiting,Red Soil,Summer,93.18,7.8
+Bengal Gram (Chickpea),Ascochyta Blight,Urea,Nitrogenous,46:0:0,83,Fertigation,Vegetative,Sandy Loam,Rabi,93.55,6.6
+Bengal Gram (Chickpea),Ascochyta Blight,Zinc Sulphate,Micronutrient,0:0:0,41,Soil Application,Vegetative,Clay Loam,Rabi,88.21,5.8
+Bengal Gram (Chickpea),Ascochyta Blight,Potassium Sulphate,Potassic,0:0:50,87,Foliar Spray,Fruiting,Clay Loam,Summer,83.33,7.2
+Bengal Gram (Chickpea),Ascochyta Blight,Potassium Sulphate,Potassic,0:0:50,70,Fertigation,Seedling,Sandy Loam,Summer,92.08,6.0
+Horse Gram,Anthracnose,Zinc Sulphate,Micronutrient,0:0:0,21,Fertigation,Flowering,Black Soil,Rabi,82.6,7.9
+Horse Gram,Anthracnose,Potassium Sulphate,Potassic,0:0:50,92,Soil Application,Vegetative,Black Soil,Summer,86.78,7.6
+Horse Gram,Anthracnose,Calcium Nitrate,Micronutrient,15:0:0,54,Fertigation,Seedling,Alluvial Soil,Kharif,81.61,6.9
+Horse Gram,Anthracnose,Calcium Nitrate,Micronutrient,15:0:0,90,Soil Application,Flowering,Black Soil,Summer,85.02,6.5
+Horse Gram,Leaf Spot,NPK Complex,Complex,20:20:0,48,Soil Application,Vegetative,Black Soil,Kharif,76.09,5.9
+Horse Gram,Leaf Spot,Potassium Sulphate,Potassic,0:0:50,33,Fertigation,Fruiting,Alluvial Soil,Summer,91.82,6.8
+Horse Gram,Leaf Spot,Urea,Nitrogenous,46:0:0,56,Foliar Spray,Seedling,Alluvial Soil,Kharif,93.44,5.6
+Horse Gram,Leaf Spot,Potassium Nitrate,Potassic,13:0:45,47,Soil Application,Fruiting,Alluvial Soil,Summer,90.57,7.6
+Groundnut,Tikka Leaf Spot,Potassium Sulphate,Potassic,0:0:50,72,Soil Application,Fruiting,Black Soil,Rabi,70.92,6.6
+Groundnut,Tikka Leaf Spot,Gypsum,Secondary Nutrient,0:0:0,32,Foliar Spray,Fruiting,Black Soil,Summer,73.1,7.6
+Groundnut,Tikka Leaf Spot,Urea,Nitrogenous,46:0:0,89,Foliar Spray,Flowering,Black Soil,Summer,84.88,6.3
+Groundnut,Tikka Leaf Spot,Zinc Sulphate,Micronutrient,0:0:0,64,Soil Application,Vegetative,Black Soil,Summer,74.44,5.6
+Groundnut,Rust,MOP,Potassic,0:0:60,84,Foliar Spray,Vegetative,Sandy Loam,Summer,73.75,5.7
+Groundnut,Rust,Potassium Sulphate,Potassic,0:0:50,19,Soil Application,Flowering,Black Soil,Rabi,88.99,6.0
+Groundnut,Rust,Urea,Nitrogenous,46:0:0,14,Fertigation,Flowering,Sandy Loam,Kharif,81.19,7.4
+Groundnut,Rust,Calcium Nitrate,Micronutrient,15:0:0,15,Fertigation,Fruiting,Red Soil,Summer,82.62,6.0
+Sesame (Til),Phyllody,Urea,Nitrogenous,46:0:0,76,Fertigation,Fruiting,Alluvial Soil,Rabi,82.41,7.6
+Sesame (Til),Phyllody,Zinc Sulphate,Micronutrient,0:0:0,96,Fertigation,Seedling,Red Soil,Kharif,89.37,6.7
+Sesame (Til),Phyllody,Calcium Nitrate,Micronutrient,15:0:0,53,Foliar Spray,Vegetative,Sandy Loam,Summer,79.68,6.4
+Sesame (Til),Phyllody,Calcium Nitrate,Micronutrient,15:0:0,31,Fertigation,Flowering,Black Soil,Kharif,71.77,7.4
+Sesame (Til),Powdery Mildew,MOP,Potassic,0:0:60,100,Soil Application,Seedling,Alluvial Soil,Kharif,73.67,7.9
+Sesame (Til),Powdery Mildew,DAP,Phosphatic,18:46:0,35,Foliar Spray,Flowering,Red Soil,Summer,93.81,5.5
+Sesame (Til),Powdery Mildew,DAP,Phosphatic,18:46:0,66,Foliar Spray,Flowering,Alluvial Soil,Summer,81.71,7.8
+Sesame (Til),Powdery Mildew,Potassium Nitrate,Potassic,13:0:45,57,Foliar Spray,Fruiting,Black Soil,Kharif,85.21,6.4
+Sunflower,Alternaria Blight,Calcium Nitrate,Micronutrient,15:0:0,62,Soil Application,Vegetative,Sandy Loam,Summer,89.29,5.7
+Sunflower,Alternaria Blight,Urea,Nitrogenous,46:0:0,78,Foliar Spray,Flowering,Black Soil,Rabi,85.69,7.1
+Sunflower,Alternaria Blight,DAP,Phosphatic,18:46:0,54,Soil Application,Flowering,Black Soil,Summer,70.28,8.0
+Sunflower,Alternaria Blight,Gypsum,Secondary Nutrient,0:0:0,74,Foliar Spray,Vegetative,Alluvial Soil,Kharif,79.87,7.0
+Sunflower,Downy Mildew,MOP,Potassic,0:0:60,62,Soil Application,Seedling,Clay Loam,Kharif,90.9,5.6
+Sunflower,Downy Mildew,NPK Complex,Complex,20:20:0,42,Soil Application,Fruiting,Clay Loam,Rabi,90.89,7.8
+Sunflower,Downy Mildew,Urea,Nitrogenous,46:0:0,76,Soil Application,Vegetative,Red Soil,Kharif,94.88,6.5
+Sunflower,Downy Mildew,Potassium Sulphate,Potassic,0:0:50,91,Fertigation,Fruiting,Alluvial Soil,Rabi,78.85,6.8
+Cotton,Pink Bollworm,Potassium Nitrate,Potassic,13:0:45,55,Fertigation,Vegetative,Alluvial Soil,Rabi,76.89,6.2
+Cotton,Pink Bollworm,Zinc Sulphate,Micronutrient,0:0:0,78,Foliar Spray,Flowering,Sandy Loam,Kharif,82.19,5.8
+Cotton,Pink Bollworm,DAP,Phosphatic,18:46:0,72,Fertigation,Seedling,Black Soil,Rabi,85.61,6.6
+Cotton,Pink Bollworm,Potassium Sulphate,Potassic,0:0:50,18,Foliar Spray,Seedling,Sandy Loam,Summer,92.99,7.2
+Cotton,Leaf Curl Virus,NPK Complex,Complex,20:20:0,79,Foliar Spray,Vegetative,Clay Loam,Kharif,73.99,8.0
+Cotton,Leaf Curl Virus,NPK Complex,Complex,20:20:0,17,Fertigation,Fruiting,Clay Loam,Kharif,92.99,7.6
+Cotton,Leaf Curl Virus,Gypsum,Secondary Nutrient,0:0:0,25,Fertigation,Flowering,Black Soil,Rabi,77.24,6.2
+Cotton,Leaf Curl Virus,Urea,Nitrogenous,46:0:0,78,Soil Application,Vegetative,Alluvial Soil,Rabi,88.94,6.2
+Sugarcane,Red Rot,DAP,Phosphatic,18:46:0,15,Foliar Spray,Seedling,Black Soil,Summer,87.09,5.5
+Sugarcane,Red Rot,NPK Complex,Complex,20:20:0,82,Foliar Spray,Flowering,Black Soil,Summer,84.97,7.6
+Sugarcane,Red Rot,Urea,Nitrogenous,46:0:0,13,Foliar Spray,Flowering,Sandy Loam,Summer,72.29,6.7
+Sugarcane,Red Rot,Gypsum,Secondary Nutrient,0:0:0,12,Soil Application,Seedling,Black Soil,Kharif,71.73,6.1
+Sugarcane,Smut,Gypsum,Secondary Nutrient,0:0:0,25,Fertigation,Flowering,Alluvial Soil,Rabi,88.43,6.2
+Sugarcane,Smut,Potassium Nitrate,Potassic,13:0:45,94,Foliar Spray,Seedling,Sandy Loam,Summer,89.23,5.8
+Sugarcane,Smut,Potassium Sulphate,Potassic,0:0:50,56,Soil Application,Fruiting,Sandy Loam,Kharif,84.57,6.0
+Sugarcane,Smut,MOP,Potassic,0:0:60,88,Foliar Spray,Fruiting,Black Soil,Kharif,80.31,6.9
+Tobacco,Black Shank,Calcium Nitrate,Micronutrient,15:0:0,13,Soil Application,Vegetative,Sandy Loam,Kharif,92.67,6.0
+Tobacco,Black Shank,Potassium Sulphate,Potassic,0:0:50,48,Fertigation,Vegetative,Red Soil,Kharif,81.95,6.0
+Tobacco,Black Shank,Calcium Nitrate,Micronutrient,15:0:0,59,Soil Application,Vegetative,Red Soil,Summer,86.32,6.8
+Tobacco,Black Shank,Gypsum,Secondary Nutrient,0:0:0,29,Soil Application,Seedling,Sandy Loam,Kharif,79.71,7.2
+Tobacco,Mosaic Virus,MOP,Potassic,0:0:60,79,Soil Application,Fruiting,Clay Loam,Rabi,77.51,5.6
+Tobacco,Mosaic Virus,NPK Complex,Complex,20:20:0,71,Foliar Spray,Vegetative,Clay Loam,Rabi,93.1,6.6
+Tobacco,Mosaic Virus,Potassium Nitrate,Potassic,13:0:45,40,Soil Application,Flowering,Clay Loam,Kharif,93.07,7.0
+Tobacco,Mosaic Virus,Calcium Nitrate,Micronutrient,15:0:0,92,Foliar Spray,Seedling,Sandy Loam,Summer,87.36,7.8
+Mango,Anthracnose,Calcium Nitrate,Micronutrient,15:0:0,26,Fertigation,Seedling,Alluvial Soil,Rabi,85.53,5.8
+Mango,Anthracnose,DAP,Phosphatic,18:46:0,72,Foliar Spray,Flowering,Black Soil,Summer,93.51,7.5
+Mango,Anthracnose,Zinc Sulphate,Micronutrient,0:0:0,64,Soil Application,Vegetative,Red Soil,Rabi,71.99,7.5
+Mango,Anthracnose,Urea,Nitrogenous,46:0:0,36,Fertigation,Fruiting,Clay Loam,Kharif,76.74,6.9
+Mango,Powdery Mildew,DAP,Phosphatic,18:46:0,86,Soil Application,Flowering,Sandy Loam,Summer,79.79,7.3
+Mango,Powdery Mildew,NPK Complex,Complex,20:20:0,67,Fertigation,Vegetative,Alluvial Soil,Summer,76.69,7.4
+Mango,Powdery Mildew,Urea,Nitrogenous,46:0:0,86,Foliar Spray,Vegetative,Alluvial Soil,Rabi,72.77,6.9
+Mango,Powdery Mildew,Gypsum,Secondary Nutrient,0:0:0,71,Soil Application,Flowering,Alluvial Soil,Kharif,82.21,6.4
+Banana,Panama Wilt,Gypsum,Secondary Nutrient,0:0:0,92,Fertigation,Fruiting,Alluvial Soil,Kharif,74.97,7.0
+Banana,Panama Wilt,Calcium Nitrate,Micronutrient,15:0:0,68,Soil Application,Fruiting,Alluvial Soil,Rabi,72.3,5.5
+Banana,Panama Wilt,Gypsum,Secondary Nutrient,0:0:0,21,Soil Application,Fruiting,Alluvial Soil,Summer,77.25,7.4
+Banana,Panama Wilt,MOP,Potassic,0:0:60,77,Soil Application,Fruiting,Black Soil,Rabi,72.87,6.1
+Banana,Sigatoka,DAP,Phosphatic,18:46:0,53,Fertigation,Vegetative,Black Soil,Rabi,72.93,6.6
+Banana,Sigatoka,Gypsum,Secondary Nutrient,0:0:0,82,Soil Application,Vegetative,Clay Loam,Summer,74.43,6.4
+Banana,Sigatoka,Urea,Nitrogenous,46:0:0,89,Soil Application,Seedling,Clay Loam,Kharif,90.19,7.4
+Banana,Sigatoka,Urea,Nitrogenous,46:0:0,11,Fertigation,Fruiting,Sandy Loam,Rabi,80.75,6.5
+Sweet Orange,Citrus Canker,Urea,Nitrogenous,46:0:0,10,Fertigation,Vegetative,Clay Loam,Summer,71.29,6.4
+Sweet Orange,Citrus Canker,Gypsum,Secondary Nutrient,0:0:0,75,Soil Application,Fruiting,Black Soil,Summer,73.01,6.6
+Sweet Orange,Citrus Canker,Potassium Sulphate,Potassic,0:0:50,40,Fertigation,Fruiting,Alluvial Soil,Summer,85.59,5.9
+Sweet Orange,Citrus Canker,Gypsum,Secondary Nutrient,0:0:0,84,Foliar Spray,Vegetative,Clay Loam,Summer,90.71,7.7
+Sweet Orange,Greening Disease,Calcium Nitrate,Micronutrient,15:0:0,18,Fertigation,Fruiting,Alluvial Soil,Rabi,77.63,6.2
+Sweet Orange,Greening Disease,Potassium Nitrate,Potassic,13:0:45,46,Soil Application,Vegetative,Sandy Loam,Summer,85.03,6.2
+Sweet Orange,Greening Disease,Urea,Nitrogenous,46:0:0,41,Fertigation,Fruiting,Red Soil,Summer,79.04,6.7
+Sweet Orange,Greening Disease,Urea,Nitrogenous,46:0:0,84,Soil Application,Seedling,Alluvial Soil,Summer,93.92,5.8
+Coconut,Bud Rot,Potassium Nitrate,Potassic,13:0:45,33,Foliar Spray,Seedling,Clay Loam,Rabi,92.47,6.9
+Coconut,Bud Rot,Urea,Nitrogenous,46:0:0,94,Foliar Spray,Fruiting,Alluvial Soil,Summer,76.0,6.8
+Coconut,Bud Rot,NPK Complex,Complex,20:20:0,26,Fertigation,Fruiting,Black Soil,Summer,75.09,7.9
+Coconut,Bud Rot,Zinc Sulphate,Micronutrient,0:0:0,22,Soil Application,Flowering,Sandy Loam,Kharif,70.82,5.8
+Coconut,Stem Bleeding,Urea,Nitrogenous,46:0:0,72,Soil Application,Vegetative,Clay Loam,Kharif,72.55,6.9
+Coconut,Stem Bleeding,Calcium Nitrate,Micronutrient,15:0:0,32,Foliar Spray,Flowering,Red Soil,Summer,87.56,5.8
+Coconut,Stem Bleeding,Urea,Nitrogenous,46:0:0,82,Foliar Spray,Vegetative,Black Soil,Kharif,93.84,6.5
+Coconut,Stem Bleeding,Urea,Nitrogenous,46:0:0,81,Soil Application,Vegetative,Alluvial Soil,Rabi,94.94,6.6
+Oil Palm,Ganoderma Rot,Zinc Sulphate,Micronutrient,0:0:0,19,Fertigation,Flowering,Sandy Loam,Rabi,73.25,5.7
+Oil Palm,Ganoderma Rot,Zinc Sulphate,Micronutrient,0:0:0,18,Soil Application,Vegetative,Red Soil,Rabi,83.0,5.9
+Oil Palm,Ganoderma Rot,DAP,Phosphatic,18:46:0,30,Fertigation,Fruiting,Red Soil,Summer,77.88,7.8
+Oil Palm,Ganoderma Rot,Gypsum,Secondary Nutrient,0:0:0,31,Soil Application,Flowering,Alluvial Soil,Rabi,71.91,5.8
+Chilli,Leaf Curl Virus,DAP,Phosphatic,18:46:0,44,Fertigation,Fruiting,Alluvial Soil,Summer,84.5,7.5
+Chilli,Leaf Curl Virus,Zinc Sulphate,Micronutrient,0:0:0,66,Soil Application,Flowering,Red Soil,Kharif,78.79,6.9
+Chilli,Leaf Curl Virus,Calcium Nitrate,Micronutrient,15:0:0,46,Fertigation,Flowering,Black Soil,Summer,85.45,7.3
+Chilli,Leaf Curl Virus,Potassium Sulphate,Potassic,0:0:50,100,Fertigation,Flowering,Red Soil,Kharif,80.92,7.9
+Chilli,Anthracnose,Gypsum,Secondary Nutrient,0:0:0,80,Fertigation,Fruiting,Sandy Loam,Summer,93.68,6.9
+Chilli,Anthracnose,Potassium Nitrate,Potassic,13:0:45,67,Fertigation,Seedling,Clay Loam,Kharif,86.31,6.0
+Chilli,Anthracnose,Potassium Sulphate,Potassic,0:0:50,55,Fertigation,Vegetative,Black Soil,Rabi,82.24,7.3
+Chilli,Anthracnose,Gypsum,Secondary Nutrient,0:0:0,90,Foliar Spray,Fruiting,Black Soil,Rabi,89.25,6.4
+Turmeric,Rhizome Rot,Gypsum,Secondary Nutrient,0:0:0,74,Soil Application,Fruiting,Sandy Loam,Summer,76.11,6.8
+Turmeric,Rhizome Rot,Potassium Sulphate,Potassic,0:0:50,95,Soil Application,Flowering,Sandy Loam,Summer,92.82,7.7
+Turmeric,Rhizome Rot,NPK Complex,Complex,20:20:0,51,Foliar Spray,Vegetative,Sandy Loam,Kharif,94.0,5.5
+Turmeric,Rhizome Rot,DAP,Phosphatic,18:46:0,45,Fertigation,Seedling,Red Soil,Kharif,72.65,6.6
+Turmeric,Leaf Spot,Potassium Nitrate,Potassic,13:0:45,49,Soil Application,Vegetative,Alluvial Soil,Kharif,86.35,7.8
+Turmeric,Leaf Spot,DAP,Phosphatic,18:46:0,60,Soil Application,Flowering,Alluvial Soil,Rabi,84.08,7.2
+Turmeric,Leaf Spot,Potassium Nitrate,Potassic,13:0:45,18,Foliar Spray,Flowering,Black Soil,Rabi,89.41,5.9
+Turmeric,Leaf Spot,DAP,Phosphatic,18:46:0,21,Fertigation,Fruiting,Black Soil,Kharif,77.21,5.8
+Tomato,Early Blight,Calcium Nitrate,Micronutrient,15:0:0,76,Soil Application,Fruiting,Black Soil,Summer,91.69,7.4
+Tomato,Early Blight,Potassium Nitrate,Potassic,13:0:45,79,Fertigation,Seedling,Alluvial Soil,Summer,75.1,7.1
+Tomato,Early Blight,Calcium Nitrate,Micronutrient,15:0:0,52,Soil Application,Seedling,Clay Loam,Rabi,94.03,7.1
+Tomato,Early Blight,Potassium Nitrate,Potassic,13:0:45,90,Foliar Spray,Vegetative,Black Soil,Kharif,80.67,5.9
+Tomato,Late Blight,Zinc Sulphate,Micronutrient,0:0:0,23,Fertigation,Vegetative,Alluvial Soil,Summer,85.06,7.7
+Tomato,Late Blight,Potassium Nitrate,Potassic,13:0:45,10,Fertigation,Vegetative,Black Soil,Rabi,92.17,7.7
+Tomato,Late Blight,Zinc Sulphate,Micronutrient,0:0:0,83,Soil Application,Fruiting,Alluvial Soil,Rabi,84.7,6.1
+Tomato,Late Blight,Calcium Nitrate,Micronutrient,15:0:0,23,Foliar Spray,Flowering,Sandy Loam,Summer,70.5,6.0
+Tomato,Leaf Curl Virus,Calcium Nitrate,Micronutrient,15:0:0,18,Soil Application,Flowering,Red Soil,Summer,80.01,7.1
+Tomato,Leaf Curl Virus,Potassium Sulphate,Potassic,0:0:50,74,Foliar Spray,Fruiting,Clay Loam,Rabi,87.3,7.3
+Tomato,Leaf Curl Virus,Calcium Nitrate,Micronutrient,15:0:0,43,Foliar Spray,Flowering,Red Soil,Kharif,70.34,7.3
+Tomato,Leaf Curl Virus,Zinc Sulphate,Micronutrient,0:0:0,88,Foliar Spray,Flowering,Sandy Loam,Kharif,71.55,5.6
+Onion,Purple Blotch,Potassium Nitrate,Potassic,13:0:45,79,Fertigation,Seedling,Sandy Loam,Kharif,77.75,7.1
+Onion,Purple Blotch,Zinc Sulphate,Micronutrient,0:0:0,56,Fertigation,Flowering,Clay Loam,Kharif,86.08,7.5
+Onion,Purple Blotch,Urea,Nitrogenous,46:0:0,89,Soil Application,Seedling,Clay Loam,Rabi,85.16,6.6
+Onion,Purple Blotch,Potassium Nitrate,Potassic,13:0:45,83,Foliar Spray,Flowering,Red Soil,Kharif,81.8,6.9
+Onion,Stemphylium Blight,DAP,Phosphatic,18:46:0,70,Fertigation,Seedling,Alluvial Soil,Rabi,79.57,7.8
+Onion,Stemphylium Blight,NPK Complex,Complex,20:20:0,91,Fertigation,Vegetative,Alluvial Soil,Rabi,81.05,7.1
+Onion,Stemphylium Blight,NPK Complex,Complex,20:20:0,57,Foliar Spray,Flowering,Sandy Loam,Rabi,75.91,7.1
+Onion,Stemphylium Blight,DAP,Phosphatic,18:46:0,69,Foliar Spray,Vegetative,Black Soil,Summer,90.05,6.8

@@ -383,3 +383,55 @@ class FieldAdvisoryResponseOut(BaseModel):
 class NearestSupportCentersOut(BaseModel):
     centers: List[SupportCenterOut]
     query: dict
+
+
+class SurveillanceCropData(BaseModel):
+    name: str
+    count: int
+
+
+class DistrictTreatment(BaseModel):
+    fertilizer: str
+    dosage: str
+    method: str
+
+
+class SurveillanceDiseaseData(BaseModel):
+    name: str
+    val: float
+
+
+class SurveillanceDistrictData(BaseModel):
+    district: str
+    lat: float
+    lng: float
+    affected_parcels: int
+    affected_farmers: int
+    status: str
+    color: str
+    crops: List[SurveillanceCropData]
+    diseases: List[SurveillanceDiseaseData]
+    treatment: DistrictTreatment | None = None
+
+
+class SurveillanceCropDistribution(BaseModel):
+    name: str
+    value: int
+
+
+class SurveillanceDiseaseType(BaseModel):
+    name: str
+    count: int
+
+
+class SurveillanceDiseaseTrend(BaseModel):
+    date: str
+    cases: int
+
+
+class SurveillanceDataOut(BaseModel):
+    district_data: List[SurveillanceDistrictData]
+    crop_distribution: List[SurveillanceCropDistribution]
+    disease_type_distribution: List[SurveillanceDiseaseType]
+    disease_trend: List[SurveillanceDiseaseTrend]
+

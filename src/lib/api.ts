@@ -638,3 +638,40 @@ export async function getNearestSupportCenters(params: {
   }
 }
 
+// ---- Surveillance ----
+
+export type SurveillanceCropData = { name: string; count: number };
+export type SurveillanceDiseaseData = { name: string; val: number };
+export type DistrictTreatment = {
+  fertilizer: string;
+  dosage: string;
+  method: string;
+};
+
+export type SurveillanceDistrictData = {
+  district: string;
+  lat: number;
+  lng: number;
+  affected_parcels: number;
+  affected_farmers: number;
+  status: string;
+  color: string;
+  crops: SurveillanceCropData[];
+  diseases: SurveillanceDiseaseData[];
+  treatment?: DistrictTreatment;
+};
+export type SurveillanceCropDistribution = { name: string; value: number };
+export type SurveillanceDiseaseType = { name: string; count: number };
+export type SurveillanceDiseaseTrend = { date: string; cases: number };
+
+export type SurveillanceDataOut = {
+  district_data: SurveillanceDistrictData[];
+  crop_distribution: SurveillanceCropDistribution[];
+  disease_type_distribution: SurveillanceDiseaseType[];
+  disease_trend: SurveillanceDiseaseTrend[];
+};
+
+export function getSurveillanceData(): Promise<SurveillanceDataOut> {
+  return apiFetch<SurveillanceDataOut>("/surveillance/data");
+}
+
