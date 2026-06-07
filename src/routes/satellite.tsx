@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { getParcels, type Parcel } from "@/lib/api";
 import { Link } from "@tanstack/react-router";
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
 
 
 
@@ -58,10 +59,70 @@ const LAYERS = [
   "Disease Probability",
 ] as const;
 
+const LAYER_PALETTES: Record<
+  string,
+  { low: string; mid: string; high: string; glow: string; label: string; unit: string }
+> = {
+  NDVI: {
+    low: "oklch(0.58 0.08 145)",
+    mid: "oklch(0.72 0.16 145)",
+    high: "oklch(0.84 0.20 145)",
+    glow: "oklch(0.78 0.19 145)",
+    label: "Vegetation vigor",
+    unit: "index",
+  },
+  EVI: {
+    low: "oklch(0.54 0.08 205)",
+    mid: "oklch(0.69 0.15 205)",
+    high: "oklch(0.83 0.18 205)",
+    glow: "oklch(0.78 0.17 200)",
+    label: "Canopy enhancement",
+    unit: "index",
+  },
+  NDRE: {
+    low: "oklch(0.56 0.10 290)",
+    mid: "oklch(0.68 0.17 290)",
+    high: "oklch(0.82 0.20 290)",
+    glow: "oklch(0.70 0.20 290)",
+    label: "Chlorophyll stress",
+    unit: "index",
+  },
+  "Soil Moisture": {
+    low: "oklch(0.52 0.10 235)",
+    mid: "oklch(0.66 0.16 235)",
+    high: "oklch(0.82 0.20 235)",
+    glow: "oklch(0.78 0.17 220)",
+    label: "Moisture balance",
+    unit: "index",
+  },
+  "Vegetation Stress": {
+    low: "oklch(0.60 0.10 85)",
+    mid: "oklch(0.76 0.17 55)",
+    high: "oklch(0.70 0.22 28)",
+    glow: "oklch(0.82 0.17 80)",
+    label: "Stress pressure",
+    unit: "ratio",
+  },
+  "Anomaly Hotspots": {
+    low: "oklch(0.60 0.10 330)",
+    mid: "oklch(0.74 0.18 330)",
+    high: "oklch(0.68 0.22 330)",
+    glow: "oklch(0.68 0.22 330)",
+    label: "Outlier detection",
+    unit: "score",
+  },
+  "Disease Probability": {
+    low: "oklch(0.56 0.10 15)",
+    mid: "oklch(0.68 0.18 15)",
+    high: "oklch(0.60 0.24 20)",
+    glow: "oklch(0.68 0.22 25)",
+    label: "Disease risk",
+    unit: "probability",
+  },
+};
+
 type LayerName = (typeof LAYERS)[number];
 type BasemapOption = "Satellite" | "Dark" | "Terrain";
-
-type LayerEnabledState = Partial<Record<LayerName, boolean>>;
 
 interface LayerGuide {
   title: string;
@@ -143,8 +204,14 @@ function canonicalDistrictName(name: string | undefined | null) {
   return canonicalizeText(DISTRICT_ALIASES[trimmed] ?? trimmed);
 }
 
+const MANDAL_ALIASES: Record<string, string> = {
+  "akiveedu": "akividu",
+  "elamanchili": "yelamanchili",
+};
+
 function canonicalMandalName(name: string | undefined | null) {
-  return canonicalizeText(name);
+  const canon = canonicalizeText(name);
+  return MANDAL_ALIASES[canon] ?? canon;
 }
 
 function canonicalVillageName(name: string | undefined | null) {
@@ -260,7 +327,6 @@ function SatellitePage() {
   const [historic, setHistoric] = useState(11);
   const [activeLayer, setActiveLayer] = useState<LayerName>("NDVI");
   const [basemap, setBasemap] = useState<BasemapOption>("Satellite");
-  const [enabled, setEnabled] = useState<LayerEnabledState>({ NDVI: true });
   const [selectedParcelId, setSelectedParcelId] = useState<string | null>(null);
   const [selectedVillage, setSelectedVillage] = useState<string | null>(null);
   const { selectedDistrict: districtFilter, setSelectedDistrict: setDistrictFilter } =
@@ -308,7 +374,7 @@ function SatellitePage() {
       let foundVillage = "Unknown Village";
       
       for (const f of features) {
-        const mandalMatch = canonicalMandalName(f.properties?.sdtname) === canonicalizeText(p.mandal);
+        const mandalMatch = canonicalMandalName(f.properties?.sdtname) === canonicalMandalName(p.mandal);
         if (!mandalMatch) continue;
 
         if (!f.geometry) continue;
@@ -395,13 +461,36 @@ const villageOptions = useMemo(() => {
   const filteredParcels = useMemo(
     () =>
       parcels.filter((parcel) => {
-        const districtMatches = districtFilter === "all" || parcel.district === districtFilter;
-        const mandalMatches = mandalFilter === "all" || parcel.mandal === mandalFilter;
-        const villageMatches = villageFilter === "all" || parcel.village === villageFilter;
+        const districtMatches = districtFilter === "all" || canonicalDistrictName(parcel.district) === canonicalDistrictName(districtFilter);
+        const mandalMatches = mandalFilter === "all" || canonicalMandalName(parcel.mandal) === canonicalMandalName(mandalFilter);
+        const villageMatches = villageFilter === "all" || canonicalVillageName(parcel.village) === canonicalVillageName(villageFilter);
         return districtMatches && mandalMatches && villageMatches;
       }),
     [districtFilter, mandalFilter, villageFilter, parcels],
   );
+
+  const layerAverages = useMemo(() => {
+    if (!filteredParcels.length) return [];
+    
+    return LAYERS.map(layer => {
+      let sum = 0;
+      let count = 0;
+      for (const p of filteredParcels) {
+        const valStr = metricForLayer(p, layer);
+        const val = parseFloat(valStr);
+        if (!isNaN(val)) {
+          sum += val;
+          count++;
+        }
+      }
+      return {
+        subject: layer.replace(" Probability", "").replace(" Hotspots", "").replace(" Moisture", ""),
+        value: count > 0 ? Number((sum / count).toFixed(2)) : 0,
+        fullLabel: layer,
+      };
+    });
+  }, [filteredParcels]);
+
   const selectedParcelFromAll = useMemo(
     () => parcels.find((parcel) => parcel.id === selectedParcelId) ?? null,
     [parcels, selectedParcelId],
@@ -640,6 +729,23 @@ const villageOptions = useMemo(() => {
               </SelectContent>
             </Select>
 
+            {(districtFilter !== "all" || mandalFilter !== "all" || villageFilter !== "all") && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                onClick={() => {
+                  setDistrictFilter("all");
+                  setMandalFilter("all");
+                  setVillageFilter("all");
+                  setSelectedVillage(null);
+                  setSelectedParcelId(null);
+                }}
+              >
+                Clear
+              </Button>
+            )}
+
             {/* <Badge
               variant="outline"
               className="rounded-full border-success/40 bg-success/10 text-success gap-1.5 self-center ml-2 px-3 py-1"
@@ -726,9 +832,14 @@ const villageOptions = useMemo(() => {
               <LegendRow color="bg-slate-400/80" label="District boundaries" />
               <LegendRow color="bg-cyan-400/80" label="Mandal boundaries" />
               <LegendRow color="bg-info/80" label="Village boundaries" />
-              <LegendRow color="bg-success/80" label="Healthy parcels" />
-              <LegendRow color="bg-warning/80" label="Moderate stress" />
-              <LegendRow color="bg-destructive/80" label="High disease risk" />
+              
+              <div className="my-2 border-t border-border/40" />
+              <div className="font-medium text-muted-foreground pb-0.5">{activeLayer}</div>
+              <LegendRow customColor={LAYER_PALETTES[activeLayer]?.high ?? LAYER_PALETTES.NDVI.high} label="High" />
+              <LegendRow customColor={LAYER_PALETTES[activeLayer]?.mid ?? LAYER_PALETTES.NDVI.mid} label="Medium" />
+              <LegendRow customColor={LAYER_PALETTES[activeLayer]?.low ?? LAYER_PALETTES.NDVI.low} label="Low" />
+              
+              <div className="my-2 border-t border-border/40" />
               <LegendRow color="bg-primary/80" label="Selected parcel" />
             </div>
           </div>
@@ -760,10 +871,8 @@ const villageOptions = useMemo(() => {
                 >
                   <span className="text-xs font-medium">{layer}</span>
                   <Switch
-                    checked={enabled[layer] ?? false}
-                    onCheckedChange={(value) =>
-                      setEnabled((current) => ({ ...current, [layer]: value }))
-                    }
+                    checked={activeLayer === layer}
+                    onCheckedChange={() => setActiveLayer(layer)}
                     onClick={(event) => event.stopPropagation()}
                   />
                 </div>
@@ -909,14 +1018,11 @@ const villageOptions = useMemo(() => {
             {selectedParcelFromAll ? (
 
               <>
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className="font-semibold text-sm">{selectedParcelFromAll.id}</p>
-
-                    <p className="text-muted-foreground">
-                      {selectedParcelFromAll.crop} · {selectedParcelFromAll.farmer}
-
-                    </p>
+                    <p className="font-semibold text-sm">Parcel ID: {selectedParcelFromAll.id}</p>
+                    <p className="font-semibold text-sm">Crop: {selectedParcelFromAll.crop}</p>
+                    <p className="font-semibold text-sm">Farmer: {selectedParcelFromAll.farmer}</p>
                   </div>
                   {selectedRisk ? (
                     <Badge className={selectedRisk.chip}>{selectedRisk.label}</Badge>
@@ -960,7 +1066,7 @@ const villageOptions = useMemo(() => {
                     {selectedParcelFromAll.mandal}
                   </p>
                   <p>
-                    <span className="text-muted-foreground">Layer value:</span>{" "}
+                    <span className="text-muted-foreground">{activeLayer} value:</span>{" "}
                     {metricForLayer(selectedParcelFromAll, activeLayer)}
                   </p>
                   <p>
@@ -1016,6 +1122,37 @@ const villageOptions = useMemo(() => {
             )}
           </div>
 
+          {layerAverages.length > 0 && (
+            <div className="glass rounded-lg p-3 text-xs space-y-3">
+              <h4 className="font-semibold">Regional Layer Profile</h4>
+              <div className="h-48 w-full -ml-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="50%" outerRadius="70%" data={layerAverages}>
+                    <PolarGrid stroke="rgba(255,255,255,0.1)" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 10 }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 1]} tick={false} axisLine={false} />
+                    <Radar
+                      name="Average"
+                      dataKey="value"
+                      stroke="#10b981"
+                      fill="#10b981"
+                      fillOpacity={0.3}
+                    />
+                    <RechartsTooltip
+                      contentStyle={{ backgroundColor: "rgba(0,0,0,0.8)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px" }}
+                      itemStyle={{ color: "#fff" }}
+                      labelStyle={{ display: "none" }}
+                      formatter={(value: number, name: string, props: any) => [value, props.payload.fullLabel]}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-muted-foreground leading-relaxed text-[10px]">
+                Average multi-spectral layer profile for the selected region.
+              </p>
+            </div>
+          )}
+
           <div className="glass rounded-lg p-3 text-xs">
             <h4 className="font-semibold mb-1.5">AI Parcel Summary</h4>
             {aiSummary ? (
@@ -1039,10 +1176,13 @@ const villageOptions = useMemo(() => {
   );
 }
 
-function LegendRow({ color, label }: { color: string; label: string }) {
+function LegendRow({ color, customColor, label }: { color?: string; customColor?: string; label: string }) {
   return (
     <div className="flex items-center gap-2">
-      <span className={`h-2.5 w-2.5 rounded-full ${color}`} />
+      <span 
+        className={`h-2.5 w-2.5 rounded-full ${color || ""}`} 
+        style={customColor ? { backgroundColor: customColor } : undefined} 
+      />
       <span className="text-muted-foreground">{label}</span>
     </div>
   );

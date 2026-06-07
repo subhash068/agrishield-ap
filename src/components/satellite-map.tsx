@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CircleMarker, GeoJSON, MapContainer, Polygon, TileLayer, Tooltip, ZoomControl, useMap } from "react-leaflet";
+import { CircleMarker, GeoJSON, MapContainer, Polygon, TileLayer, Tooltip, ZoomControl, useMap, Pane } from "react-leaflet";
 import L from "leaflet";
 import type { GeoJsonObject } from "geojson";
 import type { Parcel } from "@/lib/api";
@@ -26,7 +26,7 @@ const RISK_STYLES: Record<string, { stroke: string; fill: string; opacity: numbe
   warning: { stroke: "oklch(0.68 0.22 25)", fill: "oklch(0.68 0.22 25)", opacity: 0.3 },
 };
 
-const LAYER_PALETTES: Record<
+export const LAYER_PALETTES: Record<
   string,
   { low: string; mid: string; high: string; glow: string; label: string; unit: string }
 > = {
@@ -71,10 +71,10 @@ const LAYER_PALETTES: Record<
     unit: "ratio",
   },
   "Anomaly Hotspots": {
-    low: "oklch(0.60 0.10 35)",
-    mid: "oklch(0.74 0.18 35)",
-    high: "oklch(0.68 0.22 25)",
-    glow: "oklch(0.68 0.22 25)",
+    low: "oklch(0.60 0.10 330)",
+    mid: "oklch(0.74 0.18 330)",
+    high: "oklch(0.68 0.22 330)",
+    glow: "oklch(0.68 0.22 330)",
     label: "Outlier detection",
     unit: "score",
   },
@@ -112,8 +112,14 @@ function canonicalDistrictName(name: string | undefined | null) {
   return canonicalizeText(DISTRICT_ALIASES[trimmed] ?? trimmed);
 }
 
+const MANDAL_ALIASES: Record<string, string> = {
+  "akiveedu": "akividu",
+  "elamanchili": "yelamanchili",
+};
+
 function canonicalMandalName(name: string | undefined | null) {
-  return canonicalizeText(name);
+  const canon = canonicalizeText(name);
+  return MANDAL_ALIASES[canon] ?? canon;
 }
 
 function canonicalVillageName(name: string | undefined | null) {
@@ -406,14 +412,6 @@ color:
             opacity: 0.55,
           })}
           onEachFeature={(feature, layer) => {
-            const props = feature?.properties as any;
-            const district = canonicalDistrictName(props?.NAME);
-            layer.bindTooltip(`District: ${district || "—"}<br/>Mandal: —<br/>Village: —`, {
-              sticky: true,
-              direction: "center",
-              opacity: 0.95,
-              className: "text-xs",
-            });
           }}
         />
       ) : null}
@@ -435,16 +433,6 @@ color:
             opacity: 0.28,
           })}
           onEachFeature={(feature, layer) => {
-            const props = feature?.properties as any;
-            const district = canonicalDistrictName(props?.dtname);
-            const mandal = canonicalMandalName(props?.sdtname);
-
-            layer.bindTooltip(`District: ${district || "—"}<br/>Mandal: ${mandal || "—"}<br/>Village: —`, {
-              sticky: true,
-              direction: "center",
-              opacity: 0.95,
-              className: "text-xs",
-            });
           }}
         />
       ) : null}
@@ -472,21 +460,8 @@ const isSelectedVillage =
           }}
           onEachFeature={(feature, layer) => {
             const props = feature?.properties as any;
-
-            const district = canonicalDistrictName(props?.dtname);
-            const mandal = canonicalMandalName(props?.sdtname);
             const villageRaw = props?.vilname11 ?? props?.vilnam_soi;
             const villageName = typeof villageRaw === "string" ? villageRaw : "—";
-
-            layer.bindTooltip(
-              `District: ${district || "—"}<br/>Mandal: ${mandal || "—"}<br/>Village: ${villageName}`,
-              {
-                sticky: true,
-                direction: "center",
-                opacity: 0.95,
-                className: "text-xs",
-              },
-            );
 
             layer.on({
               click: () => {
@@ -499,24 +474,51 @@ const isSelectedVillage =
       ) : null}
 
 
-      {parcelsWithBand.map((parcel) => {
-        const positions = geometryToLeafletPositions(parcel);
-        const canRenderPolygon = positions.length > 2;
+      <Pane name="parcels" style={{ zIndex: 450 }}>
+        {parcelsWithBand.map((parcel) => {
+          const positions = geometryToLeafletPositions(parcel);
+          const canRenderPolygon = positions.length > 2;
 
-        const clickHandler = () => onSelectParcel(parcel.id);
+          const clickHandler = () => onSelectParcel(parcel.id);
 
-        if (!canRenderPolygon) {
+          if (!canRenderPolygon) {
+            return (
+              <CircleMarker
+                key={`${parcel.id}-fallback`}
+                center={[parcel.lat, parcel.lng]}
+                radius={0.5}
+                pathOptions={{
+                  color: paletteForLayer(activeLayer).glow,
+                  fillColor: paletteForLayer(activeLayer).glow,
+                  fillOpacity: 0,
+                  weight: 0,
+                }}
+                eventHandlers={{
+                  click: clickHandler,
+                }}
+              >
+                <Tooltip direction="top" offset={[0, -6]} opacity={1} sticky={false}>
+                  <div className="text-[11px] space-y-0.5 pointer-events-none">
+                    <div className="font-semibold">
+                      {parcel.id} · {parcel.crop}
+                    </div>
+                    <div>
+                      {parcel.risk} risk · Health {parcel.health}%
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-1 pt-1 border-t border-border/40">
+                      {parcel.district} &gt; {parcel.mandal} &gt; {parcel.village}
+                    </div>
+                  </div>
+                </Tooltip>
+              </CircleMarker>
+            );
+          }
+
           return (
-            <CircleMarker
-              key={`${parcel.id}-fallback`}
-              center={[parcel.lat, parcel.lng]}
-              radius={0.5}
-              pathOptions={{
-                color: paletteForLayer(activeLayer).glow,
-                fillColor: paletteForLayer(activeLayer).glow,
-                fillOpacity: 0,
-                weight: 0,
-              }}
+            <Polygon
+              key={parcel.id}
+              positions={positions as any}
+              pathOptions={styleFor(parcel)}
               eventHandlers={{
                 click: clickHandler,
               }}
@@ -524,73 +526,48 @@ const isSelectedVillage =
               <Tooltip direction="top" offset={[0, -6]} opacity={1} sticky={false}>
                 <div className="text-[11px] space-y-0.5 pointer-events-none">
                   <div className="font-semibold">
-                    {parcel.id} · {parcel.crop}
+                    {parcel.id} • {parcel.crop}
                   </div>
                   <div>
-                    {parcel.risk} risk · Health {parcel.health}%
+                    {parcel.risk} risk • Health {parcel.health}%
+                  </div>
+                  <div className="font-medium text-primary mt-0.5">
+                    {activeLayer}: {scoreForLayer(parcel, activeLayer).toFixed(2)}
                   </div>
                   <div className="text-[10px] text-muted-foreground mt-1 pt-1 border-t border-border/40">
                     {parcel.district} &gt; {parcel.mandal} &gt; {parcel.village}
                   </div>
                 </div>
               </Tooltip>
-            </CircleMarker>
+            </Polygon>
           );
-        }
+        })}
 
-        return (
+        {selectedParcel ? (
           <Polygon
-            key={parcel.id}
-            positions={positions as any}
-            pathOptions={styleFor(parcel)}
-            eventHandlers={{
-              click: clickHandler,
+            positions={geometryToLeafletPositions(selectedParcel) as any}
+            pathOptions={{
+              color: paletteForLayer(activeLayer).glow,
+              fillColor: paletteForLayer(activeLayer).glow,
+              fillOpacity: 0.48,
+              weight: 2.7,
             }}
-          >
-            <Tooltip direction="top" offset={[0, -6]} opacity={1} sticky={false}>
-              <div className="text-[11px] space-y-0.5 pointer-events-none">
-                <div className="font-semibold">
-                  {parcel.id} • {parcel.crop}
-                </div>
-                <div>
-                  {parcel.risk} risk • Health {parcel.health}%
-                </div>
-                <div className="font-medium text-primary mt-0.5">
-                  {activeLayer}: {scoreForLayer(parcel, activeLayer).toFixed(2)}
-                </div>
-                <div className="text-[10px] text-muted-foreground mt-1 pt-1 border-t border-border/40">
-                  {parcel.district} &gt; {parcel.mandal} &gt; {parcel.village}
-                </div>
-              </div>
-            </Tooltip>
-          </Polygon>
-        );
-      })}
+          />
+        ) : null}
 
-      {selectedParcel ? (
-        <Polygon
-          positions={geometryToLeafletPositions(selectedParcel) as any}
-          pathOptions={{
-            color: paletteForLayer(activeLayer).glow,
-            fillColor: paletteForLayer(activeLayer).glow,
-            fillOpacity: 0.48,
-            weight: 2.7,
-          }}
-        />
-      ) : null}
-
-      {selectedParcel ? (
-        <Polygon
-          positions={geometryToLeafletPositions(selectedParcel) as any}
-          pathOptions={{
-            color: paletteForLayer(activeLayer).glow,
-            fillColor: "transparent",
-            fillOpacity: 0,
-            weight: 5,
-            dashArray: "6 4",
-          }}
-        />
-      ) : null}
+        {selectedParcel ? (
+          <Polygon
+            positions={geometryToLeafletPositions(selectedParcel) as any}
+            pathOptions={{
+              color: paletteForLayer(activeLayer).glow,
+              fillColor: "transparent",
+              fillOpacity: 0,
+              weight: 5,
+              dashArray: "6 4",
+            }}
+          />
+        ) : null}
+      </Pane>
     </MapContainer>
   );
 }
