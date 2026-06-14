@@ -8,8 +8,8 @@ import { BarChart2, CircleDot, MousePointerClick, Table, Info, Map as MapIcon, T
 import { PageHeader } from "@/components/page-header";
 import { Slider } from "@/components/ui/slider";
 import { IndiaMap } from "@/components/india-map";
-import stateCsvRaw from "../../public/data/Rice-Production,-(2016-17-to-2025-26).csv?raw";
-import countryCsvRaw from "../../public/data/Rice-Production,-(2015-to-2024).csv?raw";
+import stateCsvRaw from "../data/Rice-Production,-(2016-17-to-2025-26).csv?raw";
+import countryCsvRaw from "../data/Rice-Production,-(2015-to-2024).csv?raw";
 
 export const Route = createFileRoute("/india-production")({
   head: () => ({

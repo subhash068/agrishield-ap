@@ -1,8 +1,7 @@
 
-
 python -m uvicorn backend.fastapi.app.main:app --host 127.0.0.1 --port 8000
 
-cd c:/Users/windows-11/Desktop/agrishield-ap/backend/fastapi && python -m uvicorn app.main:app --reload --port 8000
+cd c:/Users/windows-11/Desktop/agrishield-ap/backend/fastapi; python -m uvicorn app.main:app --reload --port 8000
 
 
 bun run dev

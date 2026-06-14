@@ -122,6 +122,6 @@ function FarmerProfilePage() {
   );
 }
 
-export default FarmerProfilePage;
+
 
 

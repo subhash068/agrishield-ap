@@ -96,6 +96,6 @@ function FarmerAlertsPage() {
   );
 }
 
-export default FarmerAlertsPage;
+
 
 

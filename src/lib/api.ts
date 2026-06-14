@@ -675,3 +675,40 @@ export function getSurveillanceData(): Promise<SurveillanceDataOut> {
   return apiFetch<SurveillanceDataOut>("/surveillance/data");
 }
 
+export type RskAlertPushInput = {
+  alert_id: string;
+  rsk_id: string;
+  recipient_phone?: string;
+  dispatch_mode?: "SMS" | "Mobile App" | "IVR" | "All";
+};
+
+export type RskAlertPushResponse = {
+  dispatch_id: string;
+  status: string;
+  dispatched_at: string;
+};
+
+export function pushAlertToRsk(payload: RskAlertPushInput): Promise<RskAlertPushResponse> {
+  return apiFetch<RskAlertPushResponse>("/rsk/alerts/push", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+export type AprtgsMandalReportOut = {
+  district: string;
+  mandal: string;
+  total_parcels: number;
+  average_health_index: number;
+  active_biotic_alerts: number;
+  active_abiotic_alerts: number;
+  primary_outbreak: string | null;
+  estimated_yield_impact_pct: number;
+  reporting_timestamp: string;
+};
+
+export function exportAprtgsMandalReport(district: string, mandal: string): Promise<AprtgsMandalReportOut> {
+  return apiFetch<AprtgsMandalReportOut>(`/aprtgs/reports/mandal-export?district=${encodeURIComponent(district)}&mandal=${encodeURIComponent(mandal)}`);
+}
+

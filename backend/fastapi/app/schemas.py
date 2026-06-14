@@ -305,6 +305,10 @@ class FusionFuseInput(BaseModel):
     disease_detection_response: DiseaseDetectionResponseOut | None = None
 
 
+class WrappedFusionFuseInput(BaseModel):
+    input: FusionFuseInput
+
+
 class FusionResponseOut(BaseModel):
     parcel_id: str | None = None
     fieldId: str | None = None
@@ -434,4 +438,29 @@ class SurveillanceDataOut(BaseModel):
     crop_distribution: List[SurveillanceCropDistribution]
     disease_type_distribution: List[SurveillanceDiseaseType]
     disease_trend: List[SurveillanceDiseaseTrend]
+
+
+class RskAlertPushInput(BaseModel):
+    alert_id: str
+    rsk_id: str
+    recipient_phone: str | None = None
+    dispatch_mode: Literal["SMS", "Mobile App", "IVR", "All"] = "All"
+
+
+class RskAlertPushResponse(BaseModel):
+    dispatch_id: str
+    status: str
+    dispatched_at: str
+
+
+class AprtgsMandalReportOut(BaseModel):
+    district: str
+    mandal: str
+    total_parcels: int
+    average_health_index: float
+    active_biotic_alerts: int
+    active_abiotic_alerts: int
+    primary_outbreak: str | None = None
+    estimated_yield_impact_pct: float
+    reporting_timestamp: str
 

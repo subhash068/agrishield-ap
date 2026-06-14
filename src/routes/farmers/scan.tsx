@@ -70,6 +70,24 @@ type AlertForm = {
 
 const channelOptions = ["SMS", "Mobile Notification", "WhatsApp", "IVR"] as const;
 
+type OfflineScan = {
+  id: string;
+  fileName: string;
+  capturedAt: string;
+  lat: number | null;
+  lng: number | null;
+  imageBase64: string;
+};
+
+function jsonParseSafe(val: string | null, fallback: any) {
+  if (!val) return fallback;
+  try {
+    return JSON.parse(val);
+  } catch {
+    return fallback;
+  }
+}
+
 const initialAlertForm = (district: string): AlertForm => ({
   district,
   crop: "Paddy",
@@ -145,6 +163,125 @@ function FarmerScanPage() {
 
   const [fusionResult, setFusionResult] = useState<FusionResponseOut | null>(null);
 
+  const [isOnline, setIsOnline] = useState(typeof window !== "undefined" ? window.navigator.onLine : true);
+  const [offlineQueue, setOfflineQueue] = useState<OfflineScan[]>([]);
+  const [syncingQueue, setSyncingQueue] = useState(false);
+  const [offlineStatus, setOfflineStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    try {
+      const stored = localStorage.getItem("agrishield_offline_scans");
+      if (stored) {
+        setOfflineQueue(jsonParseSafe(stored, []));
+      }
+    } catch (e) {
+      console.error("Failed to load offline scans", e);
+    }
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  const saveToOfflineQueue = async (file: File) => {
+    try {
+      setOfflineStatus("Saving scan to offline queue...");
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        const newScan: OfflineScan = {
+          id: Math.random().toString(36).substring(2, 9),
+          fileName: file.name,
+          capturedAt: new Date().toLocaleString(),
+          lat: geoState.lat,
+          lng: geoState.lng,
+          imageBase64: base64,
+        };
+
+        const updated = [...offlineQueue, newScan];
+        setOfflineQueue(updated);
+        localStorage.setItem("agrishield_offline_scans", JSON.stringify(updated));
+        setOfflineStatus(`Saved locally! ${updated.length} scan(s) in queue.`);
+        
+        // Output fallback heuristic immediately for farmer offline feedback
+        setScanResult(buildFallbackResult(file.name));
+      };
+    } catch (e) {
+      setOfflineStatus("Failed to save scan locally.");
+    }
+  };
+
+  const syncOfflineQueue = async () => {
+    if (offlineQueue.length === 0 || syncingQueue) return;
+    setSyncingQueue(true);
+    setOfflineStatus("Syncing offline scans to server...");
+    
+    let successCount = 0;
+    const remaining: OfflineScan[] = [];
+
+    for (const scan of offlineQueue) {
+      try {
+        const response = await fetch(scan.imageBase64);
+        const blob = await response.blob();
+        const file = new File([blob], scan.fileName, { type: blob.type });
+
+        const detectData = await detectDisease(file);
+        
+        if (scan.lat !== null && scan.lng !== null) {
+          await fuseSatelliteGround({
+            fieldId: "FARMER-SCAN-SYNCED",
+            lat: scan.lat,
+            lng: scan.lng,
+            disease_detection_response: detectData,
+          });
+        }
+        
+        await createAlert({
+          type: `${detectData.label} alert`,
+          crop: detectData.crop_hint || "Paddy",
+          district: profile?.district ?? "Krishna",
+          severity: detectData.severity,
+          time: scan.capturedAt,
+          action: detectData.severity === "Critical" 
+            ? "Spray immediately and isolate affected patches" 
+            : "Monitor field and follow advisory",
+        });
+
+        successCount++;
+      } catch (err) {
+        console.error("Failed to sync scan ID", scan.id, err);
+        remaining.push(scan);
+      }
+    }
+
+    setOfflineQueue(remaining);
+    localStorage.setItem("agrishield_offline_scans", JSON.stringify(remaining));
+    setSyncingQueue(false);
+    
+    if (successCount > 0) {
+      setOfflineStatus(`Synced ${successCount} scan(s) successfully!`);
+      queryClient.invalidateQueries({ queryKey: ["alerts"] });
+    } else {
+      setOfflineStatus("Failed to sync scans. Will retry when connection stabilizes.");
+    }
+  };
+
+  // Trigger auto-sync when online
+  useEffect(() => {
+    if (isOnline && offlineQueue.length > 0) {
+      syncOfflineQueue();
+    }
+  }, [isOnline, offlineQueue.length]);
+
   const [alertForm, setAlertForm] = useState<AlertForm>(() => initialAlertForm(profile?.district ?? "Krishna"));
 
   useEffect(() => {
@@ -158,9 +295,22 @@ function FarmerScanPage() {
 
   const createAlertMutation = useMutation<Alert, Error, AlertCreateInput>({
     mutationFn: createAlert,
-    onSuccess: (created) => {
-      setAlertStatus(`Alert saved at ${created.time}`);
+    onSuccess: async (created) => {
+      setAlertStatus(`Alert saved at ${created.time}. Dispatching to RSK...`);
       queryClient.invalidateQueries({ queryKey: ["alerts"] });
+      try {
+        const { pushAlertToRsk } = await import("@/lib/api");
+        const pushRes = await pushAlertToRsk({
+          alert_id: created.id,
+          rsk_id: "SC-RSK-WG-001",
+          recipient_phone: profile?.phoneNumber || "+919000000011",
+          dispatch_mode: "All",
+        });
+        setAlertStatus(`Alert saved and dispatched to RSK! (Dispatch ID: ${pushRes.dispatch_id})`);
+      } catch (err) {
+        console.error("Failed to push alert to RSK", err);
+        setAlertStatus(`Alert saved at ${created.time}, but failed to dispatch to RSK.`);
+      }
     },
     onError: (error) => {
       setAlertStatus(error.message || "Failed to save alert");
@@ -310,7 +460,13 @@ function FarmerScanPage() {
     setSelectedFile(file);
     setScanResult(null);
     detectMutation.reset();
-    if (file) detectMutation.mutate(file);
+    if (file) {
+      if (!isOnline) {
+        saveToOfflineQueue(file);
+      } else {
+        detectMutation.mutate(file);
+      }
+    }
   };
 
   const sendAlert = () => {
@@ -348,6 +504,49 @@ function FarmerScanPage() {
       />
 
       <div className="px-4 md:px-6 py-4 max-w-2xl mx-auto">
+        {/* Offline / Connectivity Banner */}
+        {!isOnline && (
+          <div className="mb-4 rounded-2xl border border-warning/20 bg-warning/10 p-4 flex items-center justify-between gap-3 text-sm">
+            <div>
+              <p className="font-semibold text-warning">Offline Mode Active</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Scans will be saved locally and synced automatically when network returns.
+              </p>
+            </div>
+            <Badge className="bg-warning/20 text-warning border-warning/40">Offline</Badge>
+          </div>
+        )}
+
+        {offlineQueue.length > 0 && (
+          <div className="mb-4 rounded-2xl border border-primary/20 bg-primary/10 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="font-semibold">Pending Sync Queue</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {offlineQueue.length} scan(s) captured offline waiting for upload.
+                </p>
+              </div>
+              <Button
+                size="sm"
+                className="rounded-xl h-9"
+                onClick={syncOfflineQueue}
+                disabled={syncingQueue || !isOnline}
+              >
+                {syncingQueue ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> Syncing...
+                  </>
+                ) : (
+                  "Sync Now"
+                )}
+              </Button>
+            </div>
+            {offlineStatus && (
+              <p className="mt-2 text-xs text-primary/80 border-t border-primary/10 pt-2">{offlineStatus}</p>
+            )}
+          </div>
+        )}
+
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
@@ -649,5 +848,4 @@ function FarmerScanPage() {
     </div>
   );
 }
-
-export default FarmerScanPage;
+

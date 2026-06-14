@@ -118,6 +118,6 @@ function FarmerReportsPage() {
   );
 }
 
-export default FarmerReportsPage;
+
 
 

@@ -14,9 +14,29 @@ export const Route = createFileRoute("/reports")({
       { title: "Satellite Coverage Report", period: "Nov 2026", size: "11 MB", type: "PDF" },
       { title: "Pest Outbreak Bulletin", period: "Weekly", size: "1.1 MB", type: "PDF" },
       { title: "Scheme Disbursement Tracker", period: "FY 2026-27", size: "6.7 MB", type: "XLSX" },
+      { title: "APRTGS Mandal Surveillance Export", period: "Live - Krishna District", size: "JSON", type: "JSON" },
     ];
 
-    const handleDownload = (title: string, type: string) => {
+    const handleDownload = async (title: string, type: string) => {
+      if (title === "APRTGS Mandal Surveillance Export") {
+        try {
+          const { exportAprtgsMandalReport } = await import("@/lib/api");
+          const data = await exportAprtgsMandalReport("Krishna", "Vijayawada");
+          const content = JSON.stringify(data, null, 2);
+          const blob = new Blob([content], { type: "application/json" });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `aprtgs_mandal_surveillance_${data.district}_${data.mandal}.json`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        } catch (e) {
+          alert("Failed to export APRTGS report. Ensure the backend server is running.");
+        }
+        return;
+      }
       const content = `Report Data for ${title}`;
       const blob = new Blob([content], { type: type === "PDF" ? "application/pdf" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
       const url = window.URL.createObjectURL(blob);
