@@ -13,6 +13,34 @@ import {
   clearOtpChallenge,
 } from "@/lib/farmer-auth";
 import { generateFarmerId, generateParcelId } from "@/lib/farmer-id";
+import { useAppShell } from "@/components/app-shell-store";
+
+const TRANSLATIONS = {
+  en: {
+    title: "Verify OTP",
+    phone: "Phone:",
+    mock: "Mock",
+    noChallenge: "No active OTP challenge. Go back and request OTP again.",
+    otpCode: "OTP Code",
+    placeholder: "6-digit",
+    demoOtp: "Demo OTP (for you):",
+    verifyButton: "Verify & Continue",
+    verifyingButton: "Verifying...",
+    expires: "OTP expires in 5 minutes.",
+  },
+  te: {
+    title: "ఓటీపీని ధృవీకరించండి",
+    phone: "ఫోన్:",
+    mock: "మాక్",
+    noChallenge: "యాక్టివ్ ఓటీపీ ఛాలెంజ్ లేదు. వెనుకకు వెళ్లి ఓటీపీని మళ్లీ అభ్యర్థించండి.",
+    otpCode: "ఓటీపీ కోడ్",
+    placeholder: "6-అంకెలు",
+    demoOtp: "డెమో ఓటీపీ (మీ కోసం):",
+    verifyButton: "ధృవీకరించండి & కొనసాగండి",
+    verifyingButton: "ధృవీకరిస్తోంది...",
+    expires: "ఓటీపీ 5 నిమిషాల్లో ముగుస్తుంది.",
+  }
+};
 
 export const Route = createFileRoute("/farmers/verify-otp")({
   head: () => ({
@@ -30,6 +58,9 @@ function onlyDigits(s: string) {
 
 function VerifyOtpPage() {
   const navigate = useNavigate();
+  const { locale } = useAppShell();
+  const t = TRANSLATIONS[locale] || TRANSLATIONS.en;
+
   const [code, setCode] = useState("");
   const [verifying, setVerifying] = useState(false);
 
@@ -103,11 +134,11 @@ function VerifyOtpPage() {
     <div className="px-4 py-6 max-w-md mx-auto">
       <div className="flex items-center justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-xl font-bold">Verify OTP</h1>
-          <p className="text-xs text-muted-foreground mt-1">Phone: {phoneNumber || "—"}</p>
+          <h1 className="text-xl font-bold">{t.title}</h1>
+          <p className="text-xs text-muted-foreground mt-1">{t.phone} {phoneNumber || "—"}</p>
         </div>
         <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary">
-          <ShieldCheck className="h-3.5 w-3.5" /> Mock
+          <ShieldCheck className="h-3.5 w-3.5" /> {t.mock}
         </Badge>
       </div>
 
@@ -115,24 +146,24 @@ function VerifyOtpPage() {
         <div className="space-y-4">
           {!challenge ? (
             <div className="rounded-xl border border-border/60 bg-muted/20 p-3 text-xs text-muted-foreground">
-              No active OTP challenge. Go back and request OTP again.
+              {t.noChallenge}
             </div>
           ) : null}
 
           <label className="block">
             <div className="text-sm font-semibold flex items-center gap-2">
-              <Phone className="h-4 w-4 text-primary" /> OTP Code
+              <Phone className="h-4 w-4 text-primary" /> {t.otpCode}
             </div>
             <Input
               value={code}
               onChange={(e) => setCode(e.target.value)}
               inputMode="numeric"
-              placeholder="6-digit"
+              placeholder={t.placeholder}
               className="mt-2"
             />
             {challenge ? (
               <div className="mt-2 text-[11px] text-muted-foreground">
-                Demo OTP (for you):{" "}
+                {t.demoOtp}{" "}
                 <span className="font-semibold text-primary">{challenge.code}</span>
               </div>
             ) : null}
@@ -144,10 +175,10 @@ function VerifyOtpPage() {
             onClick={verify}
           >
             {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
-            <span className="ml-2">Verify & Continue</span>
+            <span className="ml-2">{verifying ? t.verifyingButton : t.verifyButton}</span>
           </Button>
 
-          <div className="text-xs text-muted-foreground">OTP expires in 5 minutes.</div>
+          <div className="text-xs text-muted-foreground">{t.expires}</div>
         </div>
       </Card>
     </div>

@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getParcels, type Parcel } from "@/lib/api";
+import { getParcels, type Parcel, API_BASE_URL } from "@/lib/api";
 import { Link } from "@tanstack/react-router";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
 
@@ -329,6 +329,8 @@ function SatellitePage() {
   const [basemap, setBasemap] = useState<BasemapOption>("Satellite");
   const [selectedParcelId, setSelectedParcelId] = useState<string | null>(null);
   const [selectedVillage, setSelectedVillage] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
   const { selectedDistrict: districtFilter, setSelectedDistrict: setDistrictFilter } =
     useAppShell();
   const [mandalFilter, setMandalFilter] = useState("all");
@@ -337,30 +339,36 @@ function SatellitePage() {
   const [mandalGeoJson, setMandalGeoJson] = useState<GeoJson | null>(null);
   const [villageGeoJson, setVillageGeoJson] = useState<GeoJson | null>(null);
 
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
     import("@/components/satellite-map").then((m) => setMapView(() => m.SatelliteMap));
   }, []);
 
   useEffect(() => {
-    fetch(DISTRICT_GEOJSON_URL)
+    fetch(`${API_BASE_URL}/api/map/districts`)
       .then((response) => response.json())
       .then((data) => setDistrictGeoJson(data))
       .catch(() => setDistrictGeoJson(null));
   }, []);
 
   useEffect(() => {
-    fetch(MANDAL_GEOJSON_URL)
+    fetch(`${API_BASE_URL}/api/map/mandals?district=${encodeURIComponent(districtFilter)}`)
       .then((response) => response.json())
       .then((data) => setMandalGeoJson(data))
       .catch(() => setMandalGeoJson(null));
-  }, []);
+  }, [districtFilter]);
 
   useEffect(() => {
-    fetch(VILLAGE_GEOJSON_URL)
+    if (districtFilter === "all" && mandalFilter === "all") {
+      setVillageGeoJson(null);
+      return;
+    }
+    fetch(`${API_BASE_URL}/api/map/villages?district=${encodeURIComponent(districtFilter)}&mandal=${encodeURIComponent(mandalFilter)}`)
       .then((response) => response.json())
       .then((data) => setVillageGeoJson(data))
       .catch(() => setVillageGeoJson(null));
-  }, []);
+  }, [districtFilter, mandalFilter]);
 
   const parcels = useMemo(() => {
     if (!villageGeoJson || rawParcels.length === 0) return rawParcels;
@@ -729,22 +737,27 @@ const villageOptions = useMemo(() => {
               </SelectContent>
             </Select>
 
-            {(districtFilter !== "all" || mandalFilter !== "all" || villageFilter !== "all") && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 px-2 text-xs text-destructive/70 hover:text-destructive hover:bg-destructive/10"
-                onClick={() => {
-                  setDistrictFilter("all");
-                  setMandalFilter("all");
-                  setVillageFilter("all");
-                  setSelectedVillage(null);
-                  setSelectedParcelId(null);
-                }}
-              >
-                Clear filters
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-8 px-2 text-xs text-destructive/70 hover:text-destructive hover:bg-destructive/10 transition-opacity ${
+                !mounted
+                  ? "opacity-0 pointer-events-none"
+                  : districtFilter !== "all" || mandalFilter !== "all" || villageFilter !== "all"
+                    ? "opacity-100 pointer-events-auto"
+                    : "opacity-0 pointer-events-none"
+              }`}
+              onClick={() => {
+                setDistrictFilter("all");
+                setMandalFilter("all");
+                setVillageFilter("all");
+                setSelectedVillage(null);
+                setSelectedParcelId(null);
+              }}
+            >
+              Clear filters
+            </Button>
+
 
             {/* <Badge
               variant="outline"

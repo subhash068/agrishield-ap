@@ -12,6 +12,7 @@ import { getFarmerSession } from "@/lib/farmer-auth";
 import { useQuery } from "@tanstack/react-query";
 import { getFertilizerRecommendation } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAppShell } from "@/components/app-shell-store";
 
 export const Route = createFileRoute("/farmers/advisory")({
   head: () => ({
@@ -19,6 +20,59 @@ export const Route = createFileRoute("/farmers/advisory")({
   }),
   component: FarmerAdvisoryPage,
 });
+
+const TRANSLATIONS = {
+  en: {
+    eyebrow: "Advisory Center",
+    title: "Actionable advisory",
+    description: "Practical pest/disease/irrigation guidance generated for your parcel.",
+    parcel: "Parcel",
+    forThisWeek: "For this week",
+    cropReminder: "Your crop reminder",
+    cropReminderDetail: "Crop: {crop}. Follow the advisory steps and update field observations in Reports.",
+    aiFertPlan: "AI Fertilizer Plan",
+    recommended: "Recommended",
+    dosage: "Dosage",
+    timingMethod: "Timing & Method",
+    scientificBasis: "Scientific Basis",
+    loginPrompt: "Please login to continue.",
+    login: "Login",
+    disease: "Disease",
+    weather: "Weather",
+    pest: "Pest",
+    diseasePrevTitle: "Disease prevention (next 48 hours)",
+    diseasePrevDetail: "Inspect leaves daily and apply recommended fungicide only in affected patches.",
+    weatherIrrigTitle: "Weather-based irrigation",
+    weatherIrrigDetail: "If rain is expected, avoid unnecessary irrigation and ensure drainage to prevent water stress.",
+    pestMonitorTitle: "Pest monitoring",
+    pestMonitorDetail: "Use pheromone traps / scouting for early detection and avoid broad-spectrum spraying.",
+  },
+  te: {
+    eyebrow: "సలహా కేంద్రం",
+    title: "ఆచరణాత్మక సలహా",
+    description: "మీ పొలం కోసం ప్రత్యేకంగా రూపొందించిన తెగులు/వ్యాధి/నీటి యాజమాన్య సూచనలు.",
+    parcel: "పొలం",
+    forThisWeek: "ఈ వారం కొరకు",
+    cropReminder: "మీ పంట రిమైండర్",
+    cropReminderDetail: "పంట: {crop}. సలహా దశలను అనుసరించండి మరియు నివేదికలలో పొలంలో గమనించిన వివరాలను నవీకరించండి.",
+    aiFertPlan: "AI ఎరువుల ప్రణాళిక",
+    recommended: "సిఫార్సు చేయబడినది",
+    dosage: "మోతాదు",
+    timingMethod: "సమయం & విధానం",
+    scientificBasis: "శాస్త్రీయ ఆధారం",
+    loginPrompt: "దయచేసి లాగిన్ అవ్వండి.",
+    login: "లాగిన్",
+    disease: "తెగులు",
+    weather: "వాతావరణం",
+    pest: "పురుగు",
+    diseasePrevTitle: "తెగులు నివారణ (తదుపరి 48 గంటలు)",
+    diseasePrevDetail: "ప్రతిరోజూ ఆకులను పరిశీలించండి మరియు సోకిన ప్రాంతాలలో మాత్రమే సిఫార్సు చేసిన తెగులు మందును వాడండి.",
+    weatherIrrigTitle: "వాతావరణ ఆధారిత నీటి పారుదల",
+    weatherIrrigDetail: "వర్షం పడే అవకాశం ఉంటే, అనవసరంగా నీరు పెట్టడం నివారించండి మరియు నీరు నిలవకుండా డ్రైనేజీ చూసుకోండి.",
+    pestMonitorTitle: "పురుగుల పర్యవేక్షణ",
+    pestMonitorDetail: "ముందస్తు గుర్తింపు కోసం ఫెరోమోన్ ట్రాప్స్ / నిరంతర నిఘా ఉపయోగించండి మరియు సాధారణ మందుల పిచికారీని నివారించండి.",
+  }
+};
 
 type AdvisoryItem = {
   title: string;
@@ -32,6 +86,9 @@ function FarmerAdvisoryPage() {
   const navigate = useNavigate();
   const session = getFarmerSession();
   const profile = session?.profile;
+  const { locale } = useAppShell();
+
+  const t = TRANSLATIONS[locale as "en" | "te"] || TRANSLATIONS.en;
 
   const { data: fertReco, isLoading } = useQuery({
     queryKey: ["fertilizer-reco", profile?.cropType],
@@ -52,35 +109,34 @@ function FarmerAdvisoryPage() {
   const items = useMemo<AdvisoryItem[]>(() => {
     if (!profile) return [];
 
-    // MVP: convert alert heuristics to actionable advisories.
     return [
       {
-        title: "Disease prevention (next 48 hours)",
+        title: t.diseasePrevTitle,
         tone: "primary",
         icon: <ShieldCheck className="h-4 w-4" />,
-        detail: "Inspect leaves daily and apply recommended fungicide only in affected patches.",
+        detail: t.diseasePrevDetail,
       },
       {
-        title: "Weather-based irrigation",
+        title: t.weatherIrrigTitle,
         tone: "info",
         icon: <Droplets className="h-4 w-4" />,
-        detail: "If rain is expected, avoid unnecessary irrigation and ensure drainage to prevent water stress.",
+        detail: t.weatherIrrigDetail,
       },
       {
-        title: "Pest monitoring",
+        title: t.pestMonitorTitle,
         tone: "warning",
         icon: <Megaphone className="h-4 w-4" />,
-        detail: "Use pheromone traps / scouting for early detection and avoid broad-spectrum spraying.",
+        detail: t.pestMonitorDetail,
       },
     ];
-  }, [profile]);
+  }, [profile, t]);
 
   if (!profile) {
     return (
       <div className="px-4 py-6 max-w-md mx-auto">
-        <p className="text-sm text-muted-foreground">Please login to continue.</p>
+        <p className="text-sm text-muted-foreground">{t.loginPrompt}</p>
         <Button className="mt-4 w-full" onClick={() => navigate({ to: "/farmers/login" as any })}>
-          Login
+          {t.login}
         </Button>
       </div>
     );
@@ -90,20 +146,20 @@ function FarmerAdvisoryPage() {
     <div className={mobile ? "px-0" : "px-6"}>
       <PageHeader
         icon={<Megaphone className="h-6 w-6 text-warning" />}
-        eyebrow="Advisory Center"
-        title="Actionable advisory"
-        description="Practical pest/disease/irrigation guidance generated for your parcel."
+        eyebrow={t.eyebrow}
+        title={t.title}
+        description={t.description}
       />
 
       <div className="px-4 md:px-6 py-4 max-w-2xl mx-auto space-y-4">
         <Card className="p-4 rounded-2xl bg-background/50 border-border/60">
           <div className="flex items-center justify-between gap-3 mb-2">
             <div>
-              <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Parcel</div>
+              <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t.parcel}</div>
               <div className="mt-1 font-semibold">{profile.parcelId}</div>
               <div className="text-xs text-muted-foreground mt-1">{profile.village} · Survey {profile.surveyNumber}</div>
             </div>
-            <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary">For this week</Badge>
+            <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary">{t.forThisWeek}</Badge>
           </div>
 
           <div className="mt-3 grid gap-3">
@@ -127,7 +183,7 @@ function FarmerAdvisoryPage() {
                           : "border-primary/30 bg-primary/10 text-primary"
                     }
                   >
-                    {it.tone === "primary" ? "Disease" : it.tone === "info" ? "Weather" : "Pest"}
+                    {it.tone === "primary" ? t.disease : it.tone === "info" ? t.weather : t.pest}
                   </Badge>
                 </div>
               </div>
@@ -138,10 +194,10 @@ function FarmerAdvisoryPage() {
         <Card className="p-4 rounded-2xl bg-background/50 border-border/60">
           <div className="flex items-center gap-2">
             <Leaf className="h-4 w-4 text-primary" />
-            <div className="font-semibold">Your crop reminder</div>
+            <div className="font-semibold">{t.cropReminder}</div>
           </div>
           <div className="mt-2 text-xs text-muted-foreground leading-6">
-            Crop: <span className="font-semibold text-foreground">{profile.cropType}</span>. Follow the advisory steps and update field observations in Reports.
+            {t.cropReminderDetail.replace("{crop}", profile.cropType)}
           </div>
         </Card>
 
@@ -163,30 +219,30 @@ function FarmerAdvisoryPage() {
               <div className="p-1.5 rounded-md bg-primary/10 text-primary">
                 <FlaskConical className="h-4 w-4" />
               </div>
-              <div className="font-semibold text-base">AI Fertilizer Plan</div>
+              <div className="font-semibold text-base">{t.aiFertPlan}</div>
             </div>
             
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div className="rounded-xl border border-border/60 bg-background p-3">
-                 <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 font-semibold">Recommended</div>
+                 <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 font-semibold">{t.recommended}</div>
                  <div className="font-medium text-sm text-foreground">{fertReco.fertilizer_name}</div>
               </div>
               <div className="rounded-xl border border-border/60 bg-background p-3">
-                 <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 font-semibold">Dosage</div>
+                 <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 font-semibold">{t.dosage}</div>
                  <div className="font-semibold text-sm text-primary">{fertReco.dosage_kg_per_acre} kg/acre</div>
               </div>
             </div>
 
             <div className="rounded-xl border border-border/60 bg-background p-3 mb-4 flex items-center justify-between">
               <div>
-                <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 font-semibold">Timing & Method</div>
+                <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 font-semibold">{t.timingMethod}</div>
                 <div className="font-medium text-xs text-foreground">{fertReco.timing}</div>
                 <div className="text-xs text-muted-foreground mt-0.5">{fertReco.application_method}</div>
               </div>
             </div>
 
             <div className="text-xs text-muted-foreground leading-5 bg-muted/30 p-3 rounded-xl border border-border/40">
-              <span className="font-medium text-foreground">Scientific Basis:</span> {fertReco.reason}
+              <span className="font-medium text-foreground">{t.scientificBasis}:</span> {fertReco.reason}
             </div>
           </Card>
         )}

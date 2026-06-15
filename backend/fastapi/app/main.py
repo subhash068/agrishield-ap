@@ -16,8 +16,12 @@ from fastapi.responses import JSONResponse
 
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import inspect, select, text, func
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, SAWarning
 from sqlalchemy.orm import Session
+import warnings
+
+# Suppress SAWarning for unrecognized type 'geometry' from PostGIS
+warnings.filterwarnings("ignore", category=SAWarning, message="Did not recognize type 'geometry'")
 
 from .db import SessionLocal, engine
 from . import models
@@ -350,10 +354,12 @@ def _ensure_parcel_schema(db: Session) -> set[str]:
     return parcel_columns
 
 
-def _fetch_live_weather():
+def _fetch_live_weather(lat: float = None, lng: float = None):
+    latitude = lat if lat is not None else settings.weather_latitude
+    longitude = lng if lng is not None else settings.weather_longitude
     params = {
-        "latitude": settings.weather_latitude,
-        "longitude": settings.weather_longitude,
+        "latitude": latitude,
+        "longitude": longitude,
         "timezone": settings.weather_timezone,
         "forecast_days": 14,
         "current": "temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code,precipitation",
@@ -397,7 +403,7 @@ def _fetch_live_weather():
         )
 
     summary = WeatherSummaryOut(
-        location=f"{settings.weather_latitude:.4f}, {settings.weather_longitude:.4f}",
+        location=f"{latitude:.4f}, {longitude:.4f}",
         updated_at=current.get("time") or datetime.utcnow().isoformat(timespec="seconds") + "Z",
         temperature=float(current.get("temperature_2m", 0.0)),
         apparent_temperature=float(current.get("apparent_temperature", current.get("temperature_2m", 0.0))),
@@ -944,10 +950,12 @@ def _fallback_weather():
 
 @app.get("/districts")
 def districts(db: Session = Depends(get_db)):
-    # Districts are represented as distinct values within Parcel data.
-    rows = db.execute(select(models.Parcel.district).distinct().order_by(models.Parcel.district)).scalars().all()
-    if rows:
-        return [r for r in rows]
+    try:
+        rows = db.execute(text("SELECT DISTINCT dtname FROM mandal_boundaries ORDER BY dtname")).all()
+        if rows:
+            return [r[0] for r in rows]
+    except Exception:
+        pass
 
     return [
         "Anantapur",
@@ -956,13 +964,13 @@ def districts(db: Session = Depends(get_db)):
         "Guntur",
         "Krishna",
         "Kurnool",
-        "Nellore",
         "Prakasam",
+        "Sri Potti Sriramulu Nellore",
         "Srikakulam",
         "Visakhapatnam",
         "Vizianagaram",
         "West Godavari",
-        "YSR Kadapa",
+        "Y.S.R.",
     ]
 
 
@@ -1295,10 +1303,59 @@ def parcels(db: Session = Depends(get_db)):
         return _fallback_parcels()
 
 
-@app.get("/weather", response_model=list[WeatherForecastPointOut])
-def weather(db: Session = Depends(get_db)):
+def _get_location_coordinates(district: str = None, mandal: str = None, village: str = None, db: Session = None):
+    # Default coordinates from settings
+    lat = settings.weather_latitude
+    lng = settings.weather_longitude
+    
+    if db is None:
+        return lat, lng
+        
     try:
-        _, forecast = _fetch_live_weather()
+        # 1. Check if we have a specific village selected
+        if village and village.lower() != "all":
+            q = "SELECT ST_Y(ST_Centroid(geom)) as lat, ST_X(ST_Centroid(geom)) as lng FROM village_boundaries WHERE vilname ILIKE :village"
+            params = {"village": village.strip()}
+            if district and district.lower() != "all":
+                q += " AND dtname ILIKE :district"
+                params["district"] = f"%{district}%"
+            if mandal and mandal.lower() != "all":
+                q += " AND sdtname ILIKE :mandal"
+                params["mandal"] = f"%{mandal}%"
+            row = db.execute(text(q + " LIMIT 1"), params).first()
+            if row and row.lat is not None:
+                return float(row.lat), float(row.lng)
+                
+        # 2. Check if we have a mandal selected
+        if mandal and mandal.lower() != "all":
+            q = "SELECT ST_Y(ST_Centroid(geom)) as lat, ST_X(ST_Centroid(geom)) as lng FROM mandal_boundaries WHERE sdtname ILIKE :mandal"
+            params = {"mandal": mandal.strip()}
+            if district and district.lower() != "all":
+                q += " AND dtname ILIKE :district"
+                params["district"] = f"%{district}%"
+            row = db.execute(text(q + " LIMIT 1"), params).first()
+            if row and row.lat is not None:
+                return float(row.lat), float(row.lng)
+                
+        # 3. Check if we have a district selected
+        if district and district.lower() != "all":
+            row = db.execute(text(
+                "SELECT ST_Y(ST_Centroid(geom)) as lat, ST_X(ST_Centroid(geom)) as lng FROM district_boundaries WHERE dtname ILIKE :district LIMIT 1"
+            ), {"district": district.strip()}).first()
+            if row and row.lat is not None:
+                return float(row.lat), float(row.lng)
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Failed to resolve coordinates for {district}/{mandal}/{village}: {e}")
+        
+    return lat, lng
+
+
+@app.get("/weather", response_model=list[WeatherForecastPointOut])
+def weather(district: str = "all", mandal: str = "all", village: str = "all", db: Session = Depends(get_db)):
+    try:
+        lat, lng = _get_location_coordinates(district, mandal, village, db)
+        _, forecast = _fetch_live_weather(lat, lng)
         return forecast
     except (URLError, HTTPError, TimeoutError, ValueError):
         rows = db.execute(select(models.WeatherForecast).order_by(models.WeatherForecast.id)).scalars().all()
@@ -1369,9 +1426,10 @@ def weather_day(day: str):
 
 
 @app.get("/weather/live", response_model=WeatherSummaryOut)
-def weather_live():
+def weather_live(district: str = "all", mandal: str = "all", village: str = "all", db: Session = Depends(get_db)):
     try:
-        summary, _ = _fetch_live_weather()
+        lat, lng = _get_location_coordinates(district, mandal, village, db)
+        summary, _ = _fetch_live_weather(lat, lng)
         return summary
     except Exception:
         summary, _ = _fallback_weather()
@@ -2538,4 +2596,74 @@ def export_aprtgs_mandal_report(district: str, mandal: str, db: Session = Depend
         estimated_yield_impact_pct=yield_impact,
         reporting_timestamp=datetime.now().isoformat()
     )
+
+
+@app.get("/api/map/districts")
+def get_map_districts(db: Session = Depends(get_db)):
+    rows = db.execute(
+        text("SELECT dtname, ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, 0.005)) AS geojson FROM district_boundaries")
+    ).all()
+    
+    features = []
+    for r in rows:
+        if r.geojson:
+            features.append({
+                "type": "Feature",
+                "properties": {"dtname": r.dtname},
+                "geometry": json.loads(r.geojson)
+            })
+    return {"type": "FeatureCollection", "features": features}
+
+
+@app.get("/api/map/mandals")
+def get_map_mandals(district: str = "all", db: Session = Depends(get_db)):
+    query = "SELECT dtname, sdtname, ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, 0.002)) AS geojson FROM mandal_boundaries"
+    params = {}
+    if district != "all" and district != "":
+        query += " WHERE dtname ILIKE :district"
+        params["district"] = f"%{district}%"
+        
+    rows = db.execute(text(query), params).all()
+    features = []
+    for r in rows:
+        if r.geojson:
+            features.append({
+                "type": "Feature",
+                "properties": {"dtname": r.dtname, "sdtname": r.sdtname},
+                "geometry": json.loads(r.geojson)
+            })
+    return {"type": "FeatureCollection", "features": features}
+
+
+@app.get("/api/map/villages")
+def get_map_villages(district: str = "all", mandal: str = "all", db: Session = Depends(get_db)):
+    if district == "all" and mandal == "all":
+        return {"type": "FeatureCollection", "features": []}
+        
+    query = "SELECT dtname, sdtname, vilname, ST_AsGeoJSON(geom) AS geojson FROM village_boundaries WHERE 1=1"
+    params = {}
+    
+    if district != "all" and district != "":
+        query += " AND dtname ILIKE :district"
+        params["district"] = f"%{district}%"
+    if mandal != "all" and mandal != "":
+        query += " AND sdtname ILIKE :mandal"
+        params["mandal"] = f"%{mandal}%"
+        
+    rows = db.execute(text(query), params).all()
+    features = []
+    for r in rows:
+        if r.geojson:
+            features.append({
+                "type": "Feature",
+                "properties": {
+                    "dtname": r.dtname,
+                    "sdtname": r.sdtname,
+                    "vilname11": r.vilname,
+                    "vilnam_soi": r.vilname
+                },
+                "geometry": json.loads(r.geojson)
+            })
+    return {"type": "FeatureCollection", "features": features}
+
 

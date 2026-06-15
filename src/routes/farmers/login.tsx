@@ -8,6 +8,32 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getOtpChallenge, saveOtpChallenge } from "@/lib/farmer-auth";
+import { useAppShell } from "@/components/app-shell-store";
+
+const TRANSLATIONS = {
+  en: {
+    title: "Farmer Login",
+    eyebrow: "Enter mobile number to receive OTP.",
+    mockOtp: "Mock OTP",
+    mobileNumber: "Mobile Number",
+    placeholder: "10-digit mobile",
+    requestOtp: "Request OTP",
+    noAccount: "Don’t have an account?",
+    register: "Register",
+    challengeExists: "OTP challenge exists (expires in a few minutes). Verify it on the next screen.",
+  },
+  te: {
+    title: "రైతు లాగిన్",
+    eyebrow: "ఓటీపీ పొందడానికి మొబైల్ సంఖ్యను నమోదు చేయండి.",
+    mockOtp: "మాక్ ఓటీపీ",
+    mobileNumber: "మొబైల్ సంఖ్య",
+    placeholder: "10-అంకెల మొబైల్",
+    requestOtp: "ఓటీపీని అభ్యర్థించు",
+    noAccount: "ఖాతా లేదా?",
+    register: "నమోదు చేసుకోండి",
+    challengeExists: "ఓటీపీ ఛాలెంజ్ ఉంది (కొన్ని నిమిషాల్లో ముగుస్తుంది). తదుపరి స్క్రీన్‌లో ధృవీకరించండి.",
+  }
+};
 
 export const Route = createFileRoute("/farmers/login")({
   head: () => ({
@@ -27,6 +53,8 @@ function normalizePhone(p: string) {
 function LoginPage() {
   const mobile = useIsMobile();
   const navigate = useNavigate();
+  const { locale } = useAppShell();
+  const t = TRANSLATIONS[locale] || TRANSLATIONS.en;
 
   const [phone, setPhone] = useState("");
   const [sending, setSending] = useState(false);
@@ -64,13 +92,13 @@ function LoginPage() {
       <div className="max-w-md mx-auto py-6">
         <div className="flex items-center justify-between gap-3 mb-4">
           <div>
-            <h1 className="text-xl font-bold">Farmer Login</h1>
+            <h1 className="text-xl font-bold">{t.title}</h1>
             <p className="text-xs text-muted-foreground mt-1">
-              Enter mobile number to receive OTP.
+              {t.eyebrow}
             </p>
           </div>
           <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary">
-            Mock OTP
+            {t.mockOtp}
           </Badge>
         </div>
 
@@ -78,32 +106,32 @@ function LoginPage() {
           <div className="space-y-4">
             <label className="block">
               <div className="flex items-center gap-2 text-sm font-semibold">
-                <Phone className="h-4 w-4 text-primary" /> Mobile Number
+                <Phone className="h-4 w-4 text-primary" /> {t.mobileNumber}
               </div>
               <Input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 inputMode="tel"
-                placeholder="10-digit mobile"
+                placeholder={t.placeholder}
                 className="mt-2"
               />
             </label>
 
             <Button onClick={requestOtp} disabled={!canRequest || sending} className="w-full rounded-xl">
               {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
-              <span className="ml-2">Request OTP</span>
+              <span className="ml-2">{t.requestOtp}</span>
             </Button>
 
             <div className="text-xs text-muted-foreground">
-              Don’t have an account?{' '}
+              {t.noAccount}{' '}
               <Link to="/farmers/register" className="text-primary hover:underline">
-                Register
+                {t.register}
               </Link>
             </div>
 
             {getOtpChallenge() ? (
               <div className="rounded-xl border border-border/60 bg-muted/20 p-3 text-xs text-muted-foreground">
-                OTP challenge exists (expires in a few minutes). Verify it on the next screen.
+                {t.challengeExists}
               </div>
             ) : null}
           </div>

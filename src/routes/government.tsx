@@ -1,414 +1,301 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Activity,
-  AlertTriangle,
-  BarChart3,
-  BrainCircuit,
-  CloudRain,
-  Droplets,
-  Gauge,
   Landmark,
-  LineChart,
-  Radar,
+  AlertTriangle,
+  CheckCircle2,
+  AlertCircle,
+  XCircle,
+  TrendingUp,
+  TrendingDown,
+  Minus,
   ShieldAlert,
-  ShieldCheck,
-  Sparkles,
+  Users,
+  Layers,
+  FileText,
+  Download,
+  Satellite,
+  CloudRain,
+  Map,
+  Activity,
   Sprout,
-  ThermometerSun,
-  Wind,
+  IndianRupee,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { KpiCard } from "@/components/kpi-card";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
-import { getNearestSupportCenters } from "@/lib/api";
+import {
+  getAlerts,
+  getSchemes,
+  getDistrictRankings,
+  getNearestSupportCenters,
+  exportAprtgsMandalReport,
+} from "@/lib/api";
 import { DISTRICTS } from "@/lib/mock-data";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 export const Route = createFileRoute("/government")({
   head: () => ({
     meta: [
-      { title: "Government Dashboard - AgriShield AP" },
+      { title: "Government Dashboard · AgriShield AP" },
       {
         name: "description",
-        content: "Executive view for the Department of Agriculture, Government of Andhra Pradesh.",
+        content:
+          "Executive dashboard for the Department of Agriculture, Government of Andhra Pradesh — Minister, Commissioner and cross-department KPIs.",
       },
     ],
   }),
-  component: () => (
+  component: GovernmentDashboard,
+});
+
+/* ─── helpers ──────────────────────────────────────────────────────────────── */
+
+type SyncStatus = "live" | "synced" | "degraded" | "offline";
+
+function SyncBadge({ status }: { status: SyncStatus }) {
+  const cfg = {
+    live:     { label: "Live",     cls: "border-success/40 bg-success/10 text-success",       icon: <CheckCircle2 className="h-3 w-3" /> },
+    synced:   { label: "Synced",   cls: "border-success/40 bg-success/10 text-success",       icon: <CheckCircle2 className="h-3 w-3" /> },
+    degraded: { label: "Degraded", cls: "border-warning/40 bg-warning/10 text-warning",       icon: <AlertCircle className="h-3 w-3" /> },
+    offline:  { label: "Offline",  cls: "border-destructive/30 bg-destructive/10 text-destructive", icon: <XCircle className="h-3 w-3" /> },
+  }[status];
+  return (
+    <Badge variant="outline" className={`gap-1 text-xs ${cfg.cls}`}>
+      {cfg.icon} {cfg.label}
+    </Badge>
+  );
+}
+
+const SEVERITY_COLOR: Record<string, string> = {
+  Critical: "border-destructive/40 bg-destructive/10 text-destructive",
+  High:     "border-warning/40 bg-warning/10 text-warning",
+  Medium:   "border-info/40 bg-info/10 text-info",
+  Low:      "border-border/60 bg-muted/20 text-muted-foreground",
+};
+
+/* ─── main component ───────────────────────────────────────────────────────── */
+
+function GovernmentDashboard() {
+  return (
     <div>
       <PageHeader
         icon={<Landmark className="h-6 w-6 text-accent" />}
-        eyebrow="Department of Agriculture"
+        eyebrow="Department of Agriculture · GoAP"
         title="Executive Government Dashboard"
-        description="Hon'ble Minister view - Commissioner view - cross-department KPIs."
+        description="Minister & Commissioner view — statewide crop health, active alerts, district rankings, government schemes and cross-department integration status."
       />
 
       <div className="px-6 lg:px-10 py-6 space-y-6">
+        {/* ── KPI Row ─────────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <KpiCard
-            label="Annual Outlay (Cr)"
-            value={12_450}
-            unit=""
-            trend={4.1}
-            confidence={98}
-            index={0}
-          />
-          <KpiCard
-            label="Farmers Benefitted"
-            value={3_904_212}
-            unit=""
-            trend={2.6}
-            confidence={96}
-            index={1}
-          />
-          <KpiCard
-            label="Crop Loss Averted (Cr)"
-            value={1_864}
-            unit=""
-            trend={9.1}
-            confidence={92}
-            index={2}
-          />
-          <KpiCard label="Schemes Active" value={47} unit="" trend={1.0} confidence={100} index={3} />
+          <KpiCard label="Annual Outlay (Cr)"    value={12_450}     unit=""  trend={4.1}  confidence={98}  index={0} />
+          <KpiCard label="Farmers Benefitted"    value={3_904_212}  unit=""  trend={2.6}  confidence={96}  index={1} />
+          <KpiCard label="Crop Loss Averted (Cr)" value={1_864}     unit=""  trend={9.1}  confidence={92}  index={2} />
+          <KpiCard label="Schemes Active"         value={47}         unit=""  trend={1.0}  confidence={100} index={3} />
         </div>
 
-        <NearestSupportCentersSection />
-
-        <div className="glass rounded-xl p-5 border border-border/60">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <BrainCircuit className="h-5 w-5 text-primary" />
-                <h3 className="font-semibold">Multi-model AI architecture</h3>
-              </div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                For the hackathon, do not force one AI model to solve every problem. Use
-                specialized models for satellite monitoring, photo analytics, anomaly detection,
-                risk prediction, and future forecasting.
-              </p>
+        {/* ── Platform Health Strip ───────────────────────────────────── */}
+        <div className="glass rounded-xl p-4 border border-border/60">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <div className="flex items-center gap-2">
+              <Activity className="h-4 w-4 text-primary" />
+              <span className="font-semibold text-sm">Platform Health & Coverage</span>
             </div>
-            <Badge variant="outline" className="border-success/40 text-success bg-success/10">
-              5 AI tasks, 1 platform
+            <Badge variant="outline" className="border-success/40 bg-success/10 text-success gap-1 text-xs">
+              <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse inline-block" />
+              All systems operational
             </Badge>
           </div>
-
-          <div className="mt-5 rounded-xl border border-primary/30 bg-primary/10 p-4">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <h4 className="font-semibold text-primary">Recommended hackathon stack</h4>
-            </div>
-            <div className="mt-3 grid gap-2 text-sm xl:grid-cols-5 lg:grid-cols-3 sm:grid-cols-2">
-              {[
-                { title: "Satellite crop health", model: "XGBoost", note: "NDVI + EVI + NDRE + weather" },
-                { title: "Photo disease detection", model: "YOLOv11 + EfficientNet", note: "Regions + class" },
-                { title: "Anomaly detection", model: "Isolation Forest", note: "No labeled anomalies needed" },
-                { title: "Outbreak prediction", model: "LightGBM", note: "Disease risk before symptoms" },
-                { title: "Future forecast", model: "LSTM", note: "15-day health projection" },
-              ].map((item) => (
-                <div key={item.title} className="rounded-lg border border-border/60 bg-background/60 p-3">
-                  <p className="font-medium">{item.title}</p>
-                  <p className="mt-1 text-primary font-semibold">{item.model}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{item.note}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-5 grid gap-4 lg:grid-cols-2">
-            <div className="rounded-xl border border-border/60 bg-muted/20 p-4">
-              <div className="flex items-center gap-2">
-                <Radar className="h-4 w-4 text-primary" />
-                <h4 className="font-semibold">1. Plant disease detection</h4>
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Use YOLOv11 to detect diseased leaf regions, pest activity, and multiple diseases in
-                one photo. Then use EfficientNet-B3/B4 for healthy vs diseased and disease
-                category classification.
-              </p>
-              <div className="mt-4 space-y-2 text-sm">
-                {[
-                  "Disease: Leaf Blast",
-                  "Confidence: 94%",
-                  "Bounding Box: Detected",
-                  "Severity: Medium",
-                ].map((label) => (
-                  <div
-                    key={label}
-                    className="rounded-lg border border-border/60 bg-background/60 px-3 py-2 font-medium"
-                  >
-                    {label}
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {["High accuracy", "Fast inference", "Mobile-friendly", "Android deployment"].map((tag) => (
-                  <Badge key={tag} variant="outline" className="border-border/60 bg-background/60">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-border/60 bg-muted/20 p-4">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-accent" />
-                <h4 className="font-semibold">2. Satellite crop health monitoring</h4>
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Use XGBoost on NDVI, EVI, NDRE, temperature, humidity, rainfall, soil moisture,
-                and historical crop data to predict field status.
-              </p>
-              <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-                {[
-                  { label: "NDVI", icon: <Sprout className="h-3.5 w-3.5" /> },
-                  { label: "EVI", icon: <BarChart3 className="h-3.5 w-3.5" /> },
-                  { label: "NDRE", icon: <Activity className="h-3.5 w-3.5" /> },
-                  { label: "Weather", icon: <CloudRain className="h-3.5 w-3.5" /> },
-                  { label: "Historical crop data", icon: <BrainCircuit className="h-3.5 w-3.5" /> },
-                  { label: "Soil moisture", icon: <Droplets className="h-3.5 w-3.5" /> },
-                ].map((item) => (
-                  <div
-                    key={item.label}
-                    className="flex items-center gap-2 rounded-lg border border-border/60 bg-background/60 px-3 py-2"
-                  >
-                    <span className="text-primary">{item.icon}</span>
-                    <span className="font-medium">{item.label}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 space-y-2 text-sm">
-                {["Healthy", "Moderate Stress", "Severe Stress"].map((label, index) => (
-                  <div
-                    key={label}
-                    className={`rounded-lg border px-3 py-2 font-medium ${
-                      index === 0
-                        ? "border-success/40 bg-success/10 text-success"
-                        : index === 1
-                          ? "border-warning/40 bg-warning/10 text-warning"
-                          : "border-destructive/30 bg-destructive/10 text-destructive"
-                    }`}
-                  >
-                    {label}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-5 grid gap-4 lg:grid-cols-2">
-            <div className="rounded-xl border border-border/60 bg-muted/20 p-4">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-warning" />
-                <h4 className="font-semibold">3. Crop stress anomaly detection</h4>
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Detect parcels deviating from historical norms using Isolation Forest. It is fast,
-                unsupervised, and does not need a labeled anomaly dataset.
-              </p>
-              <div className="mt-4 space-y-2 text-sm">
-                <div className="rounded-lg border border-border/60 bg-background/60 px-3 py-2 font-medium">
-                  Anomaly Score = 0.87
-                </div>
-                <div className="rounded-lg border border-border/60 bg-background/60 px-3 py-2 font-medium">
-                  Status = Abnormal
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: "Satellite Coverage",   value: "99.2%",      icon: <Satellite className="h-4 w-4" />,   color: "text-success" },
+              { label: "Parcels Monitored",    value: "19.3 Lakh",  icon: <Layers className="h-4 w-4" />,     color: "text-primary" },
+              { label: "Active Stress Alerts", value: "12,847",     icon: <ShieldAlert className="h-4 w-4" />, color: "text-warning" },
+              { label: "AI Confidence Avg",    value: "92.5%",      icon: <Activity className="h-4 w-4" />,    color: "text-accent" },
+            ].map((s) => (
+              <div key={s.label} className="rounded-lg border border-border/40 bg-background/40 px-4 py-3 flex items-center gap-3">
+                <span className={s.color}>{s.icon}</span>
+                <div>
+                  <p className="text-xs text-muted-foreground">{s.label}</p>
+                  <p className={`text-sm font-bold ${s.color}`}>{s.value}</p>
                 </div>
               </div>
-            </div>
-
-            <div className="rounded-xl border border-border/60 bg-muted/20 p-4">
-              <div className="flex items-center gap-2">
-                <ShieldAlert className="h-4 w-4 text-destructive" />
-                <h4 className="font-semibold">4. Disease outbreak prediction</h4>
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Use LightGBM to predict disease risk before symptoms appear, based on weather,
-                crop age, and past disease incidents.
-              </p>
-              <div className="mt-4 space-y-2 text-sm">
-                {["Low", "Medium", "High"].map((label) => (
-                  <div
-                    key={label}
-                    className="rounded-lg border border-border/60 bg-background/60 px-3 py-2 font-medium"
-                  >
-                    {label}
-                  </div>
-                ))}
-                <div className="rounded-lg border border-border/60 bg-background/60 px-3 py-2 font-medium text-primary">
-                  Example: Leaf Blast Risk = 82%
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-5 grid gap-4 lg:grid-cols-2">
-            <div className="rounded-xl border border-border/60 bg-muted/20 p-4">
-              <div className="flex items-center gap-2">
-                <LineChart className="h-4 w-4 text-accent" />
-                <h4 className="font-semibold">5. Future crop health prediction</h4>
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Use LSTM on NDVI time series, rainfall, and weather to forecast future health and
-                create proactive alerts.
-              </p>
-              <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-                <div className="rounded-lg border border-border/60 bg-background/60 px-3 py-2 font-medium">
-                  Current = 82
-                </div>
-                <div className="rounded-lg border border-border/60 bg-background/60 px-3 py-2 font-medium">
-                  Predicted = 71
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-border/60 bg-muted/20 p-4">
-              <div className="flex items-center gap-2">
-                <Gauge className="h-4 w-4 text-primary" />
-                <h4 className="font-semibold">6. Unified crop health index</h4>
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Instead of exposing separate raw values, generate a single Crop Health Index from
-                0 to 100 so the challenge is easy to understand.
-              </p>
-              <div className="mt-4 space-y-2 text-sm">
-                <div className="rounded-lg border border-border/60 bg-background/60 px-3 py-2 font-medium">
-                  40% NDVI
-                </div>
-                <div className="rounded-lg border border-border/60 bg-background/60 px-3 py-2 font-medium">
-                  30% EVI
-                </div>
-                <div className="rounded-lg border border-border/60 bg-background/60 px-3 py-2 font-medium">
-                  20% NDRE
-                </div>
-                <div className="rounded-lg border border-border/60 bg-background/60 px-3 py-2 font-medium">
-                  10% Weather Score
-                </div>
-                <div className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 font-semibold text-primary">
-                  Health Index = 84
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
+        {/* ── Active Alerts + District Rankings ───────────────────────── */}
         <div className="grid lg:grid-cols-2 gap-5">
-          <div className="glass rounded-xl p-5">
-            <h3 className="font-semibold mb-3">Commissioner's brief</h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              The platform should combine immediate detection, crop health scoring, anomaly
-              surfacing, outbreak prediction, and forward-looking health forecasts in one decision
-              layer.
-            </p>
-          </div>
-          <div className="glass rounded-xl p-5">
-            <h3 className="font-semibold mb-3">Cross-department sync</h3>
-            <ul className="space-y-2 text-sm">
-              <li className="flex justify-between">
-                <span>APRTGS</span>
-                <span className="text-success">Synced</span>
-              </li>
-              <li className="flex justify-between">
-                <span>Revenue Dept - Land records</span>
-                <span className="text-success">Synced</span>
-              </li>
-              <li className="flex justify-between">
-                <span>IMD weather feed</span>
-                <span className="text-success">Live</span>
-              </li>
-              <li className="flex justify-between">
-                <span>NRSC satellite ingest</span>
-                <span className="text-success">99.2%</span>
-              </li>
-              <li className="flex justify-between">
-                <span>PMFBY insurance API</span>
-                <span className="text-warning">Degraded</span>
-              </li>
-            </ul>
-          </div>
+          <AlertsSection />
+          <DistrictRankingsSection />
         </div>
 
-        <div className="glass rounded-xl p-5">
-          <h3 className="font-semibold mb-4">Recommended AI pipeline</h3>
-          <div className="grid gap-4 lg:grid-cols-2">
-            <PipelineCard
-              title="Satellite data"
-              steps={["NDVI + EVI + NDRE", "XGBoost", "Crop health score", "Isolation Forest", "Stress detection", "Alert generation"]}
-            />
-            <PipelineCard
-              title="Farmer photo"
-              steps={["YOLOv11", "Disease detection", "EfficientNet", "Disease classification", "Confidence score"]}
-            />
-            <PipelineCard
-              title="Weather + historical data"
-              steps={["LightGBM", "Disease risk prediction"]}
-            />
-            <PipelineCard
-              title="NDVI history"
-              steps={["LSTM", "Future health forecast"]}
-            />
-          </div>
-          <div className="mt-4 rounded-xl border border-border/60 bg-background/50 p-4 text-sm text-muted-foreground">
-            If time is limited, implement the hackathon version first: YOLOv11, EfficientNet-B3,
-            XGBoost, Isolation Forest, and LSTM.
-          </div>
+        {/* ── Nearest Support Centers ──────────────────────────────────── */}
+        <NearestSupportCentersSection />
+
+        {/* ── Government Schemes ──────────────────────────────────────── */}
+        <SchemesSection />
+
+        {/* ── Cross-department Sync + APRTGS Export ───────────────────── */}
+        <div className="grid lg:grid-cols-2 gap-5">
+          <CrossDeptSyncSection />
+          <AprtgsExportSection />
         </div>
       </div>
     </div>
-  ),
-});
+  );
+}
+
+/* ─── Active Alerts ─────────────────────────────────────────────────────────── */
+
+function AlertsSection() {
+  const { data: alerts, isLoading } = useQuery({ queryKey: ["alerts"], queryFn: getAlerts });
+
+  return (
+    <div className="glass rounded-xl p-5 border border-border/60">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 text-warning" />
+          <h3 className="font-semibold">Active Crop Alerts</h3>
+        </div>
+        <Link to="/surveillance">
+          <Badge variant="outline" className="border-border/60 bg-background/60 text-xs cursor-pointer hover:bg-muted/40">
+            View all →
+          </Badge>
+        </Link>
+      </div>
+      {isLoading ? (
+        <div className="text-sm text-muted-foreground py-4 text-center">Loading alerts…</div>
+      ) : (
+        <div className="space-y-2">
+          {(alerts ?? []).slice(0, 6).map((a) => (
+            <div key={a.id} className="flex items-start justify-between gap-3 rounded-lg border border-border/40 bg-background/40 px-3 py-2.5">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-medium text-sm">{a.type}</span>
+                  <Badge variant="outline" className={`text-xs ${SEVERITY_COLOR[a.severity] ?? ""}`}>
+                    {a.severity}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {a.crop} · {a.district} · {a.time}
+                </p>
+                <p className="text-xs text-muted-foreground">{a.action}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── District Rankings ─────────────────────────────────────────────────────── */
+
+function DistrictRankingsSection() {
+  const { data: rankings, isLoading } = useQuery({ queryKey: ["district-rankings"], queryFn: getDistrictRankings });
+
+  function riskColor(idx: number) {
+    if (idx >= 80) return "text-destructive";
+    if (idx >= 50) return "text-warning";
+    return "text-success";
+  }
+
+  function healthBand(score: number) {
+    if (score >= 80) return "text-success";
+    if (score >= 65) return "text-warning";
+    return "text-destructive";
+  }
+
+  return (
+    <div className="glass rounded-xl p-5 border border-border/60">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Map className="h-4 w-4 text-primary" />
+          <h3 className="font-semibold">District Health Rankings</h3>
+        </div>
+        <Badge variant="outline" className="border-border/60 bg-background/60 text-xs">
+          Kharif 2025
+        </Badge>
+      </div>
+      {isLoading ? (
+        <div className="text-sm text-muted-foreground py-4 text-center">Loading rankings…</div>
+      ) : (
+        <div className="rounded-xl border border-border/40 bg-background/40 overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-xs w-8">#</TableHead>
+                <TableHead className="text-xs">District</TableHead>
+                <TableHead className="text-xs text-right">Health</TableHead>
+                <TableHead className="text-xs text-right">Alerts</TableHead>
+                <TableHead className="text-xs text-right">Risk</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(rankings ?? []).slice(0, 8).map((r) => (
+                <TableRow key={r.district}>
+                  <TableCell className="text-xs font-mono text-muted-foreground">{r.rank}</TableCell>
+                  <TableCell className="text-sm font-medium">{r.district}</TableCell>
+                  <TableCell className={`text-sm font-bold text-right ${healthBand(r.healthScore)}`}>
+                    {r.healthScore.toFixed(1)}
+                  </TableCell>
+                  <TableCell className="text-xs text-right text-muted-foreground">
+                    {r.alerts.toLocaleString("en-IN")}
+                  </TableCell>
+                  <TableCell className={`text-sm font-bold text-right ${riskColor(r.riskIndex)}`}>
+                    {r.riskIndex}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Nearest Support Centers ───────────────────────────────────────────────── */
 
 function NearestSupportCentersSection() {
-  // "" means "All Districts"
-  const [district, setDistrict] = useState<string>("");
-  const [mandal, setMandal] = useState<string>("");
+  const [district, setDistrict] = useState("");
+  const [mandal, setMandal]     = useState("");
 
   const query = useQuery({
     queryKey: ["nearest-support-centers", district, mandal],
-    queryFn: () =>
-      getNearestSupportCenters({
-        district: district ? district : undefined,
-        mandal: mandal.trim() ? mandal : undefined,
-      }),
-    enabled: true,
+    queryFn:  () => getNearestSupportCenters({ district: district || undefined, mandal: mandal.trim() || undefined }),
   });
 
   return (
     <div className="glass rounded-xl p-5 border border-border/60">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h3 className="font-semibold">Nearest Support Centers</h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            View RSK/ATMA and Helpdesk contacts prioritized for your selected district/mandal.
-          </p>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-accent" />
+          <div>
+            <h3 className="font-semibold">Nearest Support Centers</h3>
+            <p className="text-xs text-muted-foreground">RSK / ATMA / Dept. Helpdesk contacts ranked by proximity</p>
+          </div>
         </div>
-        <Badge variant="outline" className="border-border/60 bg-background/60">
-          Mock “nearest” ranking
-        </Badge>
       </div>
 
-          <div className="mt-4 grid md:grid-cols-[1fr_0.9fr] gap-3">
+      <div className="grid md:grid-cols-[1fr_0.9fr] gap-3 mb-4">
         <label className="grid gap-1.5 text-sm">
           <span className="text-xs uppercase tracking-wider text-muted-foreground">District</span>
           <select
-            className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+            className="h-10 rounded-lg border border-input bg-background/60 px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
             value={district}
             onChange={(e) => setDistrict(e.target.value)}
           >
             <option value="">All Districts</option>
-            {DISTRICTS.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
+            {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
           </select>
         </label>
-
         <label className="grid gap-1.5 text-sm">
           <span className="text-xs uppercase tracking-wider text-muted-foreground">Mandal (optional)</span>
           <input
-            className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+            className="h-10 rounded-lg border border-input bg-background/60 px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
             value={mandal}
             placeholder="e.g., Eluru"
             onChange={(e) => setMandal(e.target.value)}
@@ -416,68 +303,215 @@ function NearestSupportCentersSection() {
         </label>
       </div>
 
-      <div className="mt-4">
-        {query.isLoading ? (
-          <div className="text-sm text-muted-foreground">Loading support centers...</div>
-        ) : query.error ? (
-          <div className="text-sm text-destructive font-medium">Failed to load support centers.</div>
-        ) : (
-          <div className="rounded-xl border border-border/60 bg-background/40 overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Center</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>District / Mandal</TableHead>
-                  <TableHead>Distance</TableHead>
+      {query.isLoading ? (
+        <div className="text-sm text-muted-foreground py-2">Loading support centers…</div>
+      ) : query.error ? (
+        <div className="text-sm text-destructive font-medium">Failed to load support centers.</div>
+      ) : (
+        <div className="rounded-xl border border-border/40 bg-background/40 overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Center</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>District / Mandal</TableHead>
+                <TableHead>Distance</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(query.data ?? []).map((c) => (
+                <TableRow key={c.id}>
+                  <TableCell>
+                    <div className="font-medium">{c.name}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{c.address}</div>
+                    {c.phone && <div className="text-xs mt-0.5">{c.phone}</div>}
+                    {c.hours && <div className="text-xs text-muted-foreground">{c.hours}</div>}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="border-border/60 bg-background/60 text-xs">{c.type}</Badge>
+                  </TableCell>
+                  <TableCell className="text-sm whitespace-nowrap">{c.district} / {c.mandal ?? "—"}</TableCell>
+                  <TableCell className="text-sm whitespace-nowrap font-mono">
+                    {c.distance_km !== null ? `${c.distance_km.toFixed(1)} km` : "—"}
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {query.data?.map((c) => (
-                  <TableRow key={c.id}>
-                    <TableCell>
-                      <div className="font-medium">{c.name}</div>
-                      <div className="text-xs text-muted-foreground mt-1">{c.address}</div>
-                      {c.phone ? <div className="text-xs mt-1">{c.phone}</div> : null}
-                      {c.hours ? <div className="text-xs text-muted-foreground mt-1">{c.hours}</div> : null}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="border-border/60 bg-background/60">
-                        {c.type}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      {c.district} / {c.mandal ?? "—"}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      {c.distance_km !== null ? `${c.distance_km.toFixed(1)} km` : "—"}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Government Schemes ────────────────────────────────────────────────────── */
+
+function SchemesSection() {
+  const { data: schemes, isLoading } = useQuery({ queryKey: ["schemes"], queryFn: getSchemes });
+
+  const tagColor: Record<string, string> = {
+    Active: "border-success/40 bg-success/10 text-success",
+    Open:   "border-primary/40 bg-primary/10 text-primary",
+    Closed: "border-border/60 bg-muted/20 text-muted-foreground",
+  };
+
+  return (
+    <div className="glass rounded-xl p-5 border border-border/60">
+      <div className="flex items-center gap-2 mb-4">
+        <IndianRupee className="h-4 w-4 text-primary" />
+        <h3 className="font-semibold">Active Government Schemes</h3>
+      </div>
+      {isLoading ? (
+        <div className="text-sm text-muted-foreground py-2">Loading schemes…</div>
+      ) : (
+        <div className="grid sm:grid-cols-2 gap-3">
+          {(schemes ?? []).map((s) => (
+            <div key={s.title} className="rounded-xl border border-border/40 bg-background/40 px-4 py-3">
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <span className="font-medium text-sm">{s.title}</span>
+                <Badge variant="outline" className={`text-xs shrink-0 ${tagColor[s.tag] ?? ""}`}>{s.tag}</Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Cross-department Sync ─────────────────────────────────────────────────── */
+
+function CrossDeptSyncSection() {
+  const feeds: { label: string; dept: string; status: SyncStatus; note: string; icon: React.ReactNode }[] = [
+    { label: "APRTGS",                    dept: "AP Real Time Governance Society",   status: "synced",   note: "Mandal surveillance reports synced", icon: <Activity className="h-3.5 w-3.5" /> },
+    { label: "Revenue Dept – Land Records", dept: "Revenue & Stamps Department",     status: "synced",   note: "Patta & land parcel data current",   icon: <FileText className="h-3.5 w-3.5" /> },
+    { label: "IMD Weather Feed",           dept: "India Meteorological Department",  status: "live",     note: "Live forecast data streaming",       icon: <CloudRain className="h-3.5 w-3.5" /> },
+    { label: "NRSC Satellite Ingest",      dept: "Natl. Remote Sensing Centre",      status: "synced",   note: "99.2% AP coverage refreshed",        icon: <Satellite className="h-3.5 w-3.5" /> },
+    { label: "PMFBY Insurance API",        dept: "Pradhan Mantri Fasal Bima Yojana", status: "degraded", note: "Partial outage — retrying",          icon: <Sprout className="h-3.5 w-3.5" /> },
+    { label: "RSK Advisory Portal",        dept: "Rythu Seva Kendras",               status: "offline",  note: "Scheduled maintenance",              icon: <Users className="h-3.5 w-3.5" /> },
+  ];
+
+  return (
+    <div className="glass rounded-xl p-5 border border-border/60">
+      <div className="flex items-center gap-2 mb-4">
+        <Satellite className="h-4 w-4 text-accent" />
+        <h3 className="font-semibold">Cross-Department Integration Status</h3>
+      </div>
+      <div className="space-y-2">
+        {feeds.map((f) => (
+          <div key={f.label} className="flex items-center justify-between gap-3 rounded-lg border border-border/40 bg-background/40 px-3 py-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="text-primary">{f.icon}</span>
+              <div className="min-w-0">
+                <p className="text-sm font-medium">{f.label}</p>
+                <p className="text-xs text-muted-foreground truncate">{f.dept} · {f.note}</p>
+              </div>
+            </div>
+            <SyncBadge status={f.status} />
           </div>
-        )}
+        ))}
       </div>
     </div>
   );
 }
 
-function PipelineCard({ title, steps }: { title: string; steps: string[] }) {
+/* ─── APRTGS Mandal Report Export ───────────────────────────────────────────── */
+
+function AprtgsExportSection() {
+  const [district, setDistrict] = useState<string>(DISTRICTS[0]);
+  const [mandal,   setMandal]   = useState("Penukonda");
+  const [report,   setReport]   = useState<Awaited<ReturnType<typeof exportAprtgsMandalReport>> | null>(null);
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState<string | null>(null);
+
+  async function fetchReport() {
+    setLoading(true);
+    setError(null);
+    setReport(null);
+    try {
+      const r = await exportAprtgsMandalReport(district, mandal);
+      setReport(r);
+    } catch {
+      setError("Failed to generate report. Check the district/mandal name and try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <div className="rounded-xl border border-border/60 bg-muted/20 p-4">
-      <h4 className="font-semibold">{title}</h4>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {steps.map((step, index) => (
-          <span
-            key={`${title}-${step}`}
-            className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/60 px-3 py-1 text-xs"
-          >
-            <span className="text-primary font-semibold">{index + 1}</span>
-            <span>{step}</span>
-          </span>
-        ))}
+    <div className="glass rounded-xl p-5 border border-border/60">
+      <div className="flex items-center gap-2 mb-4">
+        <FileText className="h-4 w-4 text-primary" />
+        <h3 className="font-semibold">APRTGS Mandal Report Export</h3>
       </div>
+
+      <div className="grid grid-cols-[1fr_1fr_auto] gap-2 items-end mb-4">
+        <label className="grid gap-1 text-xs">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground">District</span>
+          <select
+            className="h-9 rounded-lg border border-input bg-background/60 px-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+            value={district}
+            onChange={(e) => setDistrict(e.target.value)}
+          >
+            {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
+          </select>
+        </label>
+        <label className="grid gap-1 text-xs">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground">Mandal</span>
+          <input
+            className="h-9 rounded-lg border border-input bg-background/60 px-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+            value={mandal}
+            placeholder="e.g., Penukonda"
+            onChange={(e) => setMandal(e.target.value)}
+          />
+        </label>
+        <button
+          id="aprtgs-export-btn"
+          onClick={fetchReport}
+          disabled={loading || !mandal.trim()}
+          className="h-9 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-semibold flex items-center gap-1.5 hover:bg-primary/90 transition-colors disabled:opacity-50 whitespace-nowrap"
+        >
+          <Download className="h-3.5 w-3.5" />
+          {loading ? "Generating…" : "Export"}
+        </button>
+      </div>
+
+      {error && <p className="text-xs text-destructive mb-3">{error}</p>}
+
+      {report && (
+        <div className="rounded-xl border border-primary/25 bg-primary/5 p-4 space-y-2 text-sm">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold text-primary">{report.district} · {report.mandal}</span>
+            <Badge variant="outline" className="border-success/40 bg-success/10 text-success text-xs">Report Ready</Badge>
+          </div>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            {[
+              { label: "Total Parcels",        value: report.total_parcels.toLocaleString("en-IN") },
+              { label: "Avg Health Index",     value: `${report.average_health_index.toFixed(1)} / 100` },
+              { label: "Biotic Alerts",        value: report.active_biotic_alerts },
+              { label: "Abiotic Alerts",       value: report.active_abiotic_alerts },
+              { label: "Primary Outbreak",     value: report.primary_outbreak ?? "None" },
+              { label: "Est. Yield Impact",    value: `${report.estimated_yield_impact_pct.toFixed(1)}%` },
+            ].map((row) => (
+              <div key={row.label} className="rounded-lg border border-border/40 bg-background/40 px-3 py-2">
+                <p className="text-xs text-muted-foreground">{row.label}</p>
+                <p className="font-semibold mt-0.5">{row.value}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground pt-1">
+            Generated: {new Date(report.reporting_timestamp).toLocaleString("en-IN")}
+          </p>
+        </div>
+      )}
+
+      {!report && !loading && !error && (
+        <div className="rounded-lg border border-border/40 bg-background/30 px-4 py-6 text-center">
+          <FileText className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground">Select a district and mandal, then click Export to generate an APRTGS surveillance report.</p>
+        </div>
+      )}
     </div>
   );
 }

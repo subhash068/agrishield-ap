@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Activity, Map as MapIcon, TrendingUp, AlertTriangle, Leaf, PieChart as PieChartIcon } from "lucide-react";
 import {
   BarChart,
@@ -32,9 +32,10 @@ export const Route = createFileRoute("/surveillance")({
 });
 
 import { useQuery } from "@tanstack/react-query";
-import { getSurveillanceData } from "@/lib/api";
-import { MapContainer, GeoJSON } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+import { getSurveillanceData, API_BASE_URL } from "@/lib/api";
+
+// Lazy-load the Leaflet map to avoid SSR "window is not defined" errors
+const LeafletMap = lazy(() => import("@/components/leaflet-map"));
 
 
 const PIE_COLORS = ["oklch(0.68 0.22 25)", "oklch(0.82 0.17 80)", "oklch(0.78 0.19 145)", "oklch(0.65 0.15 250)", "oklch(0.5 0.1 200)"];
@@ -49,8 +50,8 @@ function DiseaseAnalyticsPage() {
   });
 
   useEffect(() => {
-    // Fetch AP districts GeoJSON
-    fetch('https://raw.githubusercontent.com/satishvmadala/andhrapradesh_opendata_locations/main/AndhraPradesh_Districts.geojson')
+    // Fetch AP districts GeoJSON from local PostGIS endpoint
+    fetch(`${API_BASE_URL}/api/map/districts`)
       .then((res) => res.json())
       .then((data) => setGeoData(data))
       .catch((err) => console.error("Error fetching GeoJSON:", err));
@@ -72,29 +73,7 @@ function DiseaseAnalyticsPage() {
 
   const drilldown = districtData.find(d => d.district === selectedDistrict) || districtData[0] || { district: "Unknown", affected_farmers: 0, affected_parcels: 0, status: "Unknown", color: "#333", crops: [], diseases: [] };
 
-  const mapStyle = (feature: any) => {
-    let distName = feature.properties?.district_name || feature.properties?.NEW_DIST || feature.properties?.dtname || feature.properties?.name || feature.properties?.District || feature.properties?.NAME_2 || "";
-    distName = distName.replace(/ district/i, "").trim();
-    
-    let color = "#334155"; // Default grey for missing data
-    
-    if (distName) {
-      const match = districtData.find(d => 
-        distName.toLowerCase() === d.district.toLowerCase() ||
-        distName.toLowerCase().includes(d.district.toLowerCase()) || 
-        d.district.toLowerCase().includes(distName.toLowerCase())
-      );
-      if (match) color = match.color;
-    }
 
-    return {
-      fillColor: color,
-      weight: 1,
-      opacity: 1,
-      color: '#fff',
-      fillOpacity: 1
-    };
-  };
 
   return (
     <div>
@@ -123,46 +102,13 @@ function DiseaseAnalyticsPage() {
               Select a district to view localized drill-down metrics.
             </p>
             <div className="flex-1 min-h-[300px] rounded-lg overflow-hidden border border-border/50 relative z-0">
-              <MapContainer
-                center={[15.9129, 79.7400]}
-                zoom={6.5}
-                zoomControl={false}
-                style={{ height: "100%", width: "100%", background: "#0B1121" }}
-              >
-                {geoData && (
-                  <GeoJSON
-                    key="ap-districts"
-                    data={geoData}
-                    style={mapStyle}
-                    onEachFeature={(feature, layer) => {
-                      let distName = feature.properties?.district_name || feature.properties?.NEW_DIST || feature.properties?.dtname || feature.properties?.name || feature.properties?.District || feature.properties?.NAME_2 || "";
-                      distName = distName.replace(/ district/i, "").trim();
-                      
-                      let match = null;
-                      if (distName) {
-                        match = districtData.find(d => 
-                          distName.toLowerCase() === d.district.toLowerCase() ||
-                          distName.toLowerCase().includes(d.district.toLowerCase()) || 
-                          d.district.toLowerCase().includes(distName.toLowerCase())
-                        );
-                      }
-                      
-                      layer.on({
-                        click: () => {
-                          if (match) setSelectedDistrict(match.district);
-                        }
-                      });
-
-                      layer.bindTooltip(`
-                        <div style="background: #1f2937; color: white; padding: 6px; border-radius: 4px; font-family: sans-serif; font-size: 12px; border: 1px solid #374151;">
-                          <strong>${match ? match.district : (distName || "Unknown")}</strong><br/>
-                          ${match ? match.status : "No Data"}
-                        </div>
-                      `, { sticky: true, className: "bg-transparent border-0 shadow-none p-0" });
-                    }}
-                  />
-                )}
-              </MapContainer>
+              <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">Loading map...</div>}>
+                <LeafletMap
+                  geoData={geoData}
+                  districtData={districtData}
+                  onDistrictClick={setSelectedDistrict}
+                />
+              </Suspense>
             </div>
             <div className="mt-4 flex items-center justify-center gap-4 text-xs font-medium bg-background/40 p-2 rounded-lg border border-border/50">
               <span className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[oklch(0.78_0.19_145)]"/> Healthy</span>

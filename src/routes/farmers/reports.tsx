@@ -11,6 +11,38 @@ import { Textarea } from "@/components/ui/textarea";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { getFarmerSession } from "@/lib/farmer-auth";
+import { useAppShell } from "@/components/app-shell-store";
+
+const TRANSLATIONS = {
+  en: {
+    eyebrow: "Government Reporting",
+    title: "Field observation",
+    description: "Submit ground-truth observations to improve the models. (MVP: local only)",
+    parcel: "Parcel",
+    pestSeen: "Pest seen",
+    diseaseSeen: "Disease seen",
+    toggle: "Toggle",
+    notes: "Notes (optional)",
+    submitObservation: "Submit observation",
+    syncMessage: "Submission will sync when backend + offline queue are enabled.",
+    pleaseLogin: "Please login to continue.",
+    login: "Login",
+  },
+  te: {
+    eyebrow: "ప్రభుత్వ నివేదికలు",
+    title: "పొల పరిశీలన",
+    description: "మోడళ్లను మెరుగుపరచడానికి క్షేత్రస్థాయి పరిశీలనలను సమర్పించండి. (MVP: స్థానికం మాత్రమే)",
+    parcel: "పొలం",
+    pestSeen: "తెగులు కనిపించింది",
+    diseaseSeen: "వ్యాధి కనిపించింది",
+    toggle: "మార్చు",
+    notes: "గమనికలు (ఐచ్ఛికం)",
+    submitObservation: "పరిశీలనను సమర్పించు",
+    syncMessage: "బ్యాకెండ్ + ఆఫ్లైన్ క్యూ ప్రారంభించబడినప్పుడు సమర్పణ సమకాలీకరించబడుతుంది.",
+    pleaseLogin: "దయచేసి కొనసాగడానికి లాగిన్ అవ్వండి.",
+    login: "లాగిన్",
+  }
+};
 
 export const Route = createFileRoute("/farmers/reports")({
   head: () => ({
@@ -22,6 +54,9 @@ export const Route = createFileRoute("/farmers/reports")({
 function FarmerReportsPage() {
   const mobile = useIsMobile();
   const navigate = useNavigate();
+  const { locale } = useAppShell();
+  const t = TRANSLATIONS[locale] || TRANSLATIONS.en;
+  
   const session = getFarmerSession();
   const profile = session?.profile;
 
@@ -36,9 +71,9 @@ function FarmerReportsPage() {
   if (!profile) {
     return (
       <div className="px-4 py-6 max-w-md mx-auto">
-        <p className="text-sm text-muted-foreground">Please login to continue.</p>
+        <p className="text-sm text-muted-foreground">{t.pleaseLogin}</p>
         <Button className="mt-4 w-full" onClick={() => navigate({ to: "/farmers/login" as any })}>
-          Login
+          {t.login}
         </Button>
       </div>
     );
@@ -48,16 +83,16 @@ function FarmerReportsPage() {
     <div className={mobile ? "px-0" : "px-6"}>
       <PageHeader
         icon={<FileText className="h-6 w-6 text-primary" />}
-        eyebrow="Government Reporting"
-        title="Field observation"
-        description="Submit ground-truth observations to improve the models. (MVP: local only)"
+        eyebrow={t.eyebrow}
+        title={t.title}
+        description={t.description}
       />
 
       <div className="px-4 md:px-6 py-4 max-w-2xl mx-auto space-y-4">
         <Card className="p-4 rounded-2xl bg-background/50 border-border/60">
           <div className="flex items-center justify-between gap-3 mb-3">
             <div>
-              <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Parcel</div>
+              <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t.parcel}</div>
               <div className="mt-1 font-semibold">{profile.parcelId}</div>
               <div className="text-xs text-muted-foreground mt-1">{profile.village} · {profile.cropType}</div>
             </div>
@@ -74,8 +109,8 @@ function FarmerReportsPage() {
                   : "rounded-xl border border-border/60 bg-muted/20 px-3 py-3 text-left"
               }
             >
-              <div className="font-semibold text-sm">Pest seen</div>
-              <div className="text-xs text-muted-foreground">Toggle</div>
+              <div className="font-semibold text-sm">{t.pestSeen}</div>
+              <div className="text-xs text-muted-foreground">{t.toggle}</div>
             </button>
 
             <button
@@ -87,13 +122,13 @@ function FarmerReportsPage() {
                   : "rounded-xl border border-border/60 bg-muted/20 px-3 py-3 text-left"
               }
             >
-              <div className="font-semibold text-sm">Disease seen</div>
-              <div className="text-xs text-muted-foreground">Toggle</div>
+              <div className="font-semibold text-sm">{t.diseaseSeen}</div>
+              <div className="text-xs text-muted-foreground">{t.toggle}</div>
             </button>
           </div>
 
           <label className="mt-3 block">
-            <div className="text-xs text-muted-foreground mb-1">Notes (optional)</div>
+            <div className="text-xs text-muted-foreground mb-1">{t.notes}</div>
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={4} />
           </label>
 
@@ -104,13 +139,13 @@ function FarmerReportsPage() {
               setPestSeen(false);
               setDiseaseSeen(false);
             }}>
-              <Send className="h-4 w-4" /> Submit observation
+              <Send className="h-4 w-4" /> {t.submitObservation}
             </Button>
           </div>
 
           <div className="mt-3 text-xs text-muted-foreground flex items-center gap-2">
             <Leaf className="h-3.5 w-3.5" />
-            Submission will sync when backend + offline queue are enabled.
+            {t.syncMessage}
           </div>
         </Card>
       </div>

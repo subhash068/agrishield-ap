@@ -1,19 +1,41 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Leaf, Search, CloudSun, Bell, FileText, User2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAppShell } from "@/components/app-shell-store";
 
-const nav = [
-  { label: "Dashboard", url: "/farmers/dashboard", icon: Leaf },
-  { label: "Scan", url: "/farmers/scan", icon: Search },
-  { label: "Weather", url: "/farmers/weather", icon: CloudSun },
-  { label: "Alerts", url: "/farmers/alerts", icon: Bell },
-  { label: "Advisory", url: "/farmers/advisory", icon: FileText },
-  { label: "Profile", url: "/farmers/profile", icon: User2 },
-] as const;
+const TRANSLATIONS = {
+  en: {
+    dashboard: "Dashboard",
+    scan: "Scan",
+    weather: "Weather",
+    alerts: "Alerts",
+    advisory: "Advisory",
+    profile: "Profile",
+  },
+  te: {
+    dashboard: "డ్యాష్‌బోర్డ్",
+    scan: "స్కాన్",
+    weather: "వాతావరణం",
+    alerts: "హెచ్చరికలు",
+    advisory: "సలహాలు",
+    profile: "ప్రొఫైల్",
+  }
+};
 
 export function FarmerBottomNav() {
   const mobile = useIsMobile();
   const path = useRouterState({ select: (r) => r.location.pathname });
+  const { locale } = useAppShell();
+  const t = TRANSLATIONS[locale] || TRANSLATIONS.en;
+
+  const nav = [
+    { label: t.dashboard, url: "/farmers/dashboard", icon: Leaf },
+    { label: t.scan, url: "/farmers/scan", icon: Search },
+    { label: t.weather, url: "/farmers/weather", icon: CloudSun },
+    { label: t.alerts, url: "/farmers/alerts", icon: Bell },
+    { label: t.advisory, url: "/farmers/advisory", icon: FileText },
+    { label: t.profile, url: "/farmers/profile", icon: User2 },
+  ] as const;
 
   return (
     <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-40 border-t border-border/60 bg-background/80 backdrop-blur">

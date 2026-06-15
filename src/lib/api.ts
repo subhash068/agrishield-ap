@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE_URL}${path}`, {
@@ -340,12 +340,20 @@ export function getParcels(): Promise<Parcel[]> {
   return apiFetch<Parcel[]>("/parcels");
 }
 
-export function getWeatherForecast(): Promise<WeatherForecastPoint[]> {
-  return apiFetch<WeatherForecastPoint[]>("/weather");
+export function getWeatherForecast(district?: string, mandal?: string, village?: string): Promise<WeatherForecastPoint[]> {
+  const query = new URLSearchParams();
+  if (district) query.set("district", district);
+  if (mandal) query.set("mandal", mandal);
+  if (village) query.set("village", village);
+  return apiFetch<WeatherForecastPoint[]>(`/weather?${query.toString()}`);
 }
 
-export function getWeatherLiveSummary(): Promise<WeatherLiveSummary> {
-  return apiFetch<WeatherLiveSummary>("/weather/live");
+export function getWeatherLiveSummary(district?: string, mandal?: string, village?: string): Promise<WeatherLiveSummary> {
+  const query = new URLSearchParams();
+  if (district) query.set("district", district);
+  if (mandal) query.set("mandal", mandal);
+  if (village) query.set("village", village);
+  return apiFetch<WeatherLiveSummary>(`/weather/live?${query.toString()}`);
 }
 
 export function getWeatherForDay(day: string): Promise<WeatherForecastPoint> {

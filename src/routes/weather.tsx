@@ -42,6 +42,7 @@ import {
   getWeatherProjection2027,
   getWeatherForecast,
   type WeatherForecastPoint,
+  API_BASE_URL,
 } from "@/lib/api";
 
 const FALLBACK_DISTRICTS = [
@@ -75,7 +76,29 @@ function formatDateToShort(dateStr: string) {
   return d.toLocaleDateString("en-US", { day: "numeric", month: "short" }).replace(" ", "-");
 }
 
-function WeatherInformationSection({ forecast }: { forecast: WeatherForecastPoint[] }) {
+function WeatherInformationSection({
+  forecast,
+  districts,
+  selectedDistrict,
+  setSelectedDistrict,
+  mandals,
+  selectedMandal,
+  setSelectedMandal,
+  villages,
+  selectedVillage,
+  setSelectedVillage,
+}: {
+  forecast: WeatherForecastPoint[];
+  districts: string[];
+  selectedDistrict: string;
+  setSelectedDistrict: (val: string) => void;
+  mandals: string[];
+  selectedMandal: string;
+  setSelectedMandal: (val: string) => void;
+  villages: string[];
+  selectedVillage: string;
+  setSelectedVillage: (val: string) => void;
+}) {
   return (
     <div className="glass rounded-xl p-5 mb-6 bg-gradient-to-br from-primary/5 to-transparent">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
@@ -87,12 +110,24 @@ function WeatherInformationSection({ forecast }: { forecast: WeatherForecastPoin
             <span className="absolute -top-2 left-2 bg-background px-1 text-[9px] text-muted-foreground z-10">
               District
             </span>
-            <Select defaultValue="eluru">
+            <Select
+              value={selectedDistrict}
+              onValueChange={(val) => {
+                setSelectedDistrict(val);
+                setSelectedMandal("all");
+                setSelectedVillage("all");
+              }}
+            >
               <SelectTrigger className="w-[120px] h-8 text-xs bg-background/50">
                 <SelectValue placeholder="District" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="eluru">Eluru</SelectItem>
+              <SelectContent className="z-[1000]">
+                <SelectItem value="all">All districts</SelectItem>
+                {districts.map((d) => (
+                  <SelectItem key={d} value={d}>
+                    {d}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -100,12 +135,24 @@ function WeatherInformationSection({ forecast }: { forecast: WeatherForecastPoin
             <span className="absolute -top-2 left-2 bg-background px-1 text-[9px] text-muted-foreground z-10">
               Mandal
             </span>
-            <Select defaultValue="chintalapudi">
+            <Select
+              value={selectedMandal}
+              onValueChange={(val) => {
+                setSelectedMandal(val);
+                setSelectedVillage("all");
+              }}
+              disabled={selectedDistrict === "all"}
+            >
               <SelectTrigger className="w-[120px] h-8 text-xs bg-background/50">
                 <SelectValue placeholder="Mandal" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="chintalapudi">Chintalapudi</SelectItem>
+              <SelectContent className="z-[1000]">
+                <SelectItem value="all">All mandals</SelectItem>
+                {mandals.map((m) => (
+                  <SelectItem key={m} value={m}>
+                    {m}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -113,12 +160,21 @@ function WeatherInformationSection({ forecast }: { forecast: WeatherForecastPoin
             <span className="absolute -top-2 left-2 bg-background px-1 text-[9px] text-muted-foreground z-10">
               Village
             </span>
-            <Select defaultValue="chintalapudi">
+            <Select
+              value={selectedVillage}
+              onValueChange={setSelectedVillage}
+              disabled={selectedMandal === "all"}
+            >
               <SelectTrigger className="w-[120px] h-8 text-xs bg-background/50">
                 <SelectValue placeholder="Village" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="chintalapudi">Chintalapudi</SelectItem>
+              <SelectContent className="z-[1000]">
+                <SelectItem value="all">All villages</SelectItem>
+                {villages.map((v) => (
+                  <SelectItem key={v} value={v}>
+                    {v}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -165,17 +221,56 @@ export const Route = createFileRoute("/weather")({
 });
 
 function WeatherPage() {
+  const { selectedDistrict, setSelectedDistrict } = useAppShell();
+  const [selectedMandal, setSelectedMandal] = useState<string>("all");
+  const [selectedVillage, setSelectedVillage] = useState<string>("all");
+  const [selectedMode, setSelectedMode] = useState<WeatherMode>("history");
+
   const { data: districts = [] } = useQuery({ queryKey: ["districts"], queryFn: getDistricts });
   const { data: forecastData = [] } = useQuery({
-    queryKey: ["weather-forecast"],
-    queryFn: getWeatherForecast,
+    queryKey: ["weather-forecast", selectedDistrict, selectedMandal, selectedVillage],
+    queryFn: () => getWeatherForecast(selectedDistrict, selectedMandal, selectedVillage),
   });
   const { data: liveSummary } = useQuery({
-    queryKey: ["weather-live"],
-    queryFn: getWeatherLiveSummary,
+    queryKey: ["weather-live", selectedDistrict, selectedMandal, selectedVillage],
+    queryFn: () => getWeatherLiveSummary(selectedDistrict, selectedMandal, selectedVillage),
   });
-  const { selectedDistrict, setSelectedDistrict } = useAppShell();
-  const [selectedMode, setSelectedMode] = useState<WeatherMode>("history");
+
+  const { data: mandalGeoJson } = useQuery({
+    queryKey: ["weather-mandals", selectedDistrict],
+    queryFn: () =>
+      fetch(`${API_BASE_URL}/api/map/mandals?district=${encodeURIComponent(selectedDistrict)}`).then((res) =>
+        res.json(),
+      ),
+    enabled: selectedDistrict !== "all",
+  });
+
+  const mandals = useMemo<string[]>(() => {
+    if (!mandalGeoJson?.features) return [];
+    return Array.from(new Set(mandalGeoJson.features.map((f: any) => f.properties.sdtname as string))).sort() as string[];
+  }, [mandalGeoJson]);
+
+  const { data: villageGeoJson } = useQuery({
+    queryKey: ["weather-villages", selectedDistrict, selectedMandal],
+    queryFn: () =>
+      fetch(
+        `${API_BASE_URL}/api/map/villages?district=${encodeURIComponent(
+          selectedDistrict,
+        )}&mandal=${encodeURIComponent(selectedMandal)}`,
+      ).then((res) => res.json()),
+    enabled: selectedDistrict !== "all" && selectedMandal !== "all" && selectedMandal !== "",
+  });
+
+  const villages = useMemo<string[]>(() => {
+    if (!villageGeoJson?.features) return [];
+    return Array.from(
+      new Set(
+        villageGeoJson.features
+          .map((f: any) => (f.properties.vilname11 ?? f.properties.vilnam_soi) as string)
+          .filter((name: any): name is string => Boolean(name)),
+      ),
+    ).sort() as string[];
+  }, [villageGeoJson]);
 
   const { data: historyData = [] } = useQuery({
     queryKey: ["weather-history"],
@@ -248,7 +343,18 @@ function WeatherPage() {
       />
 
       <div className="px-6 lg:px-10 py-6 space-y-6">
-        <WeatherInformationSection forecast={forecastData} />
+        <WeatherInformationSection
+          forecast={forecastData}
+          districts={availableDistricts}
+          selectedDistrict={selectedDistrict}
+          setSelectedDistrict={setSelectedDistrict}
+          mandals={mandals}
+          selectedMandal={selectedMandal}
+          setSelectedMandal={setSelectedMandal}
+          villages={villages}
+          selectedVillage={selectedVillage}
+          setSelectedVillage={setSelectedVillage}
+        />
 
         <div className="glass rounded-xl p-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>

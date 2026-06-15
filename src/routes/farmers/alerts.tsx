@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getAlerts } from "@/lib/api";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getFarmerSession } from "@/lib/farmer-auth";
+import { useAppShell } from "@/components/app-shell-store";
 
 export const Route = createFileRoute("/farmers/alerts")({
   head: () => ({
@@ -17,6 +18,27 @@ export const Route = createFileRoute("/farmers/alerts")({
   }),
   component: FarmerAlertsPage,
 });
+
+const TRANSLATIONS = {
+  en: {
+    eyebrow: "Alert Center",
+    title: "Your latest alerts",
+    description: "Satellite, disease, weather, and pest alerts delivered to your district.",
+    loadingAlerts: "Loading alerts...",
+    noAlerts: "No alerts yet for {district}.",
+    loginPrompt: "Please login to continue.",
+    login: "Login",
+  },
+  te: {
+    eyebrow: "హెచ్చరికల కేంద్రం",
+    title: "మీ తాజా హెచ్చరికలు",
+    description: "మీ జిల్లాకు చేరవేయబడిన శాటిలైట్, తెగులు, వాతావరణ మరియు చీడపీడల హెచ్చరికలు.",
+    loadingAlerts: "హెచ్చరికలు లోడ్ అవుతున్నాయి...",
+    noAlerts: "{district} కి ఇంకా ఎలాంటి హెచ్చరికలు లేవు.",
+    loginPrompt: "దయచేసి లాగిన్ అవ్వండి.",
+    login: "లాగిన్",
+  }
+};
 
 function severityClass(sev: string) {
   if (sev === "Critical") return "border-destructive/40 text-destructive bg-destructive/10";
@@ -30,21 +52,23 @@ function FarmerAlertsPage() {
   const navigate = useNavigate();
   const session = getFarmerSession();
   const profile = session?.profile;
+  const { locale } = useAppShell();
+
+  const t = TRANSLATIONS[locale as "en" | "te"] || TRANSLATIONS.en;
 
   const { data: alerts = [], isLoading } = useQuery({ queryKey: ["alerts"], queryFn: getAlerts });
 
   const filtered = useMemo(() => {
     if (!profile) return alerts;
-    // Basic filter by district; later we can filter by parcel/village.
     return alerts.filter((a) => a.district === profile.district);
   }, [alerts, profile?.district]);
 
   if (!profile) {
     return (
       <div className="px-4 py-6 max-w-md mx-auto">
-        <p className="text-sm text-muted-foreground">Please login to continue.</p>
+        <p className="text-sm text-muted-foreground">{t.loginPrompt}</p>
         <Button className="mt-4 w-full" onClick={() => navigate({ to: "/farmers/login" as any })}>
-          Login
+          {t.login}
         </Button>
       </div>
     );
@@ -54,15 +78,15 @@ function FarmerAlertsPage() {
     <div className={mobile ? "px-0" : "px-6"}>
       <PageHeader
         icon={<Bell className="h-6 w-6 text-primary" />}
-        eyebrow="Alert Center"
-        title="Your latest alerts"
-        description="Satellite, disease, weather, and pest alerts delivered to your district."
+        eyebrow={t.eyebrow}
+        title={t.title}
+        description={t.description}
       />
 
       <div className="px-4 md:px-6 py-4 max-w-2xl mx-auto">
         {isLoading ? (
           <div className="rounded-2xl border border-border/60 bg-muted/20 p-4 text-sm text-muted-foreground">
-            Loading alerts...
+            {t.loadingAlerts}
           </div>
         ) : filtered.length ? (
           <div className="space-y-2">
@@ -88,7 +112,7 @@ function FarmerAlertsPage() {
           </div>
         ) : (
           <div className="rounded-2xl border border-dashed border-border/60 bg-muted/20 p-6 text-center text-sm text-muted-foreground">
-            No alerts yet for {profile.district}.
+            {t.noAlerts.replace("{district}", profile.district)}
           </div>
         )}
       </div>
