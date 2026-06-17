@@ -1,4 +1,9 @@
 {
-  "buildCommand": "bun run build",
-  "installCommand": "bun install"
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/_shell.html"
+    }
+  ]
 }
