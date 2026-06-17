@@ -1,5 +1,7 @@
 {
   "cleanUrls": true,
+  "buildCommand": null,
+  "installCommand": null,
   "rewrites": [
     {
       "source": "/(.*)",
