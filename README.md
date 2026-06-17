@@ -122,7 +122,7 @@ The build runs on **TanStack Start** with a **Vercel Serverless** preset.
    ```
 4. Configure `.env` file:
    ```env
-   POSTGRES_DSN=postgresql+psycopg://postgres:manager@localhost:5432/agrishield
+   POSTGRES_DSN=postgresql+psycopg://postgresql:postgres@localhost:5432/agrishield
    HF_DISEASE_MODEL_ID=Arko007/nfnet-f1-plant-disease
    HF_DISEASE_TOP_K=5
    ```
