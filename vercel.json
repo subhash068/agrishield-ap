@@ -2,6 +2,7 @@
   "cleanUrls": true,
   "buildCommand": "echo 'Skipping build'",
   "installCommand": "echo 'Skipping install'",
+  "outputDirectory": ".",
   "rewrites": [
     {
       "source": "/(.*)",
