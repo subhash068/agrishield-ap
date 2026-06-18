@@ -4,10 +4,21 @@
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/Frontend-React%2019-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![Hugging Face](https://img.shields.io/badge/AI%20Model-Hugging%20Face-yellow?logo=huggingface&logoColor=black)](https://huggingface.co)
+[![PostGIS](https://img.shields.io/badge/Database-PostgreSQL%20%2B%20PostGIS-336791?logo=postgresql&logoColor=white)](https://postgis.net/)
 
-AgriShield is an AI-powered proactive crop health monitoring and pest/disease management platform designed for the **Agriculture Department, Government of Andhra Pradesh**. 
+AgriShield is an enterprise-grade, AI-powered proactive crop health monitoring and pest/disease management platform designed for the **Agriculture Department, Government of Andhra Pradesh**. 
 
 By integrating weekly high-resolution satellite imagery analysis with edge-enabled smartphone photo analytics, AgriShield establishes a closed-loop, parcel-level monitoring and crop protection system across Rythu Seva Kendras (RSKs) and the APRTGS (Andhra Pradesh Real Time Governance Society).
+
+---
+
+## 📸 Screenshots
+
+| Executive Portal (Home) | Satellite Analysis Map |
+| :---: | :---: |
+| ![Executive Portal](./public/screenshots/home.png) | ![Satellite Analysis](./public/screenshots/satellite.png) |
+| **Surveillance Dashboard** | **Government/RSK Dashboard** |
+| ![Surveillance Dashboard](./public/screenshots/surveillance.png) | ![Government/RSK Dashboard](./public/screenshots/government.png) |
 
 ---
 
@@ -42,7 +53,7 @@ $$\text{UCHI} = 0.35 \times \text{NDVI} + 0.25 \times \text{EVI} + 0.25 \times \
 
 ### 🧠 2. Computer Vision & Disease Gateways
 Farmers and field agents capture crop anomalies using a mobile interface. The ground validation pipeline utilizes two checks:
-1. **Crop Gating**: Validates user inputs. Checks whether the AI-predicted crop class matches the user-provided crop type.
+1. **Crop Gating**: Validates user inputs. Checks whether the AI-predicted crop class matches the user-provided crop type to filter out irrelevant images.
 2. **Disease Classification**: Utilizes a fine-tuned transformer model (`Arko007/nfnet-f1-plant-disease`) returning explicit confidence percentages.
    * **Low Confidence (< 50%)**: Flags diagnostic cards for manual review by RSK Agricultural Officers.
    * **High Confidence (≥ 50%)**: Direct path to target advisories.
@@ -61,20 +72,55 @@ Farmers and field agents capture crop anomalies using a mobile interface. The gr
 ```
 agrishield/
 ├── src/                      # TanStack Start Frontend
-│   ├── components/           # UI Component Library (shadcn-based)
-│   ├── routes/               # Page Route Definitions (Satellite, Scan, RSK Dashboard)
+│   ├── components/           # UI Component Library (shadcn UI, Radix primitives, Lucide)
+│   ├── data/                 # Static mock data & GIS helpers
+│   ├── hooks/                # Custom React hooks
+│   ├── lib/                  # Shared utilities (class merger, formatting)
+│   ├── routes/               # Page Route Definitions
+│   │   ├── farmers/          # Farmer Application Hub (Scan, Dashboard, Alerts, Profile)
+│   │   ├── index.tsx         # Executive Portal Home
+│   │   ├── satellite.tsx     # High-Resolution GIS Parcel Mapping
+│   │   ├── surveillance.tsx  # District Outbreak Surveillance
+│   │   ├── government.tsx    # RSK / APRTGS Control Dashboard
+│   │   ├── advisory.tsx      # Agronomic bulletins & Pest advice
+│   │   └── yield-dashboard.tsx # Crop Production Predictive Yield Engine
+│   ├── styles.css            # Global CSS styling system
 │   └── main.tsx              # Application entrypoint
 ├── backend/
-│   └── fastapi/              # Python FastAPI + SQLAlchemy Server
+│   └── fastapi/              # Python FastAPI Server
 │       ├── app/
 │       │   ├── main.py       # API router, disease detection gates, & UCHI computation
-│       │   ├── models.py     # Database schema (PostgreSQL)
-│       │   └── seed.py       # Auto-seeding script (ICRISAT and crop datasets)
+│       │   ├── models.py     # SQLAlchemy PostgreSQL/PostGIS database schema
+│       │   ├── db.py         # Database engine and connection pooling
+│       │   ├── config.py     # Pydantic configuration & env loading
+│       │   ├── schemas.py    # Pydantic response/request schemas
+│       │   ├── seed.py       # Auto-seeding script (ICRISAT and crop datasets)
+│       │   └── icrisat_yield.py # Historical yield-rainfall statistical models
 │       ├── scripts/          # Fine-tuning and export scripts
-│       └── requirements.txt  # Python requirements
+│       └── requirements.txt  # Python backend requirements
+├── data/                     # CSV datasets (ICRISAT, West Godavari parcels)
+├── public/                   # Public assets (balanced disease datasets, GIS boundaries)
 ├── vite.config.ts            # Vite & TanStack Start build configuration
 └── vercel.json               # Vercel deployment specifications
 ```
+
+---
+
+## 🛠️ Tech Stack & Key Libraries
+
+### Frontend
+* **Framework**: React 19, TypeScript
+* **Routing**: TanStack Router (Start)
+* **Styling**: Vanilla CSS + Tailwind-styled components, Radix UI primitives, Lucide Icons, Framer Motion
+* **GIS/Maps**: Leaflet / React-Leaflet with PostGIS GeoJSON endpoints
+* **Charts**: Recharts (for NDVI timeseries and crop yield projections)
+
+### Backend
+* **Web Framework**: FastAPI (Asynchronous Python)
+* **Database**: PostgreSQL with PostGIS extensions
+* **ORM**: SQLAlchemy 2.0 (with connection safety fallbacks)
+* **Machine Learning**: Hugging Face Transformers (`transformers`), PyTorch, Pillow for heuristic image processing fallback
+* **Weather Integration**: Open-Meteo API (Forecast & Historical Archive integration)
 
 ---
 
@@ -122,7 +168,7 @@ The build runs on **TanStack Start** with a **Vercel Serverless** preset.
    ```
 4. Configure `.env` file:
    ```env
-   POSTGRES_DSN=postgresql+psycopg://postgresql:postgres@localhost:5432/agrishield
+   POSTGRES_DSN=postgresql+psycopg://postgres:manager@localhost:5432/agrishield
    HF_DISEASE_MODEL_ID=Arko007/nfnet-f1-plant-disease
    HF_DISEASE_TOP_K=5
    ```
@@ -144,8 +190,27 @@ The backend configures the following environment parameters (defined in [app/con
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | **GET** | `/health` | API status and database health check |
-| **GET** | `/dashboard-data` | RSK & APRTGS district-wide telemetry overview |
+| **GET** | `/districts` | Fetches available districts in Andhra Pradesh |
+| **GET** | `/dashboard/kpis` | Computes live dashboard KPI indicators from database |
 | **GET** | `/parcels` | GIS parcel geometries, historical NDVI, and current UCHI |
 | **GET** | `/alerts` | Fused active alert log filtered by severity |
+| **POST** | `/alerts` | Creates a new crop alert event manually |
+| **GET** | `/schemes` | Returns available government agricultural schemes |
+| **GET** | `/weather` | Fetches live 14-day weather forecasts for selected coordinates |
+| **GET** | `/weather/history` | Historical archive weather observations |
+| **GET** | `/weather/projection-2027` | Climate trend projection based on historical averages |
+| **GET** | `/yield/districts-and-crops` | Returns active yield datasets for mapping |
+| **GET** | `/yield/history` | Historical yield metrics (area, production, and yield) |
+| **POST** | `/yield/predict` | Predicts future yield outputs based on precipitation models |
+| **POST** | `/yield/alerts` | Compares predicted yields to historical baselines |
+| **GET** | `/predictions` | Fused AI model prediction log |
+| **GET** | `/spectral-trend` | Time-series crop index trends |
+| **POST** | `/farmers/register` | Registers a farmer parcel and writes to database & CSV |
+| **GET** | `/surveillance/data` | Outbreak surveillance stats aggregated by district |
 | **POST** | `/disease/detect` | Multi-part form-data field photo upload for computer vision diagnosis |
-| **GET** | `/spectral-trend` | Spatial timeseries query for custom crop fields |
+| **POST** | `/fusion/fuse` | Integrates satellite, ground, and weather indices into unified risk assessments |
+| **GET** | `/field-advisory/{fieldId}` | Returns automated agronomic advisories for specific parcels |
+| **POST** | `/rsk/alerts/push` | Dispatches critical alerts directly to Rythu Seva Kendra offices |
+| **GET** | `/api/map/districts` | GeoJSON endpoint for district boundary rendering |
+| **GET** | `/api/map/mandals` | GeoJSON endpoint for mandal boundaries |
+| **GET** | `/api/map/villages` | GeoJSON endpoint for village-level polygons |
